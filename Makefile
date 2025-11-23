@@ -17,12 +17,12 @@ format: ## Format code and fix linting issues
 .PHONY: train
 train:
 	@echo "🚀 Training mt5 model..."
-	@uv run python src/training/train_mt5_small.py \
+	@uv run python -m src.surdo_perevodchik.training.train \
 		--train_file data/parallel/hutsul_parallel.csv \
 		--model_name google/mt5-small \
 		--output_dir models/mt5-hutsul-small \
 		--epochs 3 \
-		--batch_size 4 \
+		--batch_size 8 \
 		--lr 5e-5
 
 .PHONY: evaluate

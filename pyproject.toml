@@ -5,9 +5,13 @@ readme = "README.md"
 requires-python = ">=3.11"
 
 dependencies = [
+    "accelerate>=1.12.0",
     "datasets>=4.4.1",
+    "protobuf>=6.33.1",
     "rootutils",
     "sacrebleu>=2.5.1",
+    "sentencepiece>=0.2.1",
+    "torch>=2.9.1",
     "transformers>=4.57.1",
 ]
 

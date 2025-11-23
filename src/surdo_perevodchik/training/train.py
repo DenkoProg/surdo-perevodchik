@@ -34,13 +34,13 @@ def preprocess(batch, tokenizer, max_length):
 def main(args):
     os.makedirs(args.output_dir, exist_ok=True)
 
-    ds = load_dataset("csv", data_files={"all": args.train_file})["all"]
+    ds = load_dataset("csv", data_files={"data": args.train_file})["data"]
     ds = ds.shuffle(seed=42)
     split = ds.train_test_split(test_size=args.val_size)
     train_ds = split["train"]
     val_ds = split["test"]
 
-    tokenizer = AutoTokenizer.from_pretrained(args.model_name)
+    tokenizer = AutoTokenizer.from_pretrained(args.model_name, use_fast=False)
     model = AutoModelForSeq2SeqLM.from_pretrained(args.model_name)
 
     tokenized_train = train_ds.map(
@@ -60,7 +60,7 @@ def main(args):
         output_dir=args.output_dir,
         per_device_train_batch_size=args.batch_size,
         per_device_eval_batch_size=args.batch_size,
-        evaluation_strategy="steps",
+        eval_strategy="steps",
         eval_steps=args.eval_steps,
         save_steps=args.save_steps,
         logging_steps=args.logging_steps,
@@ -90,12 +90,12 @@ if __name__ == "__main__":
     parser.add_argument("--model_name", type=str, default="google/mt5-small")
     parser.add_argument("--output_dir", type=str, default="models/mt5-hutsul-small")
     parser.add_argument("--epochs", type=int, default=3)
-    parser.add_argument("--batch_size", type=int, default=4)
+    parser.add_argument("--batch_size", type=int, default=8)
     parser.add_argument("--lr", type=float, default=5e-5)
     parser.add_argument("--max_length", type=int, default=128)
     parser.add_argument("--val_size", type=float, default=0.1)
-    parser.add_argument("--eval_steps", type=int, default=200)
-    parser.add_argument("--save_steps", type=int, default=200)
+    parser.add_argument("--eval_steps", type=int, default=500)
+    parser.add_argument("--save_steps", type=int, default=500)
     parser.add_argument("--logging_steps", type=int, default=50)
 
     args = parser.parse_args()
