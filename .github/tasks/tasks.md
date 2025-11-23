@@ -531,28 +531,26 @@ _Objective: Establish a baseline performance metric using encoder-decoder archit
 
 #### 2.4 Evaluation
 
-- [ ] **Implement Automatic Metrics** (adapt `vuyko-hutsul/eval/eval.py`)
+- [x] **Implement Automatic Metrics** (adapt `vuyko-hutsul/eval/eval.py`)
 
   ```python
-  # src/evaluation/metrics.py
+  # src/surdo_perevodchik/evaluation/metrics.py
   from sacrebleu import corpus_bleu, corpus_chrf, corpus_ter
-  import json
 
-  def evaluate_model(predictions_file, references_file):
-      with open(predictions_file) as f:
-          predictions = [line.strip() for line in f]
-      with open(references_file) as f:
-          references = [[line.strip()] for line in f]
+  def compute_metrics(predictions: list[str], references: list[str]) -> dict[str, float]:
+      file_references = [[ref] for ref in references]
+      bleu = corpus_bleu(predictions, file_references)
+      chrf = corpus_chrf(predictions, file_references, word_order=2)
+      ter = corpus_ter(predictions, file_references)
+      return {"BLEU": bleu.score, "chrF++": chrf.score, "TER": ter.score}
+  ```
 
-      bleu = corpus_bleu(predictions, references)
-      chrf = corpus_chrf(predictions, references, word_order=2)
-      ter = corpus_ter(predictions, references)
-
-      return {
-          "BLEU": bleu.score,
-          "chrF++": chrf.score,
-          "TER": ter.score
-      }
+  **One-command evaluation** (generates predictions + computes metrics):
+  ```bash
+  python -m surdo_perevodchik.evaluation.evaluate_model \
+    --model_path models/mt5-hutsul-small \
+    --test_file data/parallel/hutsul_test.csv \
+    --output_dir results/evaluation
   ```
 
 - [ ] **Per-Dialect Breakdown**
