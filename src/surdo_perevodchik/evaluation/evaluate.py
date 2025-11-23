@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 
 import pandas as pd
+import torch
 from tqdm import tqdm
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
 
@@ -26,7 +27,11 @@ def generate_predictions(
     """
     print(f"Loading model from {model_path}...")
     model = AutoModelForSeq2SeqLM.from_pretrained(model_path)
-    tokenizer = AutoTokenizer.from_pretrained(model_path)
+    tokenizer = AutoTokenizer.from_pretrained(model_path, use_fast=False)
+
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print(f"Using device: {device}")
+    model.to(device)
     model.eval()
 
     input_path = Path(input_file)
@@ -53,13 +58,21 @@ def generate_predictions(
             max_length=max_length,
         )
 
-        outputs = model.generate(
-            **inputs,
-            max_length=max_length,
-            num_beams=4,
-            early_stopping=True,
-        )
+        inputs = {k: v.to(device) for k, v in inputs.items()}
 
+        with torch.no_grad():
+            outputs = model.generate(
+                **inputs,
+                max_length=max_length,
+                num_beams=5,
+                early_stopping=True,
+                no_repeat_ngram_size=3,
+                length_penalty=1.0,
+                repetition_penalty=1.2,
+                bad_words_ids=[[250099], [250098], [250097]],  # Block <extra_id_0>, <extra_id_1>, <extra_id_2>
+            )
+
+        outputs = outputs.cpu()
         decoded = tokenizer.batch_decode(outputs, skip_special_tokens=True)
         predictions.extend(decoded)
 
@@ -155,7 +168,7 @@ def main():
     parser.add_argument(
         "--batch_size",
         type=int,
-        default=8,
+        default=256,
         help="Batch size for inference",
     )
     parser.add_argument(

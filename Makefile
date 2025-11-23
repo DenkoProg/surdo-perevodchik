@@ -21,14 +21,14 @@ train:
 		--train_file data/parallel/hutsul_parallel.csv \
 		--model_name google/mt5-small \
 		--output_dir models/mt5-hutsul-small \
-		--epochs 3 \
-		--batch_size 8 \
+		--epochs 15 \
+		--batch_size 16 \
 		--lr 5e-5
 
 .PHONY: evaluate
 evaluate:
 	@echo "🔍 Evaluating model..."
-	@uv run python -m surdo_perevodchik.evaluation.evaluate_model \
+	@uv run python -m surdo_perevodchik.evaluation.evaluate \
 		--model_path models/mt5-hutsul-small \
 		--test_file data/parallel/hutsul_parallel.csv \
 		--output_dir results/evaluation
