@@ -8,11 +8,15 @@ dependencies = [
     "accelerate>=1.12.0",
     "datasets>=4.4.1",
     "protobuf>=6.33.1",
+    "python-dotenv>=1.0.0",
+    "requests>=2.31.0",
     "rootutils",
     "sacrebleu>=2.5.1",
     "sentencepiece>=0.2.1",
     "torch>=2.9.1",
+    "tqdm>=4.66.0",
     "transformers>=4.57.1",
+    "typer>=0.9.0",
 ]
 
 [dependency-groups]
