@@ -39,10 +39,11 @@ generate-hutsul: ## Generate synthetic Hutsul corpus
 	@echo "🧪 Generating Hutsul corpus..."
 	@uv run python scripts/generate_corpus.py generate \
 		--input data/raw/standard_ukrainian.csv \
-		--output data/parallel/hutsul/synthetic_corpus.csv \
+		--output data/parallel/hutsul/synthetic_hutsul_corpus.csv \
 		--rules prompts/hutsul_rules_system.txt \
-		--limit 1000 \
-		--batch-size 20
+		--dictionary data/dicts/hutsul_ukrainian_dictionary.csv \
+		--limit 15000 \
+		--batch-size 10
 
 .PHONY: help
 help: ## Show this help message

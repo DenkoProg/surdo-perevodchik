@@ -22,6 +22,7 @@ class DialectCorpusGenerator:
         batch_size: int = 10,
         openrouter_config: OpenRouterConfig | None = None,
         save_jsonl: bool = True,
+        dictionary_path: str | Path | None = None,
     ):
         """
         Initialize the corpus generator.
@@ -32,8 +33,9 @@ class DialectCorpusGenerator:
             batch_size: Number of sentences per API call.
             openrouter_config: OpenRouter client configuration.
             save_jsonl: Also save detailed JSONL with provenance.
+            dictionary_path: Optional path to CSV dictionary file.
         """
-        self.prompt_builder = DialectPromptBuilder(rules_path)
+        self.prompt_builder = DialectPromptBuilder(rules_path, dictionary_path=dictionary_path)
         self.client = OpenRouterClient(openrouter_config)
         self.config = openrouter_config or OpenRouterConfig()
         self.output_path = Path(output_path)
@@ -210,7 +212,6 @@ class DialectCorpusGenerator:
 
         print(f"Processing {len(remaining_sentences)} sentences in batches of {self.batch_size}")
 
-        system_prompt = self.prompt_builder.system_prompt
         total_generated = processed_count
 
         # Process in batches
@@ -222,6 +223,8 @@ class DialectCorpusGenerator:
 
         for i in progress:
             batch = remaining_sentences[i : i + self.batch_size]
+
+            system_prompt = self.prompt_builder.build_system_prompt(batch)
             user_prompt = self.prompt_builder.build_user_prompt(batch)
 
             # Call LLM with batch size for structured output schema

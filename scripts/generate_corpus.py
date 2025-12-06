@@ -163,6 +163,16 @@ def generate(
             help="Don't save detailed JSONL provenance file.",
         ),
     ] = False,
+    dictionary_file: Annotated[
+        Optional[Path],
+        typer.Option(
+            "--dictionary",
+            "-d",
+            help="Path to CSV dictionary file with Hutsul/Ukrainian columns.",
+            exists=True,
+            dir_okay=False,
+        ),
+    ] = None,
 ):
     """
     Generate synthetic dialect parallel corpus from standard Ukrainian sentences.
@@ -201,6 +211,7 @@ def generate(
         batch_size=batch_size,
         openrouter_config=config,
         save_jsonl=not no_jsonl,
+        dictionary_path=dictionary_file,
     )
 
     # Show config
@@ -208,6 +219,7 @@ def generate(
     typer.echo(f"   Dialect: {generator.dialect_name}")
     typer.echo(f"   Model: {model}")
     typer.echo(f"   Batch size: {batch_size}")
+    typer.echo(f"   Dictionary: {dictionary_file or 'None'}")
     typer.echo(f"   Temperature: {temperature}")
     typer.echo(f"   Output: {output_file}")
     typer.echo()
