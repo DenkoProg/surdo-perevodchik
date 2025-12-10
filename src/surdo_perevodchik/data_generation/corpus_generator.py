@@ -69,6 +69,45 @@ class DialectCorpusGenerator:
         # Fall back to text parsing for non-structured responses
         return self._parse_text_response(response, expected_count)
 
+    def _is_valid_translation(self, translation: str) -> bool:
+        """
+        Check if a translation is valid (not corrupted or misaligned).
+
+        Args:
+            source: Original source sentence.
+            translation: Generated translation.
+
+        Returns:
+            True if translation is valid, False otherwise.
+        """
+        if not translation or len(translation.strip()) < 2:
+            return False
+
+        # Check for JSON artifacts
+        json_patterns = [
+            r'^\s*\{\s*"translations"',
+            r"^\s*\[",
+            r'^\s*"[^"]*",?\s*$',
+            r"translations\s*:",
+        ]
+        for pattern in json_patterns:
+            if re.search(pattern, translation):
+                return False
+
+        if translation.startswith('"') and translation.endswith('",'):
+            return False
+
+        return True
+
+    def _clean_translation(self, translation: str) -> str:
+        """Clean up minor issues in translation."""
+        if translation.startswith('"') and (translation.endswith('",') or translation.endswith('"')):
+            translation = translation.strip('"').rstrip(",")
+
+        translation = re.sub(r"^\d+[\.)\:]\s*", "", translation)
+
+        return translation.strip()
+
     def _parse_json_response(self, response: str, expected_count: int) -> list[str] | None:
         """
         Parse structured JSON response.
@@ -85,7 +124,7 @@ class DialectCorpusGenerator:
             if isinstance(data, dict) and "translations" in data:
                 translations = data["translations"]
                 if isinstance(translations, list):
-                    result = [str(t) if t else "" for t in translations]
+                    result = [self._clean_translation(str(t)) if t else "" for t in translations]
                     while len(result) < expected_count:
                         result.append("")
                     return result[:expected_count]
@@ -125,11 +164,12 @@ class DialectCorpusGenerator:
                 else:
                     continue
 
-            line = re.sub(r"^\d+[\.\)\:]\s*", "", line)
+            line = re.sub(r"^\d+[\.)\:]\s*", "", line)
 
             if not line:
                 continue
 
+            line = self._clean_translation(line)
             translations.append(line)
 
         while len(translations) < expected_count:
@@ -219,7 +259,7 @@ class DialectCorpusGenerator:
             timestamp = datetime.now(UTC).isoformat()
 
             for standard, dialect in zip(batch, translations, strict=False):
-                if dialect:
+                if dialect and self._is_valid_translation(dialect):
                     pairs.append((dialect, standard))
 
                     if self.save_jsonl:

@@ -42,8 +42,8 @@ generate-hutsul: ## Generate synthetic Hutsul corpus
 		--output data/parallel/hutsul/synthetic_hutsul_corpus.csv \
 		--rules prompts/hutsul_rules_system.txt \
 		--dictionary data/dicts/hutsul_ukrainian_dictionary.csv \
-		--limit 15000 \
-		--model mistralai/devstral-2512:free \
+		--limit 5000 \
+		--model mistralai/ministral-14b-2512 \
 		--batch-size 3
 
 .PHONY: help
