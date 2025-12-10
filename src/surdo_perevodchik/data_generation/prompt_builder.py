@@ -46,7 +46,6 @@ class DictionaryMatcher:
         for ukrainian, _ in self.entries:
             tokens = _tokenize(ukrainian)
             tf = Counter(tokens)
-            # Normalize by max frequency
             max_freq = max(tf.values()) if tf else 1
             self.entry_vectors.append({k: v / max_freq for k, v in tf.items()})
 
@@ -65,7 +64,6 @@ class DictionaryMatcher:
         if not self.entries:
             return []
 
-        # Build combined vector for all sentences
         all_tokens: list[str] = []
         for sentence in sentences:
             all_tokens.extend(_tokenize(sentence))
@@ -74,14 +72,12 @@ class DictionaryMatcher:
         max_freq = max(sentence_tf.values()) if sentence_tf else 1
         sentence_vec = {k: v / max_freq for k, v in sentence_tf.items()}
 
-        # Score each dictionary entry
         scored_entries: list[tuple[float, tuple[str, str]]] = []
         for i, entry_vec in enumerate(self.entry_vectors):
             sim = _cosine_similarity(sentence_vec, entry_vec)
             if sim >= threshold:
                 scored_entries.append((sim, self.entries[i]))
 
-        # Sort by similarity and return top_k
         scored_entries.sort(key=lambda x: x[0], reverse=True)
         return [entry for _, entry in scored_entries[:top_k]]
 
@@ -109,7 +105,7 @@ class DialectPromptBuilder:
             rules_path: Path to the rules file containing system prompt,
                        rules, and few-shot examples.
             dictionary_path: Optional path to CSV dictionary file with
-                            Hutsul and Ukrainian columns.
+                            Dialect/Surzhyk and Ukrainian columns.
             max_dict_entries: Maximum dictionary entries to include per batch.
         """
         self.rules_path = Path(rules_path)
@@ -178,21 +174,12 @@ class DialectPromptBuilder:
         Returns:
             System prompt with relevant dictionary entries injected.
         """
-        # Find relevant dictionary entries for this batch
         relevant_entries = self.dictionary_matcher.find_relevant(
             sentences,
             top_k=self.max_dict_entries,
             threshold=0.05,
         )
         dictionary_text = self._format_dictionary(relevant_entries)
-        return self.rules_template.format(dictionary=dictionary_text)
-
-    # Keep system_prompt property for backward compatibility (uses empty batch)
-    @property
-    def system_prompt(self) -> str:
-        """Get system prompt with all dictionary entries (for info command)."""
-        all_entries = self.dictionary_entries[: self.max_dict_entries]
-        dictionary_text = self._format_dictionary(all_entries)
         return self.rules_template.format(dictionary=dictionary_text)
 
     def build_user_prompt(self, sentences: list[str]) -> str:
@@ -222,15 +209,19 @@ class DialectPromptBuilder:
 
         Uses ~4 chars per token as a rough approximation for Ukrainian text.
         """
-        system_len = len(self.system_prompt)
+        system_prompt = self.build_system_prompt(sentences)
+        system_len = len(system_prompt)
         user_prompt = self.build_user_prompt(sentences)
         user_len = len(user_prompt)
         return (system_len + user_len) // 4
 
     @property
     def dialect_name(self) -> str:
-        """Extract dialect name from rules file path."""
-        # e.g., "hutsul_rules_system.txt" -> "hutsul"
+        """
+        Extract dialect name from rules file path.
+
+        e.g., "hutsul_rules_system.txt" -> "hutsul"
+        """
         stem = self.rules_path.stem
         for suffix in ["_rules_system", "_rules", "_system"]:
             if stem.endswith(suffix):

@@ -1,7 +1,7 @@
 """Corpus generator for synthetic dialect parallel data."""
 
 import csv
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 import json
 from pathlib import Path
 import re
@@ -42,18 +42,14 @@ class DialectCorpusGenerator:
         self.batch_size = batch_size
         self.save_jsonl = save_jsonl
         self.dialect_name = self.prompt_builder.dialect_name
-
-        # Ensure output directory exists
         self.output_path.parent.mkdir(parents=True, exist_ok=True)
-
-        # JSONL path for detailed records
         self.jsonl_path = self.output_path.with_suffix(".jsonl")
 
     def parse_response(self, response: str | None, expected_count: int) -> list[str]:
         """
         Parse LLM response into individual translations.
 
-        Handles both structured JSON output and legacy text format.
+        Handles both structured JSON output and text format.
 
         Args:
             response: Raw LLM response (JSON or text).
@@ -70,7 +66,7 @@ class DialectCorpusGenerator:
         if translations is not None:
             return translations
 
-        # Fall back to text parsing for legacy/non-structured responses
+        # Fall back to text parsing for non-structured responses
         return self._parse_text_response(response, expected_count)
 
     def _parse_json_response(self, response: str, expected_count: int) -> list[str] | None:
@@ -89,9 +85,7 @@ class DialectCorpusGenerator:
             if isinstance(data, dict) and "translations" in data:
                 translations = data["translations"]
                 if isinstance(translations, list):
-                    # Ensure all items are strings
                     result = [str(t) if t else "" for t in translations]
-                    # Pad with empty strings if needed
                     while len(result) < expected_count:
                         result.append("")
                     return result[:expected_count]
@@ -118,15 +112,12 @@ class DialectCorpusGenerator:
             if not line:
                 continue
 
-            # Skip artifacts and meta-tokens
             if line.startswith("<s>") or "[OUT]" in line:
                 continue
 
-            # Skip lines that look like instructions or meta-text
             if line.startswith("Відповідь") or line.startswith("Переклад"):
                 continue
 
-            # Handle "Original → Translation" format - take only the translation part
             if "→" in line:
                 parts = line.split("→")
                 if len(parts) >= 2:
@@ -134,16 +125,13 @@ class DialectCorpusGenerator:
                 else:
                     continue
 
-            # Remove numbering patterns: "1. ", "1) ", "1: ", etc.
             line = re.sub(r"^\d+[\.\)\:]\s*", "", line)
 
-            # Skip empty lines after processing
             if not line:
                 continue
 
             translations.append(line)
 
-        # Pad with empty strings if we got fewer translations
         while len(translations) < expected_count:
             translations.append("")
 
@@ -194,17 +182,14 @@ class DialectCorpusGenerator:
         Returns:
             Total number of pairs generated.
         """
-        # Resume handling
         processed_count = 0
         if resume:
             processed_count = self._get_processed_count()
             if processed_count > 0:
                 print(f"Resuming from {processed_count} existing pairs")
 
-        # Initialize CSV if needed
         self._init_csv()
 
-        # Get remaining sentences
         remaining_sentences = standard_sentences[processed_count:]
         if not remaining_sentences:
             print("All sentences already processed!")
@@ -214,7 +199,6 @@ class DialectCorpusGenerator:
 
         total_generated = processed_count
 
-        # Process in batches
         progress = tqdm(
             range(0, len(remaining_sentences), self.batch_size),
             desc="Generating",
@@ -227,16 +211,14 @@ class DialectCorpusGenerator:
             system_prompt = self.prompt_builder.build_system_prompt(batch)
             user_prompt = self.prompt_builder.build_user_prompt(batch)
 
-            # Call LLM with batch size for structured output schema
             response = self.client.generate(system_prompt, user_prompt, num_sentences=len(batch))
             translations = self.parse_response(response, len(batch))
 
-            # Prepare pairs and records
             pairs = []
             jsonl_records = []
-            timestamp = datetime.now(timezone.utc).isoformat()
+            timestamp = datetime.now(UTC).isoformat()
 
-            for standard, dialect in zip(batch, translations):
+            for standard, dialect in zip(batch, translations, strict=False):
                 if dialect:
                     pairs.append((dialect, standard))
 
@@ -255,7 +237,6 @@ class DialectCorpusGenerator:
                             }
                         )
 
-            # Save immediately (for resume capability)
             if pairs:
                 self._append_csv(pairs)
                 total_generated += len(pairs)
@@ -263,7 +244,6 @@ class DialectCorpusGenerator:
             if jsonl_records and self.save_jsonl:
                 self._append_jsonl(jsonl_records)
 
-            # Update progress bar
             progress.set_postfix({"total": total_generated, "batch_ok": len(pairs)})
 
         print(f"\nGeneration complete! Total pairs: {total_generated}")

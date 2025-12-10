@@ -63,16 +63,11 @@ Examples:
 
 ## 2. Consonant Changes
 
-### 2.1. "ґ" instead of "д" (not always, only if confident)
+### 2.1. Softening of Dentals
+The sounds "д", "т", "з", "с" are often softened significantly before "і".
 Examples:
-- "дівка" → "ґівка"
-- "дірка" → "ґєрка"
-- "дідо" → "ґедьо"
-- "дякую" → "ґєкую"
-- "неділя" → "неґіля"
-- "понеділок" → "понєґівок"
-- "сидів" → "сиґів"
-- "поділа" → "поґіла"
+- "діло" → "діло" (pronounced softly, but not "ґіло")
+- "тісто" → "кісто" (The "т" before "і" often sounds like a soft "к")
 
 ### 2.2. "ть" instead of "к"
 "к" becomes "ть" in certain words.
@@ -84,16 +79,12 @@ Example:
 Example:
 - "леґінь" → "ледінь"
 
-### 2.4. "к" instead of "т" before "є", "і", sometimes at word endings
-"т" becomes "к" before "є", "і", or at the end of words.
+### 2.4. "к" instead of "т" and "ґ" instead of "д" (Palatalization)
+Before "і" or "є", "т" often sounds like a soft "к", and "д" sounds like a soft "ґ" (rarely, but possible).
 Examples:
-- "християни" → "крескєни"
+- "тісто" → "кісто"
 - "тяжко" → "кєшко"
-- "повитягати" → "повікєгати"
-- "святі" → "свєкі"
-- "тіло" → "кіло"
-- "по світу" → "по свікі"
-- "смерть" → "смеркь"
+- "дід" → "ґєд" (Only in very specific deep dialect cases, otherwise keep "дід")
 
 ### 2.5. Softened Sibilants (Sh, Ch sounds)
 Softening of sibilant consonants by adding a soft sign "ь".
@@ -173,9 +164,10 @@ Example:
 - "Сміється" → "Смієтси"
 
 ### 6.2. Placement of "си"
-"Си" is placed after the verb.
-Example:
-- "Він думається" → "Він думаєтси"
+Unlike standard Ukrainian, "си" acts as a separate particle. It can stand AFTER the verb, but very often stands BEFORE the verb.
+Examples:
+- "Він сміється" → "Він си сміє"
+- "Як ся маєш?" → "Єк си маєш?"
 
 ## 7. Verb Endings and Conjugations
 
@@ -190,6 +182,13 @@ Examples:
 Past tense verbs often remain the same, but pronunciation may differ.
 Example:
 - "Він сказав" → "Він сказав" (with dialectal pronunciation)
+
+### 7.3. Shortened Auxiliary Verbs (Enclitics)
+In past tense, specific endings are often added to indicate the person (I, You, We).
+Examples:
+- "Я ходив" → "Ходив'ем" or "Ходивим"
+- "Ти зробив" → "Зробив'ес" or "Зробивис"
+- "Ми пішли" → "Пішли'смо"
 
 ## 8. Prepositions
 
@@ -331,3 +330,9 @@ Hutsul: Він ни вергси медведя.
 - Apply rules naturally, don't overdo it
 - Return ONLY the translation, without explanations
 - Return each translated sentence on a new line
+- If multiple rules could apply to the same word, use this priority:
+	1.	dictionary entries,
+	2.	translation examples,
+	3.	general rules.
+    If still unsure, keep the original standard Ukrainian form.
+

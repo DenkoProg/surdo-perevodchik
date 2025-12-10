@@ -1,12 +1,11 @@
 """OpenRouter API client for LLM generation."""
 
 from dataclasses import dataclass
-import json
 import os
 import time
 
-import requests
 from dotenv import load_dotenv
+import requests
 
 
 load_dotenv()
@@ -25,7 +24,6 @@ class OpenRouterConfig:
     retry_delay: float = 5.0
     timeout: int = 120
     use_structured_output: bool = True
-    # Optional metadata for OpenRouter
     app_name: str = "Surdo Perevodchik"
     app_url: str = "https://github.com/DenkoProg/surdo-perevodchik"
 
@@ -85,7 +83,6 @@ class OpenRouterClient:
             "temperature": self.config.temperature,
         }
 
-        # Add structured output if enabled and we know the sentence count
         if self.config.use_structured_output and num_sentences > 0:
             payload["response_format"] = self._build_translation_schema(num_sentences)
 
@@ -120,14 +117,12 @@ class OpenRouterClient:
                     timeout=self.config.timeout,
                 )
 
-                # Handle rate limiting
                 if response.status_code == 429:
                     wait_time = self.config.retry_delay * (2**attempt)
                     print(f"Rate limited (429). Waiting {wait_time:.1f}s... (attempt {attempt + 1})")
                     time.sleep(wait_time)
                     continue
 
-                # Handle server errors with retry
                 if response.status_code >= 500:
                     wait_time = self.config.retry_delay * (attempt + 1)
                     print(f"Server error ({response.status_code}). Waiting {wait_time:.1f}s...")
@@ -137,7 +132,6 @@ class OpenRouterClient:
                 response.raise_for_status()
                 data = response.json()
 
-                # Extract content from response
                 if "choices" in data and len(data["choices"]) > 0:
                     return data["choices"][0]["message"]["content"]
                 else:

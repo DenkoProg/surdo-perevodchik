@@ -13,26 +13,19 @@ Usage:
         --output data/parallel/hutsul/synthetic.csv \
         --rules prompts/hutsul_rules_system.txt \
         --limit 20
-
-    # Full generation
-    uv run python scripts/generate_corpus.py \
-        --input data/raw/standard_ukrainian.csv \
-        --output data/parallel/hutsul/synthetic.csv \
-        --rules prompts/hutsul_rules_system.txt
 """
 
 import csv
 from pathlib import Path
-import sys
 from typing import Annotated, Optional
 
 from dotenv import load_dotenv
 import typer
 
+from surdo_perevodchik.data_generation import DialectCorpusGenerator, OpenRouterConfig
+
 
 load_dotenv()
-
-from surdo_perevodchik.data_generation import DialectCorpusGenerator, OpenRouterConfig
 
 
 app = typer.Typer(
@@ -47,7 +40,7 @@ def load_sentences_from_csv(
     text_column: str,
     limit: int | None = None,
     min_length: int = 15,
-    max_length: int = 500,
+    max_length: int = 1000,
 ) -> list[str]:
     """Load sentences from CSV file."""
     sentences = []
@@ -66,7 +59,7 @@ def load_sentences_from_txt(
     input_path: Path,
     limit: int | None = None,
     min_length: int = 15,
-    max_length: int = 500,
+    max_length: int = 1000,
 ) -> list[str]:
     """Load sentences from text file (one per line)."""
     sentences = []
@@ -118,7 +111,7 @@ def generate(
         ),
     ] = "text",
     limit: Annotated[
-        Optional[int],
+        int | None,
         typer.Option(
             "--limit",
             "-n",
@@ -164,7 +157,7 @@ def generate(
         ),
     ] = False,
     dictionary_file: Annotated[
-        Optional[Path],
+        Path | None,
         typer.Option(
             "--dictionary",
             "-d",
@@ -184,7 +177,6 @@ def generate(
 
     Output CSV format: source (dialect), target (standard)
     """
-    # Load sentences
     typer.echo(f"📂 Loading sentences from {input_file}")
 
     if input_file.suffix == ".csv":
@@ -198,13 +190,11 @@ def generate(
 
     typer.echo(f"✅ Loaded {len(sentences)} sentences")
 
-    # Configure OpenRouter
     config = OpenRouterConfig(
         model=model,
         temperature=temperature,
     )
 
-    # Initialize generator
     generator = DialectCorpusGenerator(
         rules_path=rules_file,
         output_path=output_file,
@@ -214,8 +204,7 @@ def generate(
         dictionary_path=dictionary_file,
     )
 
-    # Show config
-    typer.echo(f"\n🔧 Configuration:")
+    typer.echo("\n🔧 Configuration:")
     typer.echo(f"   Dialect: {generator.dialect_name}")
     typer.echo(f"   Model: {model}")
     typer.echo(f"   Batch size: {batch_size}")
@@ -224,18 +213,17 @@ def generate(
     typer.echo(f"   Output: {output_file}")
     typer.echo()
 
-    # Generate corpus
     try:
         total = generator.generate_corpus(sentences, resume=not no_resume)
         typer.echo(f"\n🎉 Success! Generated {total} parallel pairs.")
     except KeyboardInterrupt:
         typer.echo("\n\n⚠️ Interrupted by user. Progress has been saved.")
         typer.echo("Run again to resume from where you left off.")
-        raise typer.Exit(130)
+        raise typer.Exit(130)  # noqa: B904
     except Exception as e:
         typer.echo(f"\n❌ Error during generation: {e}", err=True)
         typer.echo("Progress has been saved. Run again to resume.", err=True)
-        raise typer.Exit(1)
+        raise typer.Exit(1)  # noqa: B904
 
 
 @app.command()
@@ -256,8 +244,6 @@ def info(
 
     typer.echo(f"📄 Rules file: {rules_file}")
     typer.echo(f"🏷️  Dialect: {builder.dialect_name}")
-    typer.echo(f"📏 System prompt length: {len(builder.system_prompt)} chars")
-    typer.echo(f"🎯 Estimated tokens: ~{len(builder.system_prompt) // 4}")
 
 
 if __name__ == "__main__":

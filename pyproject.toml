@@ -50,11 +50,11 @@ select = [
     "UP", # pyupgrade
 ]
 ignore = [
-    "E501",    # line too long, handled by black
+    "E501",    # line too long, handled by formatter
     "B008",    # do not perform function calls in argument defaults
     "C901",    # too complex
-    "D1",      # Allow missing docstrings.
-    "D417",    # Don't require descriptions for all arguments.
+    "D1",      # Allow missing docstrings
+    "D417",    # Don't require descriptions for all arguments
     "F401",    # unused imports
 ]
 [tool.mypy]
