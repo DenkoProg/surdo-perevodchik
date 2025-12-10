@@ -334,5 +334,3 @@ Hutsul: Він ни вергси медведя.
 	1.	dictionary entries,
 	2.	translation examples,
 	3.	general rules.
-    If still unsure, keep the original standard Ukrainian form.
-

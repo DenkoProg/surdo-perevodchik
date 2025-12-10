@@ -1,7 +1,7 @@
 """Corpus generator for synthetic dialect parallel data."""
 
 import csv
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime
 import json
 from pathlib import Path
 import re
