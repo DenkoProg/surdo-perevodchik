@@ -43,7 +43,8 @@ generate-hutsul: ## Generate synthetic Hutsul corpus
 		--rules prompts/hutsul_rules_system.txt \
 		--dictionary data/dicts/hutsul_ukrainian_dictionary.csv \
 		--limit 15000 \
-		--batch-size 20
+		--model mistralai/devstral-2512:free \
+		--batch-size 3
 
 .PHONY: help
 help: ## Show this help message
