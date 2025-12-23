@@ -69,7 +69,6 @@ def generate_predictions(
                 no_repeat_ngram_size=3,
                 length_penalty=1.0,
                 repetition_penalty=1.2,
-                bad_words_ids=[[250099], [250098], [250097]],  # Block <extra_id_0>, <extra_id_1>, <extra_id_2>
             )
 
         outputs = outputs.cpu()
@@ -134,12 +133,9 @@ def run_evaluation(
     with open(results_file, "w", encoding="utf-8") as f:
         json.dump(metrics, f, indent=2, ensure_ascii=False)
 
-    print("\n" + "=" * 50)
     print("EVALUATION RESULTS")
-    print("=" * 50)
     for metric, score in metrics.items():
         print(f"{metric:10s}: {score:6.2f}")
-    print("=" * 50)
     print(f"\nResults saved to {results_file}")
 
     return metrics

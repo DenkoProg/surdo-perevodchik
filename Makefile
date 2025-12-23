@@ -16,11 +16,11 @@ format: ## Format code and fix linting issues
 
 .PHONY: train
 train:
-	@echo "🚀 Training mt5 model..."
+	@echo "🚀 Training byt5 model..."
 	@uv run python -m src.surdo_perevodchik.training.train \
 		--train_file data/parallel/hutsul_parallel.csv \
-		--model_name google/mt5-small \
-		--output_dir models/mt5-hutsul-small \
+		--model_name google/byt5-large \
+		--output_dir models/byt5-hutsul-large \
 		--epochs 15 \
 		--batch_size 16 \
 		--lr 5e-5

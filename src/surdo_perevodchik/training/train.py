@@ -87,8 +87,8 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--train_file", type=str, default="data/parallel/hutsul_parallel.csv")
-    parser.add_argument("--model_name", type=str, default="google/mt5-small")
-    parser.add_argument("--output_dir", type=str, default="models/mt5-hutsul-small")
+    parser.add_argument("--model_name", type=str, default="google/byt5-large")
+    parser.add_argument("--output_dir", type=str, default="models/byt5-hutsul-large")
     parser.add_argument("--epochs", type=int, default=3)
     parser.add_argument("--batch_size", type=int, default=8)
     parser.add_argument("--lr", type=float, default=5e-5)
