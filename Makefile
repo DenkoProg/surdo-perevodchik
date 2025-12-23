@@ -14,24 +14,39 @@ format: ## Format code and fix linting issues
 	uv run ruff format
 	uv run ruff check --fix
 
+# Default Config
+MODEL_NAME := google/byt5-large
+OUTPUT_DIR := models/byt5-hutsul-large
+MAX_LEN := 1024
+EVAL_MODEL := $(OUTPUT_DIR)
+EVAL_TEST_FILE := data/parallel/merged.csv
+EVAL_OUTPUT_DIR := results/evaluation/$(notdir $(OUTPUT_DIR))
+
 .PHONY: train
 train:
-	@echo "🚀 Training byt5 model..."
+	@echo "🚀 Training $(MODEL_NAME) on 24GB GPU..."
 	@uv run python -m src.surdo_perevodchik.training.train \
-		--train_file data/parallel/hutsul_parallel.csv \
-		--model_name google/byt5-large \
-		--output_dir models/byt5-hutsul-large \
-		--epochs 15 \
-		--batch_size 16 \
-		--lr 5e-5
+		--train_file data/parallel/merged.csv \
+		--model_name $(MODEL_NAME) \
+		--output_dir $(OUTPUT_DIR) \
+		--epochs 10 \
+		--batch_size 4 \
+		--grad_accum 8 \
+		--lr 1e-4 \
+		--max_length $(MAX_LEN) \
+		--optim adafactor \
+		--fp16 \
+		--grad_checkpoint \
+		--eval_steps 200 \
+		--save_steps 200
 
 .PHONY: evaluate
 evaluate:
-	@echo "🔍 Evaluating model..."
-	@uv run python -m surdo_perevodchik.evaluation.evaluate \
-		--model_path models/mt5-hutsul-small \
-		--test_file data/parallel/hutsul_parallel.csv \
-		--output_dir results/evaluation
+		@echo "🔍 Evaluating model..."
+		@uv run python -m surdo_perevodchik.evaluation.evaluate \
+			--model_path $(EVAL_MODEL) \
+			--test_file $(EVAL_TEST_FILE) \
+			--output_dir $(EVAL_OUTPUT_DIR)
 
 
 .PHONY: generate-hutsul
