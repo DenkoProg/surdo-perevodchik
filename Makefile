@@ -17,16 +17,16 @@ format: ## Format code and fix linting issues
 # Default Config
 MODEL_NAME := google/byt5-large
 OUTPUT_DIR := models/byt5-hutsul-large
+DATA_PATH := data/parallel
 MAX_LEN := 1024
 EVAL_MODEL := $(OUTPUT_DIR)
-EVAL_TEST_FILE := data/parallel/merged.csv
 EVAL_OUTPUT_DIR := results/evaluation/$(notdir $(OUTPUT_DIR))
 
 .PHONY: train
 train:
 	@echo "🚀 Training $(MODEL_NAME) on 24GB GPU..."
 	@uv run python -m src.surdo_perevodchik.training.train \
-		--train_file data/parallel/merged.csv \
+		--train_file $(DATA_PATH)/merged.csv \
 		--model_name $(MODEL_NAME) \
 		--output_dir $(OUTPUT_DIR) \
 		--epochs 10 \
@@ -45,7 +45,7 @@ evaluate:
 		@echo "🔍 Evaluating model..."
 		@uv run python -m surdo_perevodchik.evaluation.evaluate \
 			--model_path $(EVAL_MODEL) \
-			--test_file $(EVAL_TEST_FILE) \
+			--test_file $(DATA_PATH)/eval.csv \
 			--output_dir $(EVAL_OUTPUT_DIR)
 
 
