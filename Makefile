@@ -18,8 +18,8 @@ format: ## Format code and fix linting issues
 # Encoder-Decoder Models (mT5, ByT5, etc.)
 # =============================================================================
 
-ENC_DEC_MODEL := google/byt5-large
-ENC_DEC_OUTPUT := models/byt5-hutsul-large
+ENC_DEC_MODEL := google/mt5-small
+ENC_DEC_OUTPUT := models/mt5-hutsul-small
 DATA_PATH := data/parallel
 ENC_DEC_MAX_LEN := 1024
 
@@ -30,16 +30,15 @@ train-encoder-decoder: ## Fine-tune encoder-decoder model (mT5, ByT5)
 		--train_file $(DATA_PATH)/merged.csv \
 		--model_name $(ENC_DEC_MODEL) \
 		--output_dir $(ENC_DEC_OUTPUT) \
-		--epochs 10 \
-		--batch_size 4 \
-		--grad_accum 8 \
+		--epochs 30 \
+		--batch_size 16 \
+		--grad_accum 2 \
 		--lr 1e-4 \
 		--max_length $(ENC_DEC_MAX_LEN) \
-		--optim adafactor \
 		--fp16 \
 		--grad_checkpoint \
-		--eval_steps 200 \
-		--save_steps 200
+		--eval_steps 500 \
+		--save_steps 500
 
 .PHONY: evaluate-encoder-decoder
 evaluate-encoder-decoder: ## Evaluate encoder-decoder model
