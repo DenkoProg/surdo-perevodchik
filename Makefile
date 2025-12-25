@@ -123,8 +123,8 @@ generate-hutsul: ## Generate synthetic Hutsul corpus (OpenRouter API)
 		--output data/parallel/hutsul/synthetic_hutsul_corpus.csv \
 		--rules prompts/hutsul_rules_system.txt \
 		--dictionary data/dicts/hutsul_ukrainian_dictionary.csv \
-		--limit 15000 \
-		--model mistralai/mistral-7b-instruct:free \
+		--limit 20000 \
+		--model mistralai/ministral-14b-2512 \
 		--batch-size 3
 
 .PHONY: generate-hutsul-local

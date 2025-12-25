@@ -214,12 +214,15 @@ def generate(
 
     # Create LLM client based on provider
     typer.echo(f"\n🔧 Initializing {provider} client...")
+    client_kwargs = {"temperature": temperature}
+    if provider == "local":
+        client_kwargs["load_in_8bit"] = load_in_8bit
+        client_kwargs["load_in_4bit"] = load_in_4bit
+
     client = create_llm_client(
         provider=provider,
         model=model,
-        temperature=temperature,
-        load_in_8bit=load_in_8bit if provider == "local" else False,
-        load_in_4bit=load_in_4bit if provider == "local" else False,
+        **client_kwargs,
     )
     typer.echo(f"✅ Client ready: {client.name}")
 
