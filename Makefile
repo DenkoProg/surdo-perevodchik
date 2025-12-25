@@ -116,16 +116,30 @@ evaluate-decoder-only-base: ## Evaluate base decoder-only model (before fine-tun
 # =============================================================================
 
 .PHONY: generate-hutsul
-generate-hutsul: ## Generate synthetic Hutsul corpus
+generate-hutsul: ## Generate synthetic Hutsul corpus (OpenRouter API)
 	@echo "🧪 Generating Hutsul corpus..."
 	@uv run python scripts/generate_corpus.py generate \
 		--input data/raw/standard_ukrainian.csv \
 		--output data/parallel/hutsul/synthetic_hutsul_corpus.csv \
 		--rules prompts/hutsul_rules_system.txt \
 		--dictionary data/dicts/hutsul_ukrainian_dictionary.csv \
-		--limit 5000 \
-		--model mistralai/ministral-14b-2512 \
+		--limit 15000 \
+		--model mistralai/mistral-7b-instruct:free \
 		--batch-size 3
+
+.PHONY: generate-hutsul-local
+generate-hutsul-local: ## Generate synthetic Hutsul corpus (Local GPU, 8-bit quantization)
+	@echo "🚀 Generating Hutsul corpus with local GPU model..."
+	@uv run python scripts/generate_corpus.py generate \
+		--input data/raw/standard_ukrainian.csv \
+		--output data/parallel/hutsul/synthetic_hutsul_corpus.csv \
+		--rules prompts/hutsul_rules_system.txt \
+		--dictionary data/dicts/hutsul_ukrainian_dictionary.csv \
+		--provider local \
+		--model mistralai/Mistral-7B-Instruct-v0.2 \
+		--load-in-8bit \
+		--batch-size 5 \
+		--limit 15000
 
 .PHONY: help
 help: ## Show this help message

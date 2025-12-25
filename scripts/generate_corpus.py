@@ -22,7 +22,7 @@ from typing import Annotated, Optional
 from dotenv import load_dotenv
 import typer
 
-from surdo_perevodchik.data_generation import DialectCorpusGenerator, OpenRouterConfig
+from surdo_perevodchik.data_generation import DialectCorpusGenerator, create_llm_client
 
 
 load_dotenv()
@@ -139,9 +139,31 @@ def generate(
         typer.Option(
             "--model",
             "-m",
-            help="OpenRouter model ID.",
+            help="Model ID (OpenRouter or HuggingFace path).",
         ),
     ] = "mistralai/mistral-7b-instruct:free",
+    provider: Annotated[
+        str,
+        typer.Option(
+            "--provider",
+            "-p",
+            help="LLM provider: 'openrouter' (API) or 'local' (GPU).",
+        ),
+    ] = "openrouter",
+    load_in_8bit: Annotated[
+        bool,
+        typer.Option(
+            "--load-in-8bit",
+            help="Use 8-bit quantization for local models (faster, less memory).",
+        ),
+    ] = True,
+    load_in_4bit: Annotated[
+        bool,
+        typer.Option(
+            "--load-in-4bit",
+            help="Use 4-bit quantization for local models (even less memory).",
+        ),
+    ] = False,
     no_resume: Annotated[
         bool,
         typer.Option(
@@ -190,26 +212,36 @@ def generate(
 
     typer.echo(f"✅ Loaded {len(sentences)} sentences")
 
-    config = OpenRouterConfig(
+    # Create LLM client based on provider
+    typer.echo(f"\n🔧 Initializing {provider} client...")
+    client = create_llm_client(
+        provider=provider,
         model=model,
         temperature=temperature,
+        load_in_8bit=load_in_8bit if provider == "local" else False,
+        load_in_4bit=load_in_4bit if provider == "local" else False,
     )
+    typer.echo(f"✅ Client ready: {client.name}")
 
     generator = DialectCorpusGenerator(
         rules_path=rules_file,
         output_path=output_file,
         batch_size=batch_size,
-        openrouter_config=config,
+        llm_client=client,
         save_jsonl=not no_jsonl,
         dictionary_path=dictionary_file,
     )
 
-    typer.echo("\n🔧 Configuration:")
+    typer.echo("\n� Configuration:")
     typer.echo(f"   Dialect: {generator.dialect_name}")
+    typer.echo(f"   Provider: {provider}")
     typer.echo(f"   Model: {model}")
     typer.echo(f"   Batch size: {batch_size}")
     typer.echo(f"   Dictionary: {dictionary_file or 'None'}")
     typer.echo(f"   Temperature: {temperature}")
+    if provider == "local":
+        quant = "4-bit" if load_in_4bit else "8-bit" if load_in_8bit else "fp16"
+        typer.echo(f"   Quantization: {quant}")
     typer.echo(f"   Output: {output_file}")
     typer.echo()
 

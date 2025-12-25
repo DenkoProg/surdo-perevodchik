@@ -7,35 +7,38 @@ import time
 from dotenv import load_dotenv
 import requests
 
+from surdo_perevodchik.data_generation.llm_client import LLMClient, LLMConfig
+
 
 load_dotenv()
 
 
 @dataclass
-class OpenRouterConfig:
+class OpenRouterConfig(LLMConfig):
     """Configuration for OpenRouter API client."""
 
     api_key: str | None = None
-    model: str = "mistralai/mistral-7b-instruct:free"
     base_url: str = "https://openrouter.ai/api/v1/chat/completions"
-    max_tokens: int = 2048
-    temperature: float = 0.7
-    max_retries: int = 5
-    retry_delay: float = 5.0
-    timeout: int = 120
     use_structured_output: bool = True
     app_name: str = "Surdo Perevodchik"
     app_url: str = "https://github.com/DenkoProg/surdo-perevodchik"
 
 
-class OpenRouterClient:
+class OpenRouterClient(LLMClient):
     """Client for calling OpenRouter API with retry logic."""
 
     def __init__(self, config: OpenRouterConfig | None = None):
-        self.config = config or OpenRouterConfig()
+        super().__init__(config)
+        if not isinstance(self.config, OpenRouterConfig):
+            self.config = OpenRouterConfig(**self.config.__dict__)
         self.api_key = self.config.api_key or os.getenv("OPENROUTER_API_KEY")
         if not self.api_key:
             raise ValueError("OPENROUTER_API_KEY not set. Export it as environment variable or pass in config.")
+
+    @property
+    def name(self) -> str:
+        """Return the name/identifier of this client."""
+        return f"openrouter:{self.config.model}"
 
     def _build_headers(self) -> dict[str, str]:
         return {

@@ -8,7 +8,7 @@ import re
 
 from tqdm import tqdm
 
-from surdo_perevodchik.data_generation.openrouter_client import OpenRouterClient, OpenRouterConfig
+from surdo_perevodchik.data_generation.llm_client import LLMClient
 from surdo_perevodchik.data_generation.prompt_builder import DialectPromptBuilder
 
 
@@ -20,7 +20,7 @@ class DialectCorpusGenerator:
         rules_path: str | Path,
         output_path: str | Path,
         batch_size: int = 10,
-        openrouter_config: OpenRouterConfig | None = None,
+        llm_client: LLMClient | None = None,
         save_jsonl: bool = True,
         dictionary_path: str | Path | None = None,
     ):
@@ -31,13 +31,19 @@ class DialectCorpusGenerator:
             rules_path: Path to the dialect rules file.
             output_path: Path to save the output CSV.
             batch_size: Number of sentences per API call.
-            openrouter_config: OpenRouter client configuration.
+            llm_client: LLM client instance (OpenRouter or Local).
             save_jsonl: Also save detailed JSONL with provenance.
             dictionary_path: Optional path to CSV dictionary file.
         """
         self.prompt_builder = DialectPromptBuilder(rules_path, dictionary_path=dictionary_path)
-        self.client = OpenRouterClient(openrouter_config)
-        self.config = openrouter_config or OpenRouterConfig()
+
+        # Use provided client or create default OpenRouter client
+        if llm_client is None:
+            from surdo_perevodchik.data_generation import create_llm_client
+
+            llm_client = create_llm_client("openrouter")
+
+        self.client = llm_client
         self.output_path = Path(output_path)
         self.batch_size = batch_size
         self.save_jsonl = save_jsonl
@@ -270,7 +276,7 @@ class DialectCorpusGenerator:
                                 "dialect": self.dialect_name,
                                 "method": "llm_generated",
                                 "provenance": {
-                                    "model": self.config.model,
+                                    "model": self.client.name,
                                     "rules_file": str(self.prompt_builder.rules_path),
                                     "timestamp": timestamp,
                                 },
