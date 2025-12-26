@@ -25,7 +25,6 @@ SYSTEM_PROMPT = "Ти — перекладач з діалектів та сур
 
 
 def format_chat_prompt(example, tokenizer, use_system_prompt: bool = True):
-    """Format source/target pair as chat messages."""
     if use_system_prompt:
         user_content = f"{SYSTEM_PROMPT}\n\nПерекладіть: {example['source']}"
     else:
@@ -48,7 +47,7 @@ def main(args):
 
     ds = load_dataset("csv", data_files={"data": args.train_file})["data"]
     ds = ds.shuffle(seed=42)
-    split = ds.train_test_split(test_size=args.val_size)
+    split = ds.train_test_split(test_size=args.val_size, seed=42)
 
     bnb_config = None
     if args.use_4bit:
@@ -104,10 +103,12 @@ def main(args):
     train_dataset = split["train"].map(
         lambda x: format_chat_prompt(x, tokenizer, args.use_system_prompt),
         remove_columns=split["train"].column_names,
+        desc="Formatting training data",
     )
     eval_dataset = split["test"].map(
         lambda x: format_chat_prompt(x, tokenizer, args.use_system_prompt),
         remove_columns=split["test"].column_names,
+        desc="Formatting validation data",
     )
 
     training_args = TrainingArguments(
@@ -173,7 +174,6 @@ if __name__ == "__main__":
         "--attn_implementation", type=str, default=None, help="Attention impl (flash_attention_2, sdpa)"
     )
 
-    # Training hyperparameters
     parser.add_argument("--epochs", type=int, default=3)
     parser.add_argument("--batch_size", type=int, default=1)
     parser.add_argument("--grad_accum", type=int, default=16)
@@ -183,13 +183,11 @@ if __name__ == "__main__":
     parser.add_argument("--max_length", type=int, default=512)
     parser.add_argument("--optim", type=str, default="adamw_torch")
 
-    # Precision and memory
     parser.add_argument("--fp16", action="store_true", help="Use FP16 mixed precision")
     parser.add_argument("--bf16", action="store_true", help="Use BF16 mixed precision (recommended for modern GPUs)")
     parser.add_argument("--grad_checkpoint", action="store_true", help="Enable gradient checkpointing")
     parser.add_argument("--use_4bit", action="store_true", help="Use 4-bit quantization (QLoRA)")
 
-    # LoRA arguments
     parser.add_argument("--use_lora", action="store_true", help="Use LoRA for parameter-efficient fine-tuning")
     parser.add_argument("--lora_r", type=int, default=16, help="LoRA rank")
     parser.add_argument("--lora_alpha", type=int, default=32, help="LoRA alpha")
@@ -197,11 +195,9 @@ if __name__ == "__main__":
     parser.add_argument("--lora_target_modules", type=str, default=None, help="Comma-separated target modules")
     parser.add_argument("--merge_lora", action="store_true", help="Merge LoRA weights after training")
 
-    # Prompt formatting
     parser.add_argument("--use_system_prompt", action="store_true", default=True, help="Include system prompt")
     parser.add_argument("--no_system_prompt", action="store_false", dest="use_system_prompt")
 
-    # Checkpointing
     parser.add_argument("--eval_steps", type=int, default=100)
     parser.add_argument("--save_steps", type=int, default=100)
     parser.add_argument("--logging_steps", type=int, default=10)
