@@ -31,7 +31,8 @@ train-encoder-decoder: ## Fine-tune encoder-decoder model (mT5, umT5, ByT5)
 		--train_file $(DATA_PATH)/merged.csv \
 		--model_name $(ENC_DEC_MODEL) \
 		--output_dir $(ENC_DEC_OUTPUT) \
-		--epochs 7 \
+		--resume_from_checkpoint models/umt5-base-hutsul/$(CHECKPOINT) \
+		--epochs 10 \
 		--batch_size 8 \
 		--grad_accum 2 \
 		--lr 5e-5 \
