@@ -15,32 +15,29 @@ format: ## Format code and fix linting issues
 	uv run ruff check --fix
 
 # =============================================================================
-# Encoder-Decoder Models (mT5, ByT5, etc.)
+# Encoder-Decoder Models (mT5, mbart, etc.)
 # =============================================================================
 
 ENC_DEC_MODEL := google/umt5-base
 ENC_DEC_OUTPUT := models/umt5-base-hutsul
-CHECKPOINT := checkpoint-300
+CHECKPOINT :=
 DATA_PATH := data/parallel
 ENC_DEC_MAX_LEN := 256
 
 .PHONY: train-encoder-decoder
-train-encoder-decoder: ## Fine-tune encoder-decoder model (mT5, umT5, ByT5)
+train-encoder-decoder: ## Fine-tune encoder-decoder model (mT5, umT5, mbart)
 	@echo "🚀 Training encoder-decoder: $(ENC_DEC_MODEL)..."
 	@uv run python -m src.surdo_perevodchik.training.train_encoder_decoder \
-		--train_file $(DATA_PATH)/merged.csv \
+		--train_file "$(DATA_PATH)/merged.csv" \
 		--model_name $(ENC_DEC_MODEL) \
 		--output_dir $(ENC_DEC_OUTPUT) \
-		--resume_from_checkpoint models/umt5-base-hutsul/$(CHECKPOINT) \
+		--resume_from_checkpoint $(ENC_DEC_OUTPUT)/$(CHECKPOINT) \
 		--epochs 10 \
 		--batch_size 8 \
 		--grad_accum 2 \
 		--lr 5e-5 \
 		--bf16 \
 		--max_length $(ENC_DEC_MAX_LEN) \
-		--eval_steps 300 \
-		--save_steps 300 \
-		--logging_steps 50
 
 .PHONY: evaluate-encoder-decoder
 evaluate-encoder-decoder: ## Evaluate encoder-decoder model
@@ -76,8 +73,6 @@ train-decoder-only: ## Fine-tune decoder-only model with LoRA (MamayLM, Gemma)
 		--lora_r 16 \
 		--lora_alpha 32 \
 		--use_4bit \
-		--eval_steps 100 \
-		--save_steps 100
 
 .PHONY: train-decoder-only-full
 train-decoder-only-full: ## Full fine-tune decoder-only model (requires more VRAM)
@@ -93,8 +88,6 @@ train-decoder-only-full: ## Full fine-tune decoder-only model (requires more VRA
 		--max_length $(DEC_ONLY_MAX_LEN) \
 		--bf16 \
 		--grad_checkpoint \
-		--eval_steps 100 \
-		--save_steps 100
 
 .PHONY: evaluate-decoder-only
 evaluate-decoder-only: ## Evaluate decoder-only model

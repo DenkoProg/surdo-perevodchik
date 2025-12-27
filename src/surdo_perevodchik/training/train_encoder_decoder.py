@@ -32,11 +32,14 @@ def preprocess(batch, tokenizer, max_length):
     return inputs
 
 
-def compute_metrics(eval_preds, tokenizer, metric, repetition_penalty, no_repeat_ngram_size):
+def compute_metrics(eval_preds, tokenizer, metric):
     preds, labels = eval_preds
 
     if isinstance(preds, tuple):
         preds = preds[0]
+
+    vocab_size = len(tokenizer)
+    preds = np.where((preds >= 0) & (preds < vocab_size), preds, tokenizer.pad_token_id)
 
     labels = np.where(labels != -100, labels, tokenizer.pad_token_id)
 
@@ -116,10 +119,9 @@ def main(args):
         bf16=args.bf16,
         gradient_checkpointing=args.grad_checkpoint,
         optim=args.optim,
-        eval_strategy="steps",
-        eval_steps=args.eval_steps,
-        save_steps=args.save_steps,
-        logging_steps=args.logging_steps,
+        eval_strategy="epoch",
+        save_strategy="epoch",
+        logging_strategy="epoch",
         save_total_limit=3,
         predict_with_generate=True,
         generation_max_length=args.max_length,
@@ -143,9 +145,7 @@ def main(args):
         eval_dataset=tokenized_val,
         data_collator=data_collator,
         processing_class=tokenizer,
-        compute_metrics=lambda eval_preds: compute_metrics(
-            eval_preds, tokenizer, metric, args.repetition_penalty, args.no_repeat_ngram_size
-        ),
+        compute_metrics=lambda eval_preds: compute_metrics(eval_preds, tokenizer, metric),
         callbacks=[EarlyStoppingCallback(early_stopping_patience=5)],
     )
 
@@ -171,9 +171,6 @@ if __name__ == "__main__":
     parser.add_argument("--bf16", action="store_true")
     parser.add_argument("--grad_checkpoint", action="store_true")
     parser.add_argument("--optim", type=str, default="adamw_torch")
-    parser.add_argument("--eval_steps", type=int, default=300)
-    parser.add_argument("--save_steps", type=int, default=300)
-    parser.add_argument("--logging_steps", type=int, default=50)
     parser.add_argument("--resume_from_checkpoint", type=str, default=None, help="Path to checkpoint to resume from")
     parser.add_argument("--repetition_penalty", type=float, default=1.2, help="Repetition penalty for generation")
     parser.add_argument("--no_repeat_ngram_size", type=int, default=3, help="Block repetition of n-grams")

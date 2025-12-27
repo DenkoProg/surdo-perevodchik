@@ -123,10 +123,9 @@ def main(args):
         fp16=args.fp16,
         bf16=args.bf16,
         optim=args.optim,
-        eval_strategy="steps",
-        eval_steps=args.eval_steps,
-        save_steps=args.save_steps,
-        logging_steps=args.logging_steps,
+        eval_strategy="epoch",
+        save_strategy="epoch",
+        logging_strategy="epoch",
         save_total_limit=2,
         load_best_model_at_end=True,
         report_to="none",
@@ -198,9 +197,6 @@ if __name__ == "__main__":
     parser.add_argument("--use_system_prompt", action="store_true", default=True, help="Include system prompt")
     parser.add_argument("--no_system_prompt", action="store_false", dest="use_system_prompt")
 
-    parser.add_argument("--eval_steps", type=int, default=100)
-    parser.add_argument("--save_steps", type=int, default=100)
-    parser.add_argument("--logging_steps", type=int, default=10)
     parser.add_argument("--resume_from_checkpoint", type=str, default=None, help="Resume from checkpoint path")
 
     args = parser.parse_args()
