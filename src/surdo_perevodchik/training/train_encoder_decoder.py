@@ -125,7 +125,7 @@ def main(args):
         save_total_limit=3,
         predict_with_generate=True,
         generation_max_length=args.max_length,
-        generation_num_beams=4,
+        generation_num_beams=1,
         load_best_model_at_end=True,
         metric_for_best_model="bleu",
         greater_is_better=True,

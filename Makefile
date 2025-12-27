@@ -33,10 +33,11 @@ train-encoder-decoder: ## Fine-tune encoder-decoder model (mT5, umT5, mbart)
 		--output_dir $(ENC_DEC_OUTPUT) \
 		--resume_from_checkpoint $(ENC_DEC_OUTPUT)/$(CHECKPOINT) \
 		--epochs 10 \
-		--batch_size 8 \
-		--grad_accum 2 \
+		--batch_size 4 \
+		--grad_accum 4 \
 		--lr 5e-5 \
 		--bf16 \
+		--optim adamw_bnb_8bit \
 		--max_length $(ENC_DEC_MAX_LEN) \
 
 .PHONY: evaluate-encoder-decoder
