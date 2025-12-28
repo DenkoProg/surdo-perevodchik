@@ -138,6 +138,11 @@ generate-hutsul-local: ## Generate synthetic Hutsul corpus (Local GPU, 8-bit qua
 		--batch-size 5 \
 		--limit 15000
 
+.PHONY: demo
+demo: ## Launch Gradio demo for dialect translation
+	@echo "🎭 Launching Gradio demo..."
+	@uv run python app.py
+
 .PHONY: help
 help: ## Show this help message
 	@uv run python -c "import re; \

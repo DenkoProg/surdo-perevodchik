@@ -1,4 +1,19 @@
-# Python Repo Template
+# Surdo Perevodchik - Ukrainian Dialect Translator
+
+Machine translation system for translating Ukrainian dialects (Hutsul, Polissian, etc.) to Standard Literary Ukrainian using fine-tuned mT5 models.
+
+## 🎭 Demo
+
+Launch the interactive Gradio web interface:
+
+```bash
+make demo
+```
+
+This will start a web server at `http://localhost:7860` with a user-friendly interface for translating Hutsul dialect to standard Ukrainian.
+
+### Features:
+- 📍 Dialect selector (currently supports Hutsul)
 
 ## ⚙️ Installation
 
