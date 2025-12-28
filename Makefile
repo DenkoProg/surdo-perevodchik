@@ -19,8 +19,8 @@ format: ## Format code and fix linting issues
 # =============================================================================
 
 ENC_DEC_MODEL := google/umt5-base
-ENC_DEC_OUTPUT := models/umt5-base-hutsul
-CHECKPOINT :=
+ENC_DEC_OUTPUT := models/umt5-base-hutsul-aligned
+CHECKPOINT := checkpoint-16560
 DATA_PATH := data/parallel
 ENC_DEC_MAX_LEN := 256
 
@@ -32,9 +32,11 @@ train-encoder-decoder: ## Fine-tune encoder-decoder model (mT5, umT5, mbart)
 		--model_name $(ENC_DEC_MODEL) \
 		--output_dir $(ENC_DEC_OUTPUT) \
 		--resume_from_checkpoint $(ENC_DEC_OUTPUT)/$(CHECKPOINT) \
-		--epochs 10 \
+		--epochs 20 \
 		--batch_size 4 \
 		--grad_accum 4 \
+		--weight_decay 0.1 \
+		--label_smoothing 0.1 \
 		--lr 5e-5 \
 		--bf16 \
 		--optim adamw_bnb_8bit \

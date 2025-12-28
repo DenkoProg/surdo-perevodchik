@@ -126,6 +126,8 @@ def main(args):
         eval_strategy="epoch",
         save_strategy="epoch",
         logging_strategy="epoch",
+        weight_decay=args.weight_decay,
+        label_smoothing_factor=args.label_smoothing,
         save_total_limit=2,
         load_best_model_at_end=True,
         report_to="none",
@@ -196,6 +198,8 @@ if __name__ == "__main__":
 
     parser.add_argument("--use_system_prompt", action="store_true", default=True, help="Include system prompt")
     parser.add_argument("--no_system_prompt", action="store_false", dest="use_system_prompt")
+    parser.add_argument("--weight_decay", type=float, default=0.01, help="Weight decay for optimizer")
+    parser.add_argument("--label_smoothing", type=float, default=0.0, help="Label smoothing factor for loss")
 
     parser.add_argument("--resume_from_checkpoint", type=str, default=None, help="Resume from checkpoint path")
 

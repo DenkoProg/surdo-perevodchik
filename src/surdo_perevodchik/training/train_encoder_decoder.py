@@ -114,7 +114,8 @@ def main(args):
         learning_rate=args.lr,
         num_train_epochs=args.epochs,
         warmup_steps=warmup_steps,
-        weight_decay=0.01,
+        weight_decay=args.weight_decay,
+        label_smoothing_factor=args.label_smoothing,
         fp16=args.fp16,
         bf16=args.bf16,
         gradient_checkpointing=args.grad_checkpoint,
@@ -171,6 +172,8 @@ if __name__ == "__main__":
     parser.add_argument("--bf16", action="store_true")
     parser.add_argument("--grad_checkpoint", action="store_true")
     parser.add_argument("--optim", type=str, default="adamw_torch")
+    parser.add_argument("--weight_decay", type=float, default=0.01, help="Weight decay for optimizer")
+    parser.add_argument("--label_smoothing", type=float, default=0.0, help="Label smoothing factor for loss")
     parser.add_argument("--resume_from_checkpoint", type=str, default=None, help="Path to checkpoint to resume from")
     parser.add_argument("--repetition_penalty", type=float, default=1.2, help="Repetition penalty for generation")
     parser.add_argument("--no_repeat_ngram_size", type=int, default=3, help="Block repetition of n-grams")
