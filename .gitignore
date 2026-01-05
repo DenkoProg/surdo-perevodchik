@@ -211,3 +211,6 @@ data/
 models/
 results/
 temp/
+*.docx
+*.dotm
+.DS_Store
