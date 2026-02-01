@@ -115,7 +115,7 @@ evaluate-decoder-only-base: ## Evaluate base decoder-only model (before fine-tun
 .PHONY: generate-hutsul
 generate-hutsul: ## Generate synthetic Hutsul corpus (OpenRouter API)
 	@echo "🧪 Generating Hutsul corpus..."
-	@uv run python scripts/generate_corpus.py generate \
+	@uv run python src/scripts/generate_corpus.py generate \
 		--input data/raw/standard_ukrainian.csv \
 		--output data/parallel/hutsul/synthetic_hutsul_corpus.csv \
 		--rules prompts/hutsul_rules_system.txt \
@@ -127,7 +127,7 @@ generate-hutsul: ## Generate synthetic Hutsul corpus (OpenRouter API)
 .PHONY: generate-hutsul-local
 generate-hutsul-local: ## Generate synthetic Hutsul corpus (Local GPU, 8-bit quantization)
 	@echo "🚀 Generating Hutsul corpus with local GPU model..."
-	@uv run python scripts/generate_corpus.py generate \
+	@uv run python src/scripts/generate_corpus.py generate \
 		--input data/raw/standard_ukrainian.csv \
 		--output data/parallel/hutsul/synthetic_hutsul_corpus.csv \
 		--rules prompts/hutsul_rules_system.txt \
