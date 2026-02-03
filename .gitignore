@@ -214,3 +214,13 @@ temp/
 *.docx
 *.dotm
 .DS_Store
+
+# LaTeX auxiliary files
+*.aux
+*.fdb_latexmk
+*.fls
+*.out
+*.toc
+*.synctex.gz
+*.bbl
+*.blg

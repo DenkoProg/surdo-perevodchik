@@ -145,8 +145,14 @@ demo: ## Launch Gradio demo for dialect translation
 
 .PHONY: pdf
 pdf: ## Compile LaTeX document to PDF
-	@echo "Compiling LaTeX document..."
+	@echo "📄 Compiling LaTeX document..."
 	@cd docs && xelatex -interaction=nonstopmode main.tex && xelatex -interaction=nonstopmode main.tex
+	@$(MAKE) clean-pdf
+
+.PHONY: clean-pdf
+clean-pdf: ## Clean LaTeX auxiliary files
+	@echo "🧹 Cleaning LaTeX auxiliary files..."
+	@cd docs && rm -f *.aux *.log *.out *.toc *.fdb_latexmk *.fls *.synctex.gz
 
 .PHONY: help
 help: ## Show this help message
