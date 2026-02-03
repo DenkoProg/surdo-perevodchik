@@ -143,6 +143,11 @@ demo: ## Launch Gradio demo for dialect translation
 	@echo "🎭 Launching Gradio demo..."
 	@uv run python app.py
 
+.PHONY: pdf
+pdf: ## Compile LaTeX document to PDF
+	@echo "Compiling LaTeX document..."
+	@cd docs && xelatex -interaction=nonstopmode main.tex && xelatex -interaction=nonstopmode main.tex
+
 .PHONY: help
 help: ## Show this help message
 	@uv run python -c "import re; \
