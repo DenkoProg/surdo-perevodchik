@@ -224,3 +224,7 @@ temp/
 *.synctex.gz
 *.bbl
 *.blg
+
+examples/
+unsloth_compiled_cache/
+test-model/
