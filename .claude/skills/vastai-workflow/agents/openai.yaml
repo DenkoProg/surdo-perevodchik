@@ -1,0 +1,4 @@
+interface:
+  display_name: "Vast.ai Workflow"
+  short_description: "Generic Vast.ai lifecycle workflow"
+  default_prompt: "Run a safe, generic Vast.ai API workflow with interactive parameter prompts and sensible defaults."
