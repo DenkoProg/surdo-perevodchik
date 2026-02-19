@@ -129,11 +129,18 @@ class DialectPromptBuilder:
         entries = []
         with open(self.dictionary_path, encoding="utf-8") as f:
             reader = csv.DictReader(f)
+            fieldnames = reader.fieldnames or []
+            # Auto-detect the dialect column: try known names first, then
+            # fall back to the first column that isn't "Ukrainian".
+            dialect_col = next(
+                (c for c in ["Hutsul", "Boykivian", "Transcarpathian", "Surzhyk", "Dialect"] if c in fieldnames),
+                next((c for c in fieldnames if c != "Ukrainian"), None),
+            )
             for row in reader:
-                hutsul = row.get("Hutsul", "").strip()
+                dialect = (row.get(dialect_col, "") if dialect_col else "").strip()
                 ukrainian = row.get("Ukrainian", "").strip()
-                if hutsul and ukrainian:
-                    entries.append((ukrainian, hutsul))
+                if dialect and ukrainian:
+                    entries.append((ukrainian, dialect))
 
         return entries
 
