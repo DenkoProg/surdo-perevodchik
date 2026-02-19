@@ -97,12 +97,21 @@ Rules:
    abbreviations like "м.", "ж.", "дієсл.", etc.
 4. If an entry has multiple numbered meanings (1., 2., ...), output a \
    separate JSON object for each meaning.
-5. Skip entries that are purely cross-references ("Пор.", "Div.") with no \
-   own definition.
-6. Preserve special characters exactly in the headword: ô, ÿ, ʼ, ы, і, ї, є, \
+5. Cross-reference markers are: "Пор.", "Div.", "дів.", "Дів.", "див.", "Див.". \
+   For entries that are PURELY a cross-reference (no own definition), \
+   set "ukrainian" and "uk_lemma" to the referenced headword (lowercase, \
+   no stress marks). Do NOT skip them. \
+   Example: "АНТОТÁ дів. антóт." → {"transcarpathian": "антота", "ukrainian": "антот", "uk_lemma": "антот"}. \
+   If an entry has its own definition AND a "Дів./Див. ще X" addendum, \
+   extract only the main definition and ignore the addendum.
+6. For entries whose definition is "Те саме, що X" or "То саме, що X" \
+   (meaning "same as X"), set "ukrainian" and "uk_lemma" to X (lowercase, no stress marks). \
+   Example: "АНТОТ… Те саме, що адтот" → ukrainian: "адтот".
+7. Preserve special characters exactly in the headword: ô, ÿ, ʼ, ы, і, ї, є, \
    stress marks.
-7. The "ukrainian" field must contain real standard Ukrainian words only.
-8. Skip page headers (running titles) and page numbers.
+8. NEVER use the entry's own headword as its Ukrainian translation. \
+   If you cannot determine a translation or referenced word, omit the entry.
+9. Skip page headers (running titles) and page numbers.
 
 Return ONLY a valid JSON array. No markdown fences, no explanation.
 Example:
@@ -124,12 +133,18 @@ The text is phonetically transcribed dialect speech. Key notation:
 
 Instructions:
 1. Extract ALL running dialect text from the page, preserving it EXACTLY as \
-   printed (including ô, ÿ, ʼ, /, //).
-2. If a new section title appears (centered bold text, e.g., \
-   "Про сплавляння лісу плотами"), include it in the "title" field.
+   printed (including ô, ÿ, ÿ, ʼ, /, //).
+2. Section titles are short centered bold phrases introduced by a preposition, \
+   like "Про сплавляння лісу плотами" or "Про дитинство" (mixed case). \
+   If one begins on this page, put it in the "title" field. \
+   If multiple appear, use the FIRST new section title. \
+   DO NOT capture the large all-caps chapter heading \
+   (e.g. "ТЕКСТИ, ЗАПИСАНІ У ГОВІРЦІ СЕЛА ...") — that is NOT a section title.
 3. Include recording attribution lines at the bottom \
    (e.g., "Записано 2005 р. від ...") — put them in the "attribution" field.
 4. Return ONLY the raw running text in "text", without titles or attributions.
+5. CRUCIAL: transcribe ONLY what is actually on the page. Stop as soon as \
+   the page ends. Do NOT repeat any phrase or line more than once.
 
 Return a JSON object with this exact structure:
 {
@@ -311,6 +326,88 @@ def deduplicate_dict(rows: list[dict]) -> list[dict]:
     return unique
 
 
+def resolve_cross_references(rows: list[dict]) -> tuple[list[dict], int, int]:
+    """Resolve cross-reference entries by following chains through TC headwords.
+
+    The LLM is instructed to set 'ukrainian' = referenced TC headword for
+    cross-reference entries (e.g. "антота" → "антот" → "адтот" → "отой").
+    This function follows those chains until it reaches a value that is NOT
+    itself a TC headword (= real standard Ukrainian translation).
+    Entries whose chain cannot be resolved are dropped.
+    """
+    MAX_DEPTH = 8
+
+    # Build lookup: tc_lower → row  (prefer rows that already have a non-self translation)
+    tc_to_row: dict[str, dict] = {}
+    for row in rows:
+        tc_lower = row["transcarpathian"].lower().strip()
+        existing = tc_to_row.get(tc_lower)
+        uk_lower = row["ukrainian"].lower().strip()
+        # Prefer entries that have a real (non-self) translation
+        if existing is None or existing["ukrainian"].lower().strip() == tc_lower:
+            tc_to_row[tc_lower] = row
+
+    tc_keys: set[str] = set(tc_to_row.keys())
+
+    def follow(uk_val: str, visited: set[str], depth: int = 0) -> dict | None:
+        """Return the row with the real translation, or None if unresolvable."""
+        if depth > MAX_DEPTH:
+            return None
+        uk_lower = uk_val.lower().strip()
+        if uk_lower in visited:
+            return None  # cycle detected
+        visited.add(uk_lower)
+
+        if uk_lower not in tc_keys:
+            # Not a TC headword → uk_val is already a real Ukrainian word;
+            # wrap it as a synthetic row for uniform handling
+            return {"ukrainian": uk_val, "uk_lemma": uk_val}
+
+        target = tc_to_row[uk_lower]
+        target_uk_lower = target["ukrainian"].lower().strip()
+
+        if target_uk_lower == uk_lower:
+            # Target points to itself — dead end, can't resolve further
+            return None
+
+        if target_uk_lower in tc_keys:
+            # Target is also a cross-reference — keep following
+            return follow(target["ukrainian"], visited, depth + 1)
+
+        # Target has a real translation
+        return target
+
+    resolved_count = 0
+    dropped_count = 0
+    result = []
+
+    for row in rows:
+        uk = row["ukrainian"]
+        uk_lower = uk.lower().strip()
+        tc_lower = row["transcarpathian"].lower().strip()
+
+        is_self_ref = uk_lower == tc_lower
+        is_xref = uk_lower in tc_keys and uk_lower != tc_lower
+
+        if is_self_ref or is_xref:
+            start = tc_lower if is_self_ref else uk_lower
+            resolved_row = follow(start, {tc_lower} if is_self_ref else set(), 0)
+            if resolved_row:
+                row = {
+                    **row,
+                    "ukrainian": resolved_row["ukrainian"],
+                    "uk_lemma": resolved_row.get("uk_lemma", resolved_row["ukrainian"]),
+                }
+                resolved_count += 1
+            else:
+                dropped_count += 1
+                continue
+
+        result.append(row)
+
+    return result, resolved_count, dropped_count
+
+
 def write_dict_csv(rows: list[dict], path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with open(path, "w", encoding="utf-8", newline="") as f:
@@ -325,6 +422,28 @@ def write_dict_csv(rows: list[dict], path: Path) -> None:
 # ---------------------------------------------------------------------------
 
 
+def truncate_repetitions(text: str, max_repeats: int = 3) -> str:
+    """Remove hallucinated repetition loops that LLMs produce near their output token limit.
+
+    Works by tracking how many times each normalised line has appeared.
+    Once any line exceeds *max_repeats* occurrences the tail is dropped.
+    """
+    lines = text.split("\n")
+    seen: dict[str, int] = {}
+    result: list[str] = []
+    for line in lines:
+        key = " ".join(line.strip().lower().split())
+        if not key:  # blank separator lines are fine
+            result.append(line)
+            continue
+        count = seen.get(key, 0) + 1
+        seen[key] = count
+        if count > max_repeats:
+            break  # repetition loop detected — discard everything from here
+        result.append(line)
+    return "\n".join(result).strip()
+
+
 def parse_text_response(response: str | None) -> dict | None:
     """Parse LLM JSON response for a text page."""
     if not response:
@@ -333,11 +452,13 @@ def parse_text_response(response: str | None) -> dict | None:
     try:
         data = json.loads(text)
         if isinstance(data, dict) and "text" in data:
+            if data["text"]:
+                data["text"] = truncate_repetitions(data["text"])
             return data
     except json.JSONDecodeError:
         pass
     # Fallback: treat the whole response as raw text
-    return {"text": response, "title": None, "attribution": None}
+    return {"text": truncate_repetitions(response), "title": None, "attribution": None}
 
 
 def split_into_phrases(full_text: str) -> list[str]:
@@ -455,8 +576,12 @@ def extract_dict(
     typer.echo(f"  After cleaning:  {len(cleaned)} rows ({len(all_rows) - len(cleaned)} removed)")
     unique = deduplicate_dict(cleaned)
     typer.echo(f"  After dedup:     {len(unique)} unique entries")
+    resolved, n_resolved, n_dropped = resolve_cross_references(unique)
+    typer.echo(
+        f"  After xref pass: {len(resolved)} entries ({n_resolved} resolved, {n_dropped} dropped as bare cross-refs)"
+    )
 
-    write_dict_csv(unique, DICT_OUTPUT)
+    write_dict_csv(resolved, DICT_OUTPUT)
     typer.echo(f"  Saved → {DICT_OUTPUT}")
 
     if failed_pages:
@@ -536,7 +661,7 @@ def main(
     pdf_path: Annotated[Path, typer.Option("--pdf", help="Path to the Transcarpathian PDF")] = PDF_PATH,
     model: Annotated[
         str, typer.Option("--model", help="Vision-capable OpenRouter model ID")
-    ] = "nvidia/nemotron-nano-12b-v2-vl:free",
+    ] = "google/gemma-3-27b-it",
     delay: Annotated[float, typer.Option("--delay", "-d", help="Seconds between API calls")] = 2.0,
     dpi: Annotated[int, typer.Option("--dpi", help="DPI for rendering PDF pages to images")] = 200,
     dry_run: Annotated[bool, typer.Option("--dry-run", help="Render pages only, skip LLM calls")] = False,
