@@ -280,6 +280,13 @@ def parse_dict_response(response: str | None) -> list[dict]:
 
 _CYRILLIC_RE = re.compile(r"[а-яіїєґА-ЯІЇЄҐ]")
 _LATIN_RE = re.compile(r"[a-zA-Z]")
+# Stress / tone combining marks — ignored when comparing TC headword vs UK translation
+_STRESS_CHARS = {"\u0301", "\u0300"}
+
+
+def _normalize_for_cmp(s: str) -> str:
+    """Lowercase + strip stress marks for equality comparison."""
+    return "".join(c for c in s.lower().strip() if c not in _STRESS_CHARS)
 
 
 def clean_dict_rows(rows: list[dict]) -> list[dict]:
@@ -309,6 +316,11 @@ def clean_dict_rows(rows: list[dict]) -> list[dict]:
 
         # Skip too-short entries
         if len(tc) < 1 or len(uk) < 2:
+            continue
+
+        # Skip entries where TC headword == Ukrainian translation (possibly
+        # differing only by a stress mark): these carry no translation value.
+        if _normalize_for_cmp(tc) == _normalize_for_cmp(uk):
             continue
 
         cleaned.append({"transcarpathian": tc, "ukrainian": uk, "uk_lemma": lemma or uk})
