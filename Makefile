@@ -112,6 +112,9 @@ evaluate-decoder-only-base: ## Evaluate base decoder-only model (before fine-tun
 
 # =============================================================================
 
+GEN_MODEL := mistralai/Mistral-Small-24B-Instruct-2501
+GEN_SEED  := 42
+
 .PHONY: generate-hutsul
 generate-hutsul: ## Generate synthetic Hutsul corpus (OpenRouter API)
 	@echo "🧪 Generating Hutsul corpus..."
@@ -122,10 +125,11 @@ generate-hutsul: ## Generate synthetic Hutsul corpus (OpenRouter API)
 		--dictionary data/dicts/hutsul_ukrainian_dictionary.csv \
 		--limit 20000 \
 		--model mistralai/ministral-14b-2512 \
+		--random-seed $(GEN_SEED) \
 		--batch-size 3
 
 .PHONY: generate-hutsul-local
-generate-hutsul-local: ## Generate synthetic Hutsul corpus (Local GPU, 8-bit quantization)
+generate-hutsul-local: ## Generate synthetic Hutsul corpus (Local GPU, 4-bit quantization)
 	@echo "🚀 Generating Hutsul corpus with local GPU model..."
 	@uv run python src/scripts/generate_corpus.py generate \
 		--input data/raw/standard_ukrainian.csv \
@@ -133,10 +137,59 @@ generate-hutsul-local: ## Generate synthetic Hutsul corpus (Local GPU, 8-bit qua
 		--rules prompts/hutsul_rules_system.txt \
 		--dictionary data/dicts/hutsul_ukrainian_dictionary.csv \
 		--provider local \
-		--model mistralai/Mistral-7B-Instruct-v0.2 \
-		--load-in-8bit \
+		--model $(GEN_MODEL) \
+		--load-in-4bit \
+		--random-seed $(GEN_SEED) \
 		--batch-size 5 \
-		--limit 15000
+		--limit 30000
+
+.PHONY: generate-boiko-local
+generate-boiko-local: ## Generate synthetic Boikivian corpus (Local GPU, 4-bit quantization)
+	@echo "🚀 Generating Boikivian corpus with local GPU model..."
+	@uv run python src/scripts/generate_corpus.py generate \
+		--input data/raw/standard_ukrainian.csv \
+		--output data/parallel/boiko/synthetic_boiko_corpus.csv \
+		--rules prompts/boiko_rules_system.txt \
+		--dictionary data/dicts/boykivian_ukrainian_dictionary.csv \
+		--provider local \
+		--model $(GEN_MODEL) \
+		--load-in-4bit \
+		--random-seed $(GEN_SEED) \
+		--batch-size 5 \
+		--limit 30000
+
+.PHONY: generate-transcarpathian-local
+generate-transcarpathian-local: ## Generate synthetic Transcarpathian corpus (Local GPU, 4-bit quantization)
+	@echo "🚀 Generating Transcarpathian corpus with local GPU model..."
+	@uv run python src/scripts/generate_corpus.py generate \
+		--input data/raw/standard_ukrainian.csv \
+		--output data/parallel/transcarpathian/synthetic_transcarpathian_corpus.csv \
+		--rules prompts/transcarpathian_rules_system.txt \
+		--dictionary data/dicts/transcarpathian_ukrainian_dictionary.csv \
+		--provider local \
+		--model $(GEN_MODEL) \
+		--load-in-4bit \
+		--random-seed $(GEN_SEED) \
+		--batch-size 5 \
+		--limit 30000
+
+.PHONY: generate-surzhyk-local
+generate-surzhyk-local: ## Generate synthetic Surzhyk corpus via LLM (Local GPU, 4-bit quantization)
+	@echo "🚀 Generating Surzhyk corpus with local GPU model..."
+	@uv run python src/scripts/generate_corpus.py generate \
+		--input data/raw/standard_ukrainian.csv \
+		--output data/parallel/surzhyk/synthetic_surzhyk_corpus_llm.csv \
+		--rules prompts/surzhyk_rules_system.txt \
+		--dictionary data/dicts/surzhyk_ukrainian_dictionary.csv \
+		--provider local \
+		--model $(GEN_MODEL) \
+		--load-in-4bit \
+		--random-seed $(GEN_SEED) \
+		--batch-size 5 \
+		--limit 30000
+
+.PHONY: generate-all-local
+generate-all-local: generate-hutsul-local generate-boiko-local generate-transcarpathian-local generate-surzhyk-local ## Generate all dialect corpora sequentially (Local GPU)
 
 .PHONY: demo
 demo: ## Launch Gradio demo for dialect translation

@@ -59,7 +59,6 @@ class LocalModelClient(LLMClient):
         # Load tokenizer
         self.tokenizer = AutoTokenizer.from_pretrained(
             self.config.model,
-            use_fast=False,  # Better compatibility
         )
         if self.tokenizer.pad_token is None:
             self.tokenizer.pad_token = self.tokenizer.eos_token

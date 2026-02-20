@@ -17,6 +17,7 @@ Usage:
 
 import csv
 from pathlib import Path
+import random
 from typing import Annotated, Optional
 
 from dotenv import load_dotenv
@@ -188,6 +189,13 @@ def generate(
             dir_okay=False,
         ),
     ] = None,
+    random_seed: Annotated[
+        int | None,
+        typer.Option(
+            "--random-seed",
+            help="Shuffle sentences randomly with this seed before processing (reproducible). Use the same seed when resuming.",
+        ),
+    ] = None,
 ):
     """
     Generate synthetic dialect parallel corpus from standard Ukrainian sentences.
@@ -211,6 +219,11 @@ def generate(
         raise typer.Exit(1)
 
     typer.echo(f"✅ Loaded {len(sentences)} sentences")
+
+    if random_seed is not None:
+        random.seed(random_seed)
+        random.shuffle(sentences)
+        typer.echo(f"🔀 Shuffled sentences with seed={random_seed}")
 
     # Create LLM client based on provider
     typer.echo(f"\n🔧 Initializing {provider} client...")
