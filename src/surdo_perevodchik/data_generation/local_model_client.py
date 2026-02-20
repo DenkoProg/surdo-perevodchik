@@ -115,13 +115,13 @@ class LocalModelClient(LLMClient):
 
     def _extract_json_response(self, text: str, num_sentences: int) -> str | None:
         """Try to extract JSON from response if present."""
-        # Look for JSON object in response
-        json_match = re.search(r'\{[^{}]*"translations"\s*:\s*\[[^\]]*\][^{}]*\}', text, re.DOTALL)
-        if json_match:
+        start = text.find("{")
+        end = text.rfind("}")
+        if start != -1 and end != -1 and end > start:
+            candidate = text[start : end + 1]
             try:
-                data = json.loads(json_match.group())
+                data = json.loads(candidate)
                 if "translations" in data and isinstance(data["translations"], list):
-                    # Return just the JSON object as string
                     return json.dumps(data, ensure_ascii=False)
             except json.JSONDecodeError:
                 pass
@@ -149,15 +149,24 @@ class LocalModelClient(LLMClient):
         import torch
 
         try:
+            json_instruction = (
+                '\n\n## OUTPUT FORMAT\n'
+                'Ignore any previous format instructions. '
+                'Respond ONLY with valid JSON, nothing else:\n'
+                '{"translations": ["translation1", "translation2", ...]}\n'
+                'No explanations, no markdown, no extra text — pure JSON only.'
+            )
+            system_prompt_with_json = system_prompt + json_instruction
+
             # Format prompt
-            prompt = self._format_chat_prompt(system_prompt, user_prompt)
+            prompt = self._format_chat_prompt(system_prompt_with_json, user_prompt)
 
             # Tokenize
             inputs = self.tokenizer(
                 prompt,
                 return_tensors="pt",
                 truncation=True,
-                max_length=4096,
+                max_length=28000,
             ).to(self.model.device)
 
             # Generate
