@@ -1,0 +1,299 @@
+% !TEX program = xelatex
+\documentclass[14pt]{extarticle}
+
+\usepackage[
+  a4paper,
+  left=2.5cm,
+  right=1.5cm,
+  top=2cm,
+  bottom=2cm
+]{geometry}
+
+\usepackage[ukrainian]{babel}
+\usepackage{fontspec}
+\setmainfont{Times New Roman}
+
+\usepackage{setspace}
+\onehalfspacing
+\setlength{\parindent}{1.27cm}
+\setlength{\parskip}{0pt}
+\usepackage{microtype}
+
+\usepackage{titlesec}
+\titleformat{\section}
+  {\bfseries\fontsize{16pt}{24pt}\selectfont\centering}
+  {\thesection}{0.5em}{}
+\titlespacing*{\section}{0pt}{20pt}{6pt}
+
+\titleformat{\subsection}
+  {\bfseries\fontsize{14pt}{21pt}\selectfont}
+  {\thesubsection}{0.5em}{}
+\titlespacing*{\subsection}{1.27cm}{6pt}{6pt}
+
+\usepackage{enumitem}
+\setlist[itemize,1]{
+  label=$\bullet$,
+  leftmargin=1.27cm,
+  labelwidth=0.5cm,
+  labelsep=0.3cm,
+  itemindent=0pt,
+  itemsep=3pt,
+  topsep=6pt,
+  parsep=0pt,
+  partopsep=0pt
+}
+\setlist[enumerate,1]{
+  label=\arabic*.,
+  leftmargin=2.54cm,
+  labelwidth=0.63cm,
+  labelsep=0.54cm,
+  itemindent=0pt,
+  itemsep=0pt,
+  topsep=0pt,
+  parsep=0pt,
+  partopsep=0pt
+}
+
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage{graphicx}
+\usepackage[table]{xcolor}
+
+\usepackage[hidelinks,breaklinks=true]{hyperref}
+
+% кольори для матриці ризиків
+\definecolor{riskred}{RGB}{255,102,102}
+\definecolor{riskyellow}{RGB}{255,220,80}
+\definecolor{riskgreen}{RGB}{102,204,102}
+
+\begin{document}
+\sloppy
+\emergencystretch=3em
+\setlength{\tabcolsep}{4pt}
+
+% ==================== ТИТУЛ ====================
+\begin{center}
+\textbf{Лабораторна робота №4}
+
+\medskip
+
+\textbf{\MakeUppercase{Аналіз ризиків проєкту та побудова матриці управління ризиками проєкту}}
+\end{center}
+
+\medskip
+
+\textbf{Мета роботи:} ознайомитись з основними підходами до побудови контрольного листа (списку) ризиків проєкту. Навчитись чітко, лаконічно та однозначно формулювати ризики у відповідності до поставлених в проєкті задач.
+
+\textbf{Проєкт:} <<Система для автоматичної нормалізації суржику та діалектних форм української мови>>.
+
+% ==================== РОЗДІЛ 1: ІДЕНТИФІКАЦІЯ ====================
+\section*{1. Ідентифікація ризиків проєкту}
+\addcontentsline{toc}{section}{1. Ідентифікація ризиків проєкту}
+
+Управління ризиками є одним із найбільш критичних факторів успіху проєкту. Після визначення цілей, стейкхолдерів та складності реалізації проєкту з'являється можливість більш детально усвідомити та систематизувати ризики. Ефективне управління ризиками дозволяє вчасно завершити проєкт у межах бюджету та відповідно до очікувань зацікавлених сторін.
+
+Для ідентифікації ризиків проєкту <<Система автоматичної нормалізації суржику та діалектних форм>> застосовано такі методи: огляд аналогічних NLP-проєктів та академічних публікацій (UA-GEC, Vuyko Mistral, Helsinki NLP); консультація з науковим керівником щодо технічних обмежень; аналіз блок-схеми пайплайну генерації даних та тренування моделі; проведення «негативного мозкового штурму» -- що може піти не так на кожному з п'яти етапів проєкту; SWOT-аналіз специфіки роботи з малоресурсними діалектами.
+
+За результатами ідентифікації визначено 12 ризиків, що охоплюють технічні, ресурсні, організаційні та якісні виміри проєкту.
+
+% ==================== РОЗДІЛ 2: РЕЄСТР РИЗИКІВ ====================
+\section*{2. Реєстр ризиків}
+\addcontentsline{toc}{section}{2. Реєстр ризиків}
+
+Кожен ризик оцінено за двома параметрами: ймовірність виникнення (P) та вплив на проєкт (I), кожен за шкалою 1--3 (1~-- низький, 2~-- середній, 3~-- високий). Значущість ризику (Score) розраховується як добуток P~$\times$~I.
+
+\medskip
+
+\noindent\textbf{Таблиця 1}
+
+\noindent Реєстр ризиків проєкту
+
+\begin{longtable}{|>{\raggedright\arraybackslash}p{0.05\textwidth}|>{\raggedright\arraybackslash}p{0.30\textwidth}|>{\centering\arraybackslash}p{0.04\textwidth}|>{\centering\arraybackslash}p{0.04\textwidth}|>{\centering\arraybackslash}p{0.07\textwidth}|>{\centering\arraybackslash}p{0.04\textwidth}|>{\raggedright\arraybackslash}p{0.24\textwidth}|}
+\hline
+\textbf{ID} & \textbf{Ризик} & \textbf{P} & \textbf{I} & \textbf{Score} & \textbf{К} & \textbf{Стратегія} \\
+\hline
+\endfirsthead
+\hline
+\textbf{ID} & \textbf{Ризик} & \textbf{P} & \textbf{I} & \textbf{Score} & \textbf{К} & \textbf{Стратегія} \\
+\hline
+\endhead
+R01 & Нестача паралельних діалектних даних для тренування & 3 & 3 & \cellcolor{riskred}9 & \cellcolor{riskred}Ч & Пом'якшення \\
+\hline
+R02 & Низька якість синтетичних даних, згенерованих LLM (галюцинації, помилки перекладу) & 3 & 2 & \cellcolor{riskred}6 & \cellcolor{riskred}Ч & Пом'якшення \\
+\hline
+R03 & Перенавчання (overfitting) моделі через малий обсяг реальних діалектних текстів & 2 & 3 & \cellcolor{riskred}6 & \cellcolor{riskred}Ч & Пом'якшення \\
+\hline
+R04 & Недостатні обчислювальні ресурси для fine-tuning Lapa LLM (12B параметрів) & 2 & 2 & \cellcolor{riskyellow}4 & \cellcolor{riskyellow}Ж & Пом'якшення \\
+\hline
+R05 & Зміна умов доступу до API (OpenRouter, rate limits, відключення безкоштовних моделей) & 2 & 2 & \cellcolor{riskyellow}4 & \cellcolor{riskyellow}Ж & Уникнення \\
+\hline
+R06 & Помилки та неточності у вихідних словниках та корпусах (транскарпатський, гуцульський) & 2 & 2 & \cellcolor{riskyellow}4 & \cellcolor{riskyellow}Ж & Пом'якшення \\
+\hline
+R07 & Невідповідність автоматичної метрики BLEU реальній якості нормалізації & 3 & 1 & \cellcolor{riskyellow}3 & \cellcolor{riskyellow}Ж & Прийняття \\
+\hline
+R08 & Відсутність носіїв діалекту для людської оцінки якості (human evaluation) & 3 & 1 & \cellcolor{riskyellow}3 & \cellcolor{riskyellow}Ж & Пом'якшення \\
+\hline
+R09 & Зміна вимог наукового керівника або кафедри на пізніх стадіях проєкту & 1 & 3 & \cellcolor{riskyellow}3 & \cellcolor{riskyellow}Ж & Пом'якшення \\
+\hline
+R10 & Технічні збої GPU-сервера під час тривалого тренування моделі & 2 & 1 & \cellcolor{riskgreen}2 & \cellcolor{riskgreen}З & Прийняття \\
+\hline
+R11 & Складність інтеграції seq2seq-модуля та Lapa LLM у єдиний пайплайн нормалізації & 1 & 2 & \cellcolor{riskgreen}2 & \cellcolor{riskgreen}З & Пом'якшення \\
+\hline
+R12 & Обмеження авторських прав на джерельні тексти українського корпусу & 1 & 2 & \cellcolor{riskgreen}2 & \cellcolor{riskgreen}З & Уникнення \\
+\hline
+\end{longtable}
+
+% ==================== РОЗДІЛ 3: МАТРИЦЯ ====================
+\section*{3. Матриця управління ризиками}
+\addcontentsline{toc}{section}{3. Матриця управління ризиками}
+
+Матриця управління ризиками розміщує кожен ризик у двовимірному просторі за осями ймовірності (P) та впливу (I). Колір квадранта визначає пріоритет реагування: ЧЕРВОНИЙ~-- вирішити або пом'якшити негайно; ЖОВТИЙ~-- розробити план дій; ЗЕЛЕНИЙ~-- моніторинг.
+
+\medskip
+
+\begin{center}
+\begin{tabular}{|c|c|c|c|}
+\hline
+\multirow{2}{*}{\textbf{Ймовірність (P)}} & \multicolumn{3}{c|}{\textbf{Вплив на проєкт (I)}} \\
+\cline{2-4}
+ & \textbf{1 -- низький} & \textbf{2 -- середній} & \textbf{3 -- високий} \\
+\hline
+\textbf{3 -- високий} &
+  \cellcolor{riskyellow}\begin{minipage}[t][1.5cm]{0.22\textwidth}\centering Score~3\\ R07, R08\end{minipage} &
+  \cellcolor{riskred}\begin{minipage}[t][1.5cm]{0.22\textwidth}\centering Score~6\\ R02\end{minipage} &
+  \cellcolor{riskred}\begin{minipage}[t][1.5cm]{0.22\textwidth}\centering Score~9\\ R01\end{minipage} \\
+\hline
+\textbf{2 -- середній} &
+  \cellcolor{riskgreen}\begin{minipage}[t][1.5cm]{0.22\textwidth}\centering Score~2\\ R10\end{minipage} &
+  \cellcolor{riskyellow}\begin{minipage}[t][1.5cm]{0.22\textwidth}\centering Score~4\\ R04, R05, R06\end{minipage} &
+  \cellcolor{riskred}\begin{minipage}[t][1.5cm]{0.22\textwidth}\centering Score~6\\ R03\end{minipage} \\
+\hline
+\textbf{1 -- низький} &
+  \cellcolor{riskgreen}\begin{minipage}[t][1.5cm]{0.22\textwidth}\centering Score~1\\ --\end{minipage} &
+  \cellcolor{riskgreen}\begin{minipage}[t][1.5cm]{0.22\textwidth}\centering Score~2\\ R11, R12\end{minipage} &
+  \cellcolor{riskyellow}\begin{minipage}[t][1.5cm]{0.22\textwidth}\centering Score~3\\ R09\end{minipage} \\
+\hline
+\end{tabular}
+\end{center}
+
+\medskip
+
+Стратегії реагування на ризики:
+
+\medskip
+
+\noindent\textbf{Таблиця 2}
+
+\noindent Стратегії ризику
+
+\begin{longtable}{|p{0.20\textwidth}|p{0.68\textwidth}|}
+\hline
+\textbf{Стратегія} & \textbf{Пояснення} \\
+\hline
+\endfirsthead
+\hline
+\textbf{Стратегія} & \textbf{Пояснення} \\
+\hline
+\endhead
+Уникнення & Усунути загрозу, усунувши причину її виникнення \\
+\hline
+Передача & Перекласти відповідальність за ризик на третю сторону \\
+\hline
+Пом'якшення & Зменшити ймовірність та (або) вплив ризику -- розробити план пом'якшення та резервний план \\
+\hline
+Прийняття & Прийняти ризик та створити резерви на випадок непередбачених ситуацій \\
+\hline
+\end{longtable}
+
+% ==================== РОЗДІЛ 4: ПЛАНИ ДІЙ ====================
+\section*{4. Плани реагування на ризики}
+\addcontentsline{toc}{section}{4. Плани реагування на ризики}
+
+\subsection*{4.1. Плани дій для ЧЕРВОНИХ ризиків}
+
+\textbf{R01 -- Нестача паралельних діалектних даних (Score~9).}
+Головна загроза проєкту -- відсутність готових великих паралельних корпусів для гуцульського, бойківського, закарпатського діалектів та суржику. План пом'якшення: (а)~автоматична генерація синтетичних пар за допомогою LLM на основі правил та діалектних словників (вже реалізовано для гуцульського діалекту, BLEU~$\approx$~51); (б)~парсинг відкритих джерел -- транскарпатського словника (7\,469 словникових статей), гуцульських текстів із Вікіпедії; (в)~аугментація даних -- back-translation та варіативні трансформації. Термін: до 28 лютого 2026~р. Відповідальний: Коваль~Д.П.
+
+Резервний план: якщо обсяг реальних даних залишиться менше 5\,000 пар -- обмежити область дослідження до двох діалектів (гуцульський + суржик) та використати виключно синтетичні дані з підвищеним контролем якості.
+
+\textbf{R02 -- Низька якість синтетично згенерованих даних (Score~6).}
+LLM може генерувати переклади з галюцинаціями, граматичними помилками або без відображення цільових діалектних ознак. План пом'якшення: (а)~автоматична фільтрація за BLEU-схожістю, довжиною відповіді та наявністю діалектних маркерів; (б)~ручна перевірка вибірки (2--5\%) на кожній ітерації; (в)~порівняльне тестування кількох моделей (Mistral, Gemma) та промптів. Термін: постійно в процесі генерації. Відповідальний: Коваль~Д.П.
+
+Резервний план: перехід на більш детальний промпт із few-shot прикладами та зменшення batch\_size до 5 речень.
+
+\textbf{R03 -- Перенавчання моделі (Score~6).}
+Малий обсяг реальних діалектних даних може призвести до overfitting під час fine-tuning. План пом'якшення: (а)~застосування QLoRA-квантизації (4-bit) для регуляризації; (б)~моніторинг validation loss на кожній епосі; (в)~рання зупинка (early stopping) при відсутності покращення; (г)~аугментація даних та cross-validation. Термін: реалізувати перед запуском першого тренування. Відповідальний: Коваль~Д.П.
+
+Резервний план: зменшення кількості тренувальних епох та збільшення dropout. Перехід до повного seq2seq-підходу без fine-tuning LLM при критичній нестачі даних.
+
+\subsection*{4.2. Плани дій для ЖОВТИХ ризиків}
+
+\textbf{R04 -- Недостатні обчислювальні ресурси (Score~4).}
+Fine-tuning Lapa LLM (12B параметрів) вимагає значних GPU-ресурсів. Поточне рішення: QLoRA 4-bit квантизація знижує потребу до 16~ГБ VRAM. Резервний план: використання Vast.ai або Google Colab Pro для оренди GPU A100.
+
+\textbf{R05 -- Зміна умов доступу до API (Score~4).}
+OpenRouter може змінити умови безкоштовного доступу. Стратегія уникнення: паралельне тестування локальних моделей (Mistral-7B через llama.cpp); зберігання всіх згенерованих даних локально після першої генерації.
+
+\textbf{R06 -- Помилки у словниках та корпусах (Score~4).}
+Вихідні словники можуть містити помилки транслітерації або застарілі форми. План: ручна верифікація 10\% записів; автоматична перевірка через SpaCy та UkrainianNLP.
+
+\textbf{R07 -- Невідповідність BLEU реальній якості (Score~3).}
+BLEU не завжди відображає якість нормалізації для діалектів. Прийняття: додатково використовувати метрику chrF та людську оцінку на вибірці 50 речень.
+
+\textbf{R08 -- Відсутність носіїв діалекту для оцінки (Score~3).}
+Людська оцінка потребує носіїв мови. Пом'якшення: залучити студентів-філологів із Прикарпаття або учасників ТМШ через соціальні мережі.
+
+\textbf{R09 -- Зміна вимог на пізніх стадіях (Score~3).}
+Науковий керівник або кафедра можуть змінити вимоги після початку тренування. Пом'якшення: щотижневі зустрічі з науковим керівником; фіксація вимог у протоколі зустрічей на кожному етапі.
+
+\subsection*{4.3. Зелені ризики -- моніторинг}
+
+Ризики R10 (технічні збої сервера), R11 (складність інтеграції модулів) та R12 (авторські права) мають низький пріоритет. Для них достатньо регулярного моніторингу на щотижневих зустрічах. Конкретні дії: регулярне збереження checkpoints моделі кожні 500 кроків тренування (R10); модульна архітектура пайплайну з чіткими інтерфейсами (R11); використання виключно відкритих корпусів із ліцензіями CC-BY (R12).
+
+% ==================== РОЗДІЛ 5: ЗВЕДЕНА ТАБЛИЦЯ ====================
+\section*{5. Зведений план управління ризиками}
+\addcontentsline{toc}{section}{5. Зведений план управління ризиками}
+
+\noindent\textbf{Таблиця 3}
+
+\noindent Зведена таблиця управління ризиками
+
+\begin{longtable}{|>{\raggedright\arraybackslash}p{0.05\textwidth}|>{\raggedright\arraybackslash}p{0.18\textwidth}|>{\centering\arraybackslash}p{0.04\textwidth}|>{\centering\arraybackslash}p{0.04\textwidth}|>{\centering\arraybackslash}p{0.08\textwidth}|>{\raggedright\arraybackslash}p{0.18\textwidth}|>{\raggedright\arraybackslash}p{0.14\textwidth}|>{\raggedright\arraybackslash}p{0.12\textwidth}|}
+\hline
+\textbf{ID} & \textbf{Ризик (скор.)} & \textbf{P} & \textbf{I} & \textbf{Score} & \textbf{Дія} & \textbf{Відповід.} & \textbf{Термін} \\
+\hline
+\endfirsthead
+\hline
+\textbf{ID} & \textbf{Ризик (скор.)} & \textbf{P} & \textbf{I} & \textbf{Score} & \textbf{Дія} & \textbf{Відповід.} & \textbf{Термін} \\
+\hline
+\endhead
+R01 & Нестача діалектних даних & 3 & 3 & \cellcolor{riskred}9 & LLM-генерація + парсинг словників & Коваль Д.П. & Лютий 2026 \\
+\hline
+R02 & Низька якість LLM-даних & 3 & 2 & \cellcolor{riskred}6 & Авто\-фільтрація + вибіркова перевірка & Коваль Д.П. & Постійно \\
+\hline
+R03 & Перенавчання моделі & 2 & 3 & \cellcolor{riskred}6 & QLoRA + early stopping & Коваль Д.П. & До тренування \\
+\hline
+R04 & Брак GPU-ресурсів & 2 & 2 & \cellcolor{riskyellow}4 & Vast.ai / Colab Pro & Коваль Д.П. & За потреби \\
+\hline
+R05 & Зміна умов API & 2 & 2 & \cellcolor{riskyellow}4 & Локальні моделі (llama.cpp) & Коваль Д.П. & Березень 2026 \\
+\hline
+R06 & Помилки у словниках & 2 & 2 & \cellcolor{riskyellow}4 & Верифікація 10\% записів & Коваль Д.П. & Лютий 2026 \\
+\hline
+R07 & BLEU $\neq$ реальна якість & 3 & 1 & \cellcolor{riskyellow}3 & chrF + human eval (50 речень) & Коваль Д.П. & Квітень 2026 \\
+\hline
+R08 & Відсутність носіїв мови & 3 & 1 & \cellcolor{riskyellow}3 & Залучення філологів / ТМШ & Коваль Д.П. & Квітень 2026 \\
+\hline
+R09 & Зміна вимог замовника & 1 & 3 & \cellcolor{riskyellow}3 & Щотижневі зустрічі & Коваль Д.П.,\newline Сивоконь О.О. & Постійно \\
+\hline
+R10 & Збої GPU-сервера & 2 & 1 & \cellcolor{riskgreen}2 & Checkpoints кожні 500 кроків & Коваль Д.П. & Постійно \\
+\hline
+R11 & Складність інтеграції & 1 & 2 & \cellcolor{riskgreen}2 & Модульна архітектура & Коваль Д.П. & Травень 2026 \\
+\hline
+R12 & Авторські права & 1 & 2 & \cellcolor{riskgreen}2 & Тільки CC-BY корпуси & Коваль Д.П. & Лютий 2026 \\
+\hline
+\end{longtable}
+
+\end{document}
