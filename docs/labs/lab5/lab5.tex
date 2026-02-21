@@ -1,0 +1,426 @@
+% !TEX program = xelatex
+\documentclass[14pt]{extarticle}
+
+\usepackage[
+  a4paper,
+  left=2.5cm,
+  right=1.5cm,
+  top=2cm,
+  bottom=2cm
+]{geometry}
+
+\usepackage[ukrainian]{babel}
+\usepackage{fontspec}
+\setmainfont{Times New Roman}
+
+\usepackage{setspace}
+\onehalfspacing
+\setlength{\parindent}{1.27cm}
+\setlength{\parskip}{0pt}
+\usepackage{microtype}
+
+\usepackage{titlesec}
+\titleformat{\section}
+  {\bfseries\fontsize{16pt}{24pt}\selectfont\centering}
+  {\thesection}{0.5em}{}
+\titlespacing*{\section}{0pt}{20pt}{6pt}
+
+\titleformat{\subsection}
+  {\bfseries\fontsize{14pt}{21pt}\selectfont}
+  {\thesubsection}{0.5em}{}
+\titlespacing*{\subsection}{1.27cm}{6pt}{6pt}
+
+\usepackage{enumitem}
+\setlist[itemize,1]{
+  label=$\bullet$,
+  leftmargin=1.27cm,
+  labelwidth=0.5cm,
+  labelsep=0.3cm,
+  itemindent=0pt,
+  itemsep=3pt,
+  topsep=6pt,
+  parsep=0pt,
+  partopsep=0pt
+}
+\setlist[enumerate,1]{
+  label=\arabic*.,
+  leftmargin=2.54cm,
+  labelwidth=0.63cm,
+  labelsep=0.54cm,
+  itemindent=0pt,
+  itemsep=0pt,
+  topsep=0pt,
+  parsep=0pt,
+  partopsep=0pt
+}
+
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage{graphicx}
+\usepackage[table]{xcolor}
+
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc}
+\usepackage{pgfgantt}
+
+\usepackage[hidelinks,breaklinks=true]{hyperref}
+
+\begin{document}
+\sloppy
+\emergencystretch=3em
+\setlength{\tabcolsep}{4pt}
+
+% ==================== ТИТУЛ ====================
+\begin{center}
+\textbf{Лабораторна робота №5}
+
+\medskip
+
+\textbf{\MakeUppercase{Планування та побудова «Дорожньої карти» проєкту. Побудова матриці відповідальності та комунікаційної матриці проєкту. Побудова діаграми Ганта.}}
+\end{center}
+
+\medskip
+
+\textbf{Мета роботи:} навчитися планувати проєкт, будувати мережеву діаграму, знаходити критичний шлях, формувати матрицю комунікацій та діаграму Ганта.
+
+\textbf{Проєкт:} <<Система для автоматичної нормалізації суржику та діалектних форм української мови>>.
+
+% ==================== РОЗДІЛ 1: КОНТРОЛЬНИЙ СПИСОК ====================
+\section*{1. Контрольний список планування проєкту}
+
+Контрольний список охоплює 16 обов'язкових кроків планування відповідно до методології PMBOK (Project Management Body of Knowledge).
+
+\vspace{6pt}
+\noindent\textbf{Таблиця 1 --- Контрольний список планування проєкту}
+
+\begin{longtable}{|>{\centering\arraybackslash}p{0.05\textwidth}|>{\raggedright\arraybackslash}p{0.42\textwidth}|>{\raggedright\arraybackslash}p{0.14\textwidth}|>{\raggedright\arraybackslash}p{0.24\textwidth}|}
+\hline
+\textbf{№} & \textbf{Крок планування} & \textbf{Статус} & \textbf{Результат} \\
+\hline
+\endfirsthead
+\hline
+\textbf{№} & \textbf{Крок планування} & \textbf{Статус} & \textbf{Результат} \\
+\hline
+\endhead
+1 & Визначення цілей і критеріїв успіху проєкту & Виконано & Цілі сформульовано у ЛР~№1 \\
+\hline
+2 & Ідентифікація стейкхолдерів & Виконано & Матриця 10 стейкхолдерів (ЛР~№3) \\
+\hline
+3 & Визначення обмежень та припущень & Виконано & Часові рамки: лютий--червень 2026 \\
+\hline
+4 & Розробка WBS & Виконано & Деревоподібна структура (розд.~2) \\
+\hline
+5 & Визначення переліку операцій & Виконано & 6 пакетів робіт (A--F) \\
+\hline
+6 & Визначення залежностей між операціями & Виконано & Послідовний та паралельний потік \\
+\hline
+7 & Оцінка тривалості операцій & Виконано & Від 2 до 6 тижнів \\
+\hline
+8 & Побудова мережевої діаграми & Виконано & Метод критичного шляху (розд.~3) \\
+\hline
+9 & Розрахунок критичного шляху & Виконано & $A\to B\to D\to E\to F$ = 19 тижнів \\
+\hline
+10 & Розробка матриці відповідальності (RAM) & Виконано & Таблиця RAM у ЛР~№3 \\
+\hline
+11 & Планування комунікацій & Виконано & Матриця комунікацій (розд.~5) \\
+\hline
+12 & Ідентифікація та оцінка ризиків & Виконано & Реєстр ризиків у ЛР~№4 \\
+\hline
+13 & Планування ресурсів & Виконано & Виконавець + науковий керівник \\
+\hline
+14 & Розробка бюджету & Виконано & 0~грн (академічний проєкт) \\
+\hline
+15 & Побудова діаграми Ганта & Виконано & Розклад проєкту (розд.~6) \\
+\hline
+16 & Затвердження плану та kick-off зустріч & Виконано & Погоджено з науковим керівником \\
+\hline
+\end{longtable}
+
+% ==================== РОЗДІЛ 2: WBS ====================
+\section*{2. Структура розбиття робіт (WBS)}
+
+\noindent\textbf{0.\ Система автоматичної нормалізації суржику та діалектних форм}
+
+\vspace{4pt}
+\begin{enumerate}[label=\textbf{\arabic*.}, leftmargin=1.5cm, itemsep=3pt, topsep=4pt, parsep=0pt]
+  \item \textbf{Управління проєктом}
+  \begin{enumerate}[label=1.\arabic*., leftmargin=1.2cm, itemsep=1pt, topsep=2pt, parsep=0pt, partopsep=0pt]
+    \item Координація та звітність
+    \item Управління ризиками
+  \end{enumerate}
+
+  \item \textbf{Дослідження та аналіз}
+  \begin{enumerate}[label=2.\arabic*., leftmargin=1.2cm, itemsep=1pt, topsep=2pt, parsep=0pt, partopsep=0pt]
+    \item Огляд академічних джерел та NLP-корпусів
+    \item Аналіз наявних підходів до нормалізації
+  \end{enumerate}
+
+  \item \textbf{Підготовка даних}
+  \begin{enumerate}[label=3.\arabic*., leftmargin=1.2cm, itemsep=1pt, topsep=2pt, parsep=0pt, partopsep=0pt]
+    \item Збір суржик-текстів та діалектних зразків
+    \item Розробка правил нормалізації
+    \item Анотація та верифікація датасету
+  \end{enumerate}
+
+  \item \textbf{Розробка моделей}
+  \begin{enumerate}[label=4.\arabic*., leftmargin=1.2cm, itemsep=1pt, topsep=2pt, parsep=0pt, partopsep=0pt]
+    \item Seq2seq базова модель
+    \item Fine-tuning Lapa LLM
+  \end{enumerate}
+
+  \item \textbf{Оцінка та інтеграція}
+  \begin{enumerate}[label=5.\arabic*., leftmargin=1.2cm, itemsep=1pt, topsep=2pt, parsep=0pt, partopsep=0pt]
+    \item Автоматична оцінка (BLEU, chrF, WER)
+    \item Ручна оцінка носіями мови
+    \item Інтеграція REST API
+  \end{enumerate}
+
+  \item \textbf{Документація та захист}
+  \begin{enumerate}[label=6.\arabic*., leftmargin=1.2cm, itemsep=1pt, topsep=2pt, parsep=0pt, partopsep=0pt]
+    \item Дипломна робота
+    \item Технічна документація
+    \item Захист проєкту
+  \end{enumerate}
+\end{enumerate}
+
+% ==================== РОЗДІЛ 3: МЕРЕЖЕВА ДІАГРАМА ====================
+\section*{3. Мережева діаграма проєкту}
+
+Мережева діаграма побудована методом критичного шляху (CPM). Таблиця 2 містить перелік операцій з оцінкою тривалості та залежностями.
+
+\vspace{6pt}
+\noindent\textbf{Таблиця 2 --- Перелік операцій проєкту}
+
+\begin{longtable}{|>{\centering\arraybackslash}p{0.04\textwidth}|>{\raggedright\arraybackslash}p{0.35\textwidth}|>{\centering\arraybackslash}p{0.10\textwidth}|>{\centering\arraybackslash}p{0.13\textwidth}|>{\raggedright\arraybackslash}p{0.22\textwidth}|}
+\hline
+\textbf{ID} & \textbf{Операція} & \textbf{Три\-вал.,\newline тижні} & \textbf{Залежить від} & \textbf{Відповідальний} \\
+\hline
+\endfirsthead
+\hline
+\textbf{ID} & \textbf{Операція} & \textbf{Три\-вал.,\newline тижні} & \textbf{Залежить від} & \textbf{Відповідальний} \\
+\hline
+\endhead
+A & Аналіз літератури та предметної галузі & 3 & --- & Коваль Д.П. \\
+\hline
+B & Підготовка та анотація датасету & 6 & A & Коваль Д.П. \\
+\hline
+C & Seq2seq базова модель & 3 & B & Коваль Д.П. \\
+\hline
+D & Fine-tuning Lapa LLM & 4 & B & Коваль Д.П. \\
+\hline
+E & Оцінка та інтеграція & 2 & C, D & Коваль Д.П., Сивоконь О.О. \\
+\hline
+F & Написання дипломної роботи & 4 & E & Коваль Д.П., Сивоконь О.О. \\
+\hline
+\end{longtable}
+
+\vspace{8pt}
+\noindent\textbf{Рисунок 1 --- Мережева діаграма проєкту (метод CPM)}
+
+\vspace{8pt}
+\begin{center}
+\resizebox{0.98\textwidth}{!}{%
+\begin{tikzpicture}[
+  taskbox/.style={
+    draw=gray!70, rectangle, rounded corners=3pt,
+    minimum width=3.0cm, minimum height=2.8cm,
+    align=center, thick
+  },
+  critbox/.style={
+    draw=red!80!black, rectangle, rounded corners=3pt,
+    minimum width=3.0cm, minimum height=2.8cm,
+    align=center, thick, line width=2pt,
+    fill=red!8
+  },
+  arr/.style={-{Stealth[length=9pt]}, thick, gray!60},
+  critarr/.style={-{Stealth[length=9pt]}, thick, red!80!black, line width=2pt}
+]
+
+\node[critbox] (A) at (0, 0) {
+  \large\textbf{A}\\[3pt]
+  \normalsize Аналіз\\[-1pt]
+  \normalsize літератури\\[5pt]
+  \small ES=0 \quad EF=3\\
+  \small LS=0 \quad LF=3\\[2pt]
+  \small TF=0
+};
+
+\node[critbox] (B) at (5, 0) {
+  \large\textbf{B}\\[3pt]
+  \normalsize Підготовка\\[-1pt]
+  \normalsize даних\\[5pt]
+  \small ES=3 \quad EF=9\\
+  \small LS=3 \quad LF=9\\[2pt]
+  \small TF=0
+};
+
+\node[taskbox] (C) at (10, 2.8) {
+  \large\textbf{C}\\[3pt]
+  \normalsize Seq2seq\\[-1pt]
+  \normalsize модель\\[5pt]
+  \small ES=9 \quad EF=12\\
+  \small LS=10 \; LF=13\\[2pt]
+  \small TF=1
+};
+
+\node[critbox] (D) at (10, -2.8) {
+  \large\textbf{D}\\[3pt]
+  \normalsize Fine-tuning\\[-1pt]
+  \normalsize Lapa LLM\\[5pt]
+  \small ES=9 \quad EF=13\\
+  \small LS=9 \quad LF=13\\[2pt]
+  \small TF=0
+};
+
+\node[critbox] (E) at (15.5, 0) {
+  \large\textbf{E}\\[3pt]
+  \normalsize Оцінка та\\[-1pt]
+  \normalsize інтеграція\\[5pt]
+  \small ES=13 \; EF=15\\
+  \small LS=13 \; LF=15\\[2pt]
+  \small TF=0
+};
+
+\node[critbox] (F) at (20.5, 0) {
+  \large\textbf{F}\\[3pt]
+  \normalsize Дипломна\\[-1pt]
+  \normalsize робота\\[5pt]
+  \small ES=15 \; EF=19\\
+  \small LS=15 \; LF=19\\[2pt]
+  \small TF=0
+};
+
+% Arrows
+\draw[critarr] (A.east) -- (B.west);
+\draw[arr] (B.east) -- (C.west);
+\draw[critarr] (B.east) -- (D.west);
+\draw[arr] (C.east) -- (E.west);
+\draw[critarr] (D.east) -- (E.west);
+\draw[critarr] (E.east) -- (F.west);
+
+\end{tikzpicture}%
+}
+\end{center}
+
+\vspace{4pt}
+\noindent{\small\textit{Умовні позначення: червона рамка --- критичні операції (TF=0); сіра рамка --- некритичні (TF$>$0).}}
+
+% ==================== РОЗДІЛ 4: РУХ ВПЕРЕД / ЗВОРОТНІЙ ====================
+\section*{4. «Рух вперед» та «Зворотній рух»}
+
+Метод критичного шляху передбачає два проходи: \textbf{«рух вперед»} (розрахунок раннього початку ES та раннього закінчення EF) та \textbf{«зворотній рух»} (розрахунок пізнього початку LS та пізнього закінчення LF).
+
+\vspace{6pt}
+\noindent\textbf{Таблиця 3 --- Розрахунок раннього та пізнього початку і закінчення}
+
+\begin{longtable}{|>{\centering\arraybackslash}p{0.04\textwidth}|>{\centering\arraybackslash}p{0.09\textwidth}|>{\centering\arraybackslash}p{0.06\textwidth}|>{\centering\arraybackslash}p{0.06\textwidth}|>{\centering\arraybackslash}p{0.06\textwidth}|>{\centering\arraybackslash}p{0.06\textwidth}|>{\centering\arraybackslash}p{0.06\textwidth}|>{\centering\arraybackslash}p{0.10\textwidth}|>{\centering\arraybackslash}p{0.06\textwidth}|}
+\hline
+\textbf{ID} & \textbf{Три\-вал.} & \textbf{ES} & \textbf{EF} & \textbf{LS} & \textbf{LF} & \textbf{TF} & \textbf{Крит.?} & \textbf{FF} \\
+\hline
+\endfirsthead
+\hline
+\textbf{ID} & \textbf{Три\-вал.} & \textbf{ES} & \textbf{EF} & \textbf{LS} & \textbf{LF} & \textbf{TF} & \textbf{Крит.?} & \textbf{FF} \\
+\hline
+\endhead
+A & 3 & 0 & 3 & 0 & 3 & 0 & Так & 0 \\
+\hline
+B & 6 & 3 & 9 & 3 & 9 & 0 & Так & 0 \\
+\hline
+C & 3 & 9 & 12 & 10 & 13 & 1 & Ні & 1 \\
+\hline
+D & 4 & 9 & 13 & 9 & 13 & 0 & Так & 0 \\
+\hline
+E & 2 & 13 & 15 & 13 & 15 & 0 & Так & 0 \\
+\hline
+F & 4 & 15 & 19 & 15 & 19 & 0 & Так & 0 \\
+\hline
+\end{longtable}
+
+\noindent де: \textbf{ES} --- ранній початок; \textbf{EF} --- раннє закінчення; \textbf{LS} --- пізній початок; \textbf{LF} --- пізнє закінчення; \textbf{TF} --- загальний резерв часу; \textbf{FF} --- вільний резерв часу.
+
+\medskip
+
+\noindent Загальна тривалість проєкту: \textbf{19 тижнів}. Критичний шлях: $\mathbf{A \to B \to D \to E \to F}$.
+
+% ==================== РОЗДІЛ 5: МАТРИЦЯ КОМУНІКАЦІЙ ====================
+\section*{5. Матриця комунікацій проєкту}
+
+Матриця комунікацій визначає, які повідомлення, яким стейкхолдерам, у якій формі та з якою частотою передаються впродовж проєкту.
+
+\vspace{6pt}
+\noindent\textbf{Таблиця 4 --- Матриця комунікацій}
+
+\begin{longtable}{|>{\raggedright\arraybackslash}p{0.15\textwidth}|>{\raggedright\arraybackslash}p{0.19\textwidth}|>{\raggedright\arraybackslash}p{0.14\textwidth}|>{\raggedright\arraybackslash}p{0.14\textwidth}|>{\raggedright\arraybackslash}p{0.13\textwidth}|>{\raggedright\arraybackslash}p{0.13\textwidth}|}
+\hline
+\textbf{Аудиторія} & \textbf{По\-ві\-дом\-лення} & \textbf{Тип} & \textbf{Частота} & \textbf{Кому\-нікатор} & \textbf{Від\-по\-ві\-даль\-ність} \\
+\hline
+\endfirsthead
+\hline
+\textbf{Аудиторія} & \textbf{По\-ві\-дом\-лення} & \textbf{Тип} & \textbf{Частота} & \textbf{Кому\-нікатор} & \textbf{Від\-по\-ві\-даль\-ність} \\
+\hline
+\endhead
+Науковий керівник (S2) & Звіти про прогрес та технічні питання & Зустріч / email & Що\-тижнево & Коваль Д.П. & Звітність та схвалення \\
+\hline
+Кафедра СШІ (S3) & Проміжні результати, відповідність вимогам & Пре\-зен\-тація & Що\-місяця & Коваль Д.П. & Від\-по\-від\-ність вимогам \\
+\hline
+NLP-спільнота (S7) & Публікація моделей та датасетів & GitHub / звіт & За потреби & Коваль Д.П. & Від\-критий доступ \\
+\hline
+Носії діалектів (S5) & Збір зразків та зворотній зв'язок & Анкета & 1 раз & Коваль Д.П. & Якість даних \\
+\hline
+Команда Lapa LLM (S4) & Технічні консультації та доступ до моделі & Email / API & За потреби & Коваль Д.П. & Інтеграція LLM \\
+\hline
+EdTech-платформи (S8) & Демонстрація готової системи & Вебінар & 1 раз & Коваль Д.П.,\newline Сивоконь О.О. & Попу\-ляри\-зація \\
+\hline
+\end{longtable}
+
+% ==================== РОЗДІЛ 6: ДІАГРАМА ГАНТА ====================
+\section*{6. Діаграма Ганта}
+
+Діаграма Ганта відображає часовий розклад виконання операцій проєкту. Критичні операції (TF=0) виділено червоним кольором.
+
+\vspace{8pt}
+\noindent\textbf{Рисунок 2 --- Діаграма Ганта проєкту (тижні 1--19)}
+
+\vspace{8pt}
+\begin{center}
+\resizebox{\textwidth}{!}{%
+\begin{ganttchart}[
+  hgrid,
+  vgrid={*{1}{draw=gray!30}},
+  x unit=0.70cm,
+  y unit title=0.80cm,
+  y unit chart=0.90cm,
+  title/.style={fill=gray!25, draw=black, font=\normalsize},
+  title label font=\normalsize,
+  bar label font=\normalsize,
+  bar/.style={fill=blue!55, draw=blue!75!black},
+  bar height=0.55,
+  group right shift=0,
+  group top shift=0.7,
+  group height=0.3
+]{1}{19}
+  \gantttitle{Тижні проєкту}{19} \\
+  \gantttitlelist{1,...,19}{1} \\
+  \ganttbar[bar/.style={fill=red!60, draw=red!80!black}]
+    {A: Аналіз літератури}{1}{3} \\
+  \ganttbar[bar/.style={fill=red!60, draw=red!80!black}]
+    {B: Підготовка даних}{4}{9} \\
+  \ganttbar[bar/.style={fill=blue!55, draw=blue!75!black}]
+    {C: Seq2seq модель}{10}{12} \\
+  \ganttbar[bar/.style={fill=red!60, draw=red!80!black}]
+    {D: Fine-tuning Lapa LLM}{10}{13} \\
+  \ganttbar[bar/.style={fill=red!60, draw=red!80!black}]
+    {E: Оцінка та інтеграція}{14}{15} \\
+  \ganttbar[bar/.style={fill=red!60, draw=red!80!black}]
+    {F: Дипломна робота}{16}{19} \\
+\end{ganttchart}%
+}
+\end{center}
+
+\vspace{4pt}
+\noindent{\small\textit{Умовні позначення: \textcolor{red!70!black}{\rule{1em}{0.8em}} --- критичні операції ($A\to B\to D\to E\to F$); \textcolor{blue!70!black}{\rule{1em}{0.8em}} --- некритичні операції (TF$>$0).}}
+
+\end{document}
