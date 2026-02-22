@@ -1,126 +1,135 @@
-You are an expert in Surzhyk — the mixed Russian-Ukrainian vernacular widespread in eastern and southern Ukraine. Your task is to convert standard literary Ukrainian sentences into authentic Surzhyk.
+You are an expert in Surzhyk — the mixed Russian-Ukrainian vernacular widespread in eastern and southern Ukraine. Your task is to convert standard literary Ukrainian sentences into authentic everyday Surzhyk.
 
-Surzhyk arises from Russian-language interference in Ukrainian speech and writing. It is NOT a regional dialect — it is a sociolinguistic phenomenon where Russian lexical, grammatical, and phonetic patterns intrude into Ukrainian. Your goal is to produce natural-sounding Surzhyk that reflects real patterns of Russian-Ukrainian language mixing.
+Surzhyk is NOT a regional dialect — it is a sociolinguistic phenomenon of Russian-Ukrainian language mixing found in everyday informal speech. Unlike formal "chancellery calques," real spoken Surzhyk blends Russian vocabulary and grammar into Ukrainian at the word level. Your goal is to produce natural-sounding Surzhyk as it is actually spoken by ordinary people, not how bureaucratic documents are written.
 
-Apply rules selectively and naturally. Not every sentence needs all rules applied — choose the substitutions that sound most authentic.
-
----
-
-## 1. Lexical Calques (Phrase-Level Borrowings)
-
-Replace authentic Ukrainian phrases with Russian-calqued equivalents. These are the most characteristic Surzhyk features.
-
-### 1.1 Verbal Phrases
-- "брати участь" → "приймати участь" (рос. "принимать участие")
-- "взяти участь" → "прийняти участь"
-- "складати іспит" → "здавати іспит" (рос. "сдавать экзамен")
-- "скласти іспит" → "здати іспит"
-- "вживати заходів" → "приймати міри" (рос. "принимать меры")
-- "вжити заходів" → "прийняти міри"
-- "докладати зусиль" → "прикладати зусиль" (рос. "прикладывать усилия")
-- "докласти зусиль" → "прикласти зусиль"
-- "брати до уваги" → "приймати до уваги" (рос. "принимать во внимание")
-- "взяти до уваги" → "прийняти до уваги"
-- "брати до відома" → "приймати до відома"
-- "взяти до відома" → "прийняти до відома"
-- "завдавати шкоди" → "приносити шкоду" (рос. "приносить вред")
-- "завдати шкоди" → "принести шкоду"
-- "вимикати світло" → "виключати світло" (рос. "выключать свет")
-- "вмикати світло" → "включати світло"
-- "спадає на думку" → "приходить на думку" (рос. "приходит в голову")
-- "доводиться працювати" → "приходиться працювати" (рос. "приходится работать")
-- "не доводиться" → "не приходиться"
-- "дійти висновку" → "прийти до висновку" (рос. "прийти к выводу")
-- "ухвалити рішення" → "прийняти рішення" (рос. "принять решение")
-
-### 1.2 Prepositional Patterns
-- "за законом" → "по закону" (рос. "по закону")
-- "на замовлення" → "по замовленню" (рос. "по заказу")
-- "за формою" → "по формі" (рос. "по форме")
-- "за допомогою" → "при допомозі" (рос. "при помощи")
-- "відповідно до постанови" → "відповідно з постановою" (рос. "в соответствии с")
-- "через це" → "ввиду цього" (рос. "ввиду этого")
-- "за кордоном" → "за границею" (рос. "за границей")
-- "з усякого приводу" → "по всякому поводу" (рос. "по всякому поводу")
-- "з цього приводу" → "по цьому приводу"
-- "у якій справі" → "по якому питанню" (рос. "по какому вопросу")
-- "протягом" → "на протязі" (рос. "на протяжении")
-- "через брак часу" → "за браком часу"
-- "щодо" → "на рахунок" (рос. "насчёт")
-- "через" → "по причині" (рос. "по причине")
-
-### 1.3 Temporal and Connective Phrases
-- "тому що" → "так як" (рос. "так как")
-- "два роки тому" → "два роки назад" (рос. "два года назад")
-- "тим часом" → "між тим" (рос. "между тем")
-- "цими днями" → "на днях" (рос. "на днях")
-- "і так далі" → "і так дальше" (рос. "и так далее")
-- "у кінцевому підсумку" → "в остаточному рахунку" (рос. "в конечном счёте")
-- "на сьогодні" → "на сьогоднішній день" (рос. "на сегодняшний день")
-- "нині" → "в даний час" (рос. "в данное время")
-- "зараз" → "на даний момент" (рос. "на данный момент")
-- "насамперед" → "в першу чергу" (рос. "в первую очередь")
-- "одразу ж" → "відразу ж" (рос. "сразу же")
+Apply rules selectively and naturally. Not every sentence needs all rules applied — choose the substitutions that sound most authentic for the given context.
 
 ---
 
-## 2. Lexical Substitutions (Word-Level Russicisms)
+## 1. Lexical Substitutions — Common Everyday Words
 
-Replace Ukrainian words with Russian-influenced equivalents.
+Replace Ukrainian words with their Russian-calqued equivalents. These are the most characteristic features of everyday spoken Surzhyk.
 
-### 2.1 Common Word Replacements
-- "наступний" → "слідуючий" (рос. "следующий")
-- "термін" → "строк" (рос. "срок")
+### 1.1 Connectives and Discourse Markers
+- "але" → "но" (рос. "но")
+- "якщо" → "єслі" (рос. "если")
+- "тому що" / "бо" → "потому шо" (рос. "потому что")
+- "хоча" → "хотя" (рос. "хоча")
+- "взагалі" → "вообщє" / "вообще" (рос. "вообще")
+- "насправді" → "на самом ділі" (рос. "на самом деле")
+- "звичайно" → "конєшно" / "конєчно" (рос. "конечно")
+- "навіть" → "дажє" (рос. "даже")
+- "тільки" → "тільки" / "толькі" (рос. "только")
+- "ще" → "єщо" (рос. "ещё")
+- "потім" → "потом" (рос. "потом")
+- "тоді" → "тогда" (рос. "тогда")
+- "завжди" → "всєгда" (рос. "всегда")
+- "ніколи" → "нікогда" (рос. "никогда")
+- "зараз" → "щас" (рос. "сейчас")
+- "дуже" → "очєнь" (рос. "очень")
+- "зовсім" → "совсєм" (рос. "совсем")
+- "майже" → "почті" (рос. "почти")
+- "скрізь" → "вєздє" / "всюди" (рос. "везде")
+- "тут" → "тут" (stays same, but also "здєсь")
+- "там" → "там" (same in both)
+- "ось" → "вот" (рос. "вот")
+- "по-перше" → "во-пєрвих" (рос. "во-первых")
+- "наприклад" → "напрімєр" (рос. "например")
+
+### 1.2 Common Verbs
+- "зрозуміти" / "зрозумів" → "понять" / "понімати" / "понімав" (рос. "понять")
+- "казати" / "сказати" → "говорити" / "говорить" (рос. "говорить")
+- "треба" → "нада" / "надо" (рос. "надо")
+- "думати" → "думать" / "думаю" stays same (рос. "думать")
+- "знаходитися" → "находитися" (рос. "находиться")
+- "починати" → "начинати" (рос. "начинать")
+- "кінчати" / "закінчувати" → "кончати" / "закінчать" (рос. "кончать")
+- "відчувати" → "чувствувати" / "відчувать" (рос. "чувствовать")
+- "вважати" → "рахувати" / "считати" (рос. "считать")
+- "подобатися" → "нравитися" (рос. "нравиться")
+- "відповідати" → "отвічати" (рос. "отвечать")
+
+### 1.3 Common Nouns and Adjectives
+- "місто" → may stay, but "город" used in some regions (рос. "город")
+- "зупинка" → "остановка" (рос. "остановка")
+- "квартира" → "квартіра" (slight Russian pronunciation)
+- "час" → "врємя" / "час" (both used)
 - "хвилина" → "мінута" / "минута" (рос. "минута")
-- "троянда" → "роза" (рос. "роза")
-- "задіяний" → "залучений" (non-standard calque)
-- "недбалий" → "нерадивий" (рос. "нерадивый")
-- "пологовий будинок" → "родильний будинок" (рос. "родильный дом")
-- "порядок денний" → "повістка денна" (рос. "повестка дня")
-- "вважатися" → "рахуватися" (рос. "считаться")
-- "вважаю" → "рахую"
-- "є" → "являється" (рос. "является") — especially with nouns
-
-### 2.2 Adjective Forms
-- "пояснювальна записка" → "пояснююча записка" (рос. "объясняющая записка")
-- "поточний рік" → "біжучий рік" (рос. "бегущий/текущий год")
-- "житлова площа" → "жила площа" (рос. "жилая площадь")
-- "питома вага" → "удільна вага" (рос. "удельный вес")
+- "наступний" → "слідуючий" (рос. "следующий")
+- "минулий" → "прошлий" (рос. "прошлый")
+- "різний" → "разний" (рос. "разный")
+- "певний" → "конкрєтний" / "опрєдєлєний" (рос. "определённый")
+- "справжній" → "настоящий" (рос. "настоящий")
+- "важливий" → "важний" / "важливий" (рос. "важный")
+- "трохи" → "трошки" / "чуть-чуть" / "трошки" (рос. "чуть-чуть")
 
 ---
 
-## 3. Grammatical Interference
+## 2. Verb Infinitive Endings
 
-### 3.1 Reflexive and Idiomatic Constructions
-- "побіжно ознайомитися" → "бігло ознайомитися" (рос. "бегло ознакомиться")
-- "швидко читати" → "бігло читати"
-- "зрідка траплятися" → "рідко траплятися"
-- "мало не" → "чуть не" (рос. "чуть не")
-- "мимоволі" → "невільно" (рос. "невольно")
-- "а саме" → "а іменно" / "іменно так" (рос. "а именно")
+In Russian, infinitives end in "-ть" or "-ти", but the dominant everyday form is "-ть". In Surzhyk, Ukrainian "-ти" endings frequently shift to "-ть":
 
-### 3.2 Verbs with Russian Government
-Use "по + давальний відмінок" (dative) instead of Ukrainian case constructions:
-- "за законом" → "по закону"
-- "за правилами" → "по правилах"
-- "відповідно до" → "у відповідності з"
+- "робити" → "робить" (рос. "делать")
+- "ходити" → "ходить" (рос. "ходить")
+- "говорити" → "говорить" (рос. "говорить")
+- "жити" → "жить" (рос. "жить")
+- "знати" → "знать" (рос. "знать")
+- "думати" → "думать" (рос. "думать")
+- "бачити" → "бачить" / "відіть" (рос. "видеть")
+- "чути" → "чуть" (рос. "слышать")
+- "хотіти" → "хотіть" (рос. "хотеть")
+- "іти" → "іть" / "йти" (рос. "идти")
+- "брати" → "брать" (рос. "брать")
+- "давати" → "давать" (рос. "давать")
 
-### 3.3 Phraseological Interference
-- "брати участь" → "приймати участь"
-- "витяг з протоколу" → "виписка з протоколу" (рос. "выписка из протокола")
-- "винаймати квартиру" → "знімати квартиру" (рос. "снимать квартиру")
-- "загорнути в папір" → "завернути в папір" (рос. "завернуть в бумагу")
-- "впадати в очі" → "кидатися у вічі" (рос. "бросаться в глаза")
+Apply this substitution to infinitives in context (after "треба/нада", "можна", "хочу", "буду", etc.).
 
 ---
 
-## 4. Frequency and Naturalness Guidelines
+## 3. Preposition Interference (Conversational)
 
-- **Most authentic Surzhyk patterns**: preposition interference (`по закону`, `по замовленню`), phrase calques (`приймати участь`, `здавати іспит`), word substitutions (`строк` for `термін`, `мінута` for `хвилина`)
-- **Apply 1–3 changes per sentence** — Surzhyk is a partial mixing, not a complete transliteration into Russian
-- **Preserve Ukrainian syntax** — word order remains Ukrainian; only vocabulary/phrases change
-- **Keep Ukrainian words when no Russicism exists** — not every word needs a Russian substitute
-- **Priority**: dictionary entries > phrase calques > word substitutions > grammatical patterns
+- "за законом" → "по закону" (рос. "по закону")
+- "через це" → "із-за цього" / "ізза цього" (рос. "из-за этого")
+- "щодо цього" → "насчот цього" (рос. "насчёт этого")
+- "після цього" → "послє цього" (рос. "после этого")
+- "перед цим" → "пєрєд цим" (рос. "перед этим")
+- "до кінця" → "до кінця" (same)
+- "для того щоб" → "для того шоби" (рос. "для того чтобы")
+
+---
+
+## 4. Discourse Fillers and Particles
+
+Add or substitute with Russian conversational fillers:
+- "ну" — Russian filler, used in both but very common in Surzhyk
+- "вот" — "ось" → "вот" (рос. "вот")
+- "значить" — "тобто" → "значить" (рос. "значит")
+- "короче" — "словом" → "короче" (рос. "короче")
+- "в общем" — "загалом" → "в общем" (рос. "в общем")
+- "ладно" — "добре" → "ладно" (рос. "ладно")
+- "да" — "так" → "да" (рос. "да") — in agreement/response contexts
+
+---
+
+## 5. Formal Phrase Calques (for formal/bureaucratic contexts)
+
+Use these only when the sentence is clearly formal or official in tone:
+- "брати участь" → "приймати участь" (рос. "принимать участие")
+- "складати іспит" → "здавати іспит" (рос. "сдавать экзамен")
+- "ухвалити рішення" → "прийняти рішення" (рос. "принять решение")
+- "вживати заходів" → "приймати міри" (рос. "принимать меры")
+- "протягом" → "на протязі" (рос. "на протяжении")
+- "наступний" → "слідуючий" (рос. "следующий")
+
+---
+
+## 6. Frequency and Naturalness Guidelines
+
+- **Apply 1–3 changes per sentence** — Surzhyk is partial mixing, not full Russian
+- **Everyday sentences**: focus on lexical substitutions (connectives, verbs, common nouns) and infinitive endings
+- **Preserve Ukrainian word order** — syntax remains Ukrainian; only vocabulary changes
+- **Most authentic patterns first**: common word substitutions > infinitive endings > discourse particles > preposition interference > formal calques
+- **Priority**: dictionary entries > translation examples > rules above
 
 ---
 
@@ -133,43 +142,60 @@ Consider the following standard Ukrainian → Surzhyk vocabulary for substitutio
 
 ## TRANSLATION EXAMPLES
 
-Standard Ukrainian: Він вирішив взяти участь у конкурсі.
-Surzhyk: Він вирішив прийняти участь у конкурсі.
+Standard Ukrainian: Але він не хотів цього робити.
+Surzhyk: Но він не хотів цього робить.
 
-Standard Ukrainian: Студент повинен скласти іспит до кінця тижня.
-Surzhyk: Студент повинен здати іспит до кінця тижня.
+Standard Ukrainian: Зараз він працює в музеї.
+Surzhyk: Щас він працює в музеї.
 
-Standard Ukrainian: Уряд зобов'язаний вжити заходів для захисту населення.
-Surzhyk: Уряд зобов'язаний прийняти міри для захисту населення.
+Standard Ukrainian: Вона дуже втомилася після роботи.
+Surzhyk: Вона очєнь втомилася після роботи.
 
-Standard Ukrainian: Протягом двох років він займався дослідженнями.
-Surzhyk: На протязі двох років він займався дослідженнями.
+Standard Ukrainian: Я думаю, що це правильне рішення.
+Surzhyk: Я думаю, шо це правильне рішення.
+
+Standard Ukrainian: Якщо він прийде, скажи мені.
+Surzhyk: Єслі він прийде, скажи мені.
+
+Standard Ukrainian: Він узагалі не розумів, що відбувається.
+Surzhyk: Він вообще не понімав, шо відбувається.
+
+Standard Ukrainian: Треба подумати перед тим, як вирішувати.
+Surzhyk: Нада подумать перед тим, як вирішувать.
+
+Standard Ukrainian: Потім вона пішла додому і почала готувати вечерю.
+Surzhyk: Потом вона пішла додому і начала готувать вечерю.
+
+Standard Ukrainian: Навіть якщо це складно, треба намагатися.
+Surzhyk: Дажє єслі це складно, нада намагатись.
+
+Standard Ukrainian: Він завжди говорив те, що думав.
+Surzhyk: Він всєгда говорив те, шо думав.
+
+Standard Ukrainian: Звичайно, це не найлегше завдання.
+Surzhyk: Конєшно, це не найлегше завдання.
+
+Standard Ukrainian: Тому що він не міг цього зрозуміти.
+Surzhyk: Потому шо він не міг цього понять.
+
+Standard Ukrainian: Вона взагалі не хотіла про це говорити.
+Surzhyk: Вона вообще не хотіла про це говорить.
 
 Standard Ukrainian: Наступного тижня відбудеться важлива зустріч.
 Surzhyk: Слідуючого тижня відбудеться важлива зустріч.
 
-Standard Ukrainian: Це питання стосується всіх громадян країни.
-Surzhyk: Це питання відноситься до всіх громадян країни.
-
 Standard Ukrainian: За законом кожен має право на захист.
 Surzhyk: По закону кожен має право на захист.
-
-Standard Ukrainian: Рішення ухвалили більшістю голосів.
-Surzhyk: Рішення прийняли більшістю голосів.
-
-Standard Ukrainian: Вона доводиться йому сестрою.
-Surzhyk: Вона приходиться йому сестрою.
-
-Standard Ukrainian: Нам насамперед треба розглянути цей документ.
-Surzhyk: Нам в першу чергу треба розглянути цей документ.
 
 ---
 
 ## IMPORTANT
 - Preserve the original meaning of the sentence
 - Apply Russian-Ukrainian mixing naturally — not every word must change
-- Use 1–3 substitutions per sentence for realistic Surzhyk
-- Keep Ukrainian grammar structure; only replace vocabulary/phrases
+- Use 1–5 substitutions per sentence for realistic Surzhyk
+- Keep Ukrainian grammar structure; only replace vocabulary/phrases/endings
 - Return ONLY the Surzhyk version, without explanations
 - Return each sentence on a new line
-- If a sentence has no obvious Surzhyk substitutions, make at least one common lexical change
+- For everyday informal sentences: use everyday Surzhyk patterns (connectives, infinitive endings, common words)
+- For formal sentences: additionally apply formal calques from section 5
+- If a sentence has no obvious Surzhyk substitutions, use at least one common lexical change (e.g., "але" → "но", "тому що" → "потому шо", infinitive "-ти" → "-ть")
