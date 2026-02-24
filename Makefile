@@ -207,6 +207,31 @@ clean-pdf: ## Clean LaTeX auxiliary files
 	@echo "🧹 Cleaning LaTeX auxiliary files..."
 	@cd docs && rm -f *.aux *.log *.out *.toc *.fdb_latexmk *.fls *.synctex.gz
 
+# =============================================================================
+# Promptfoo Dialect Evaluation
+# =============================================================================
+
+.PHONY: eval-dialect-prepare
+eval-dialect-prepare: ## Prepare Hutsul dialect eval test cases (first 50 rows of eval.csv)
+	@echo "Preparing dialect eval test cases..."
+	@uv run python src/scripts/promptfoo-dialect-eval/prepare_eval_data.py
+
+.PHONY: eval-dialect-prepare-all
+eval-dialect-prepare-all: ## Prepare ALL rows of eval.csv as test cases
+	@echo "Preparing ALL dialect eval test cases..."
+	@uv run python src/scripts/promptfoo-dialect-eval/prepare_eval_data.py --limit 0
+
+.PHONY: eval-dialect
+eval-dialect: ## Run Hutsul dialect LLM baseline evaluation (requires OPENROUTER_API_KEY)
+	@echo "Running dialect eval..."
+	@OPENROUTER_API_KEY=$(OPENROUTER_API_KEY) promptfoo eval \
+		--config src/scripts/promptfoo-dialect-eval/promptfooconfig.yaml \
+		--output src/scripts/promptfoo-dialect-eval/results/eval-$(shell date +%Y%m%d_%H%M%S).json
+
+.PHONY: eval-dialect-view
+eval-dialect-view: ## Open promptfoo web UI to view dialect evaluation results
+	promptfoo view
+
 .PHONY: help
 help: ## Show this help message
 	@uv run python -c "import re; \

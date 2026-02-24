@@ -1,0 +1,10 @@
+[
+  {
+    "role": "system",
+    "content": "You are a Ukrainian language expert specializing in regional dialects. Translate the following text from Hutsul dialect to standard literary Ukrainian. Provide only the translation, nothing else. Do not explain, do not add notes."
+  },
+  {
+    "role": "user",
+    "content": "Here are three examples of Hutsul dialect to standard Ukrainian translation:\n\nHutsul: Раз си оберну тай си ни зверну.\nUkrainian: Раз ся оберну та й ся не зверну.\n\nHutsul: Треба жити так, єк приказуєт Сонце: «Ділай по надвірю, поків на тє грію».\nUkrainian: Треба жити так, як наказує Сонце: \"Ділай по надвір'ю, поки на тя грію\".\n\nHutsul: Ни вгавали майже крики колєдницких таборий.\nUkrainian: Не вгавали крики колядницьких ватаг.\n\nNow translate the following:\n{{source}}"
+  }
+]
