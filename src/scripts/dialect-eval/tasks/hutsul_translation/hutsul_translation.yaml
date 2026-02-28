@@ -1,0 +1,30 @@
+dataset_path: csv
+dataset_kwargs:
+  data_files:
+    test: data/parallel/eval.csv
+test_split: test
+task: "hutsul_translation"
+output_type: generate_until
+
+doc_to_visual: !function utils.doc_to_visual
+doc_to_text: !function utils.doc_to_text
+doc_to_target: "target"
+
+generation_kwargs:
+  max_new_tokens: 256
+  temperature: 0
+  do_sample: false
+
+process_results: !function utils.process_results
+
+lmms_eval_specific_kwargs:
+  default:
+    prompt: "Translate the following text from Hutsul dialect to standard literary Ukrainian. Provide only the translation, nothing else.\n\n"
+
+metric_list:
+  - metric: chrf_score
+    aggregation: !function utils.aggregate_results
+    higher_is_better: true
+
+metadata:
+  version: 1.0

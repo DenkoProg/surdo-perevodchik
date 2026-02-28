@@ -207,6 +207,22 @@ clean-pdf: ## Clean LaTeX auxiliary files
 	@echo "🧹 Cleaning LaTeX auxiliary files..."
 	@cd docs && rm -f *.aux *.log *.out *.toc *.fdb_latexmk *.fls *.synctex.gz
 
+# =============================================================================
+# Dialect Evaluation (lmms-eval)
+# =============================================================================
+
+.PHONY: eval-dialect-gpt
+eval-dialect-gpt: ## Evaluate GPT-4o Mini on Hutsul translation (requires .env with OpenRouter key)
+	@cd src/scripts/dialect-eval && python cli.py remote --model gpt-4o-mini
+
+.PHONY: eval-dialect-gemini
+eval-dialect-gemini: ## Evaluate Gemini 2.0 Flash on Hutsul translation
+	@cd src/scripts/dialect-eval && python cli.py remote --model google/gemini-2.0-flash-001
+
+.PHONY: eval-dialect-mistral
+eval-dialect-mistral: ## Evaluate Mistral Large on Hutsul translation
+	@cd src/scripts/dialect-eval && python cli.py remote --model mistralai/mistral-large-2411
+
 .PHONY: help
 help: ## Show this help message
 	@uv run python -c "import re; \
