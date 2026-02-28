@@ -56,9 +56,14 @@ def compute_metrics(eval_preds, tokenizer, metric):
 def main(args):
     os.makedirs(args.output_dir, exist_ok=True)
 
-    ds = load_dataset("csv", data_files={"data": args.train_file})["data"]
-    ds = ds.shuffle(seed=42)
-    split = ds.train_test_split(test_size=args.val_size, seed=42)
+    if args.val_file:
+        train_ds = load_dataset("csv", data_files={"train": args.train_file})["train"].shuffle(seed=42)
+        val_ds = load_dataset("csv", data_files={"val": args.val_file})["val"].shuffle(seed=42)
+        split = {"train": train_ds, "test": val_ds}
+    else:
+        ds = load_dataset("csv", data_files={"data": args.train_file})["data"]
+        ds = ds.shuffle(seed=42)
+        split = ds.train_test_split(test_size=args.val_size, seed=42)
 
     tokenizer = AutoTokenizer.from_pretrained(args.model_name, use_fast=True)
     model = AutoModelForSeq2SeqLM.from_pretrained(args.model_name)
@@ -84,17 +89,18 @@ def main(args):
             no_repeat_ngram_size=args.no_repeat_ngram_size,
         )
 
+    col_names = split["train"].column_names
     tokenized_train = split["train"].map(
         lambda x: preprocess(x, tokenizer, args.max_length),
         batched=True,
-        remove_columns=ds.column_names,
+        remove_columns=col_names,
         num_proc=4,
         desc="Tokenizing training data",
     )
     tokenized_val = split["test"].map(
         lambda x: preprocess(x, tokenizer, args.max_length),
         batched=True,
-        remove_columns=ds.column_names,
+        remove_columns=col_names,
         num_proc=4,
         desc="Tokenizing validation data",
     )
@@ -174,6 +180,7 @@ if __name__ == "__main__":
     parser.add_argument("--optim", type=str, default="adamw_torch")
     parser.add_argument("--weight_decay", type=float, default=0.01, help="Weight decay for optimizer")
     parser.add_argument("--label_smoothing", type=float, default=0.0, help="Label smoothing factor for loss")
+    parser.add_argument("--val_file", type=str, default=None, help="Path to pre-split validation CSV (skips internal split)")
     parser.add_argument("--resume_from_checkpoint", type=str, default=None, help="Path to checkpoint to resume from")
     parser.add_argument("--repetition_penalty", type=float, default=1.2, help="Repetition penalty for generation")
     parser.add_argument("--no_repeat_ngram_size", type=int, default=3, help="Block repetition of n-grams")

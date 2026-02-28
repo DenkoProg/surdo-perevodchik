@@ -111,6 +111,60 @@ evaluate-decoder-only-base: ## Evaluate base decoder-only model (before fine-tun
 		--use_4bit
 
 # =============================================================================
+# Multi-Dialect Training (all dialects combined)
+# =============================================================================
+
+ENC_DEC_MULTI_OUTPUT := models/umt5-base-multidialect
+DEC_ONLY_MULTI_OUTPUT := models/mamaylm-multidialect
+
+.PHONY: prepare-data
+prepare-data: ## Prepare multi-dialect train/val/eval splits from all dialect corpora
+	@echo "Preparing multi-dialect data..."
+	@uv run python src/scripts/prepare_multidialect_data.py \
+		--output_dir $(DATA_PATH) \
+		--val_size 0.1 \
+		--eval_per_dialect 50 \
+		--seed 42
+
+.PHONY: train-encoder-decoder-multi
+train-encoder-decoder-multi: ## Fine-tune encoder-decoder on all dialects (requires prepare-data first)
+	@echo "Training encoder-decoder on all dialects: $(ENC_DEC_MODEL)..."
+	@uv run python -m src.surdo_perevodchik.training.train_encoder_decoder \
+		--train_file "$(DATA_PATH)/train.csv" \
+		--val_file "$(DATA_PATH)/val.csv" \
+		--model_name $(ENC_DEC_MODEL) \
+		--output_dir $(ENC_DEC_MULTI_OUTPUT) \
+		--epochs 20 \
+		--batch_size 4 \
+		--grad_accum 4 \
+		--weight_decay 0.1 \
+		--label_smoothing 0.1 \
+		--lr 5e-5 \
+		--bf16 \
+		--optim adamw_bnb_8bit \
+		--max_length $(ENC_DEC_MAX_LEN)
+
+.PHONY: train-decoder-only-multi
+train-decoder-only-multi: ## Fine-tune decoder-only on all dialects with LoRA (requires prepare-data first)
+	@echo "Training decoder-only on all dialects: $(DEC_ONLY_MODEL)..."
+	@uv run python -m src.surdo_perevodchik.training.train_decoder_only \
+		--train_file $(DATA_PATH)/train.csv \
+		--val_file $(DATA_PATH)/val.csv \
+		--model_name $(DEC_ONLY_MODEL) \
+		--output_dir $(DEC_ONLY_MULTI_OUTPUT) \
+		--epochs 3 \
+		--batch_size 1 \
+		--grad_accum 16 \
+		--lr 2e-5 \
+		--max_length $(DEC_ONLY_MAX_LEN) \
+		--bf16 \
+		--grad_checkpoint \
+		--use_lora \
+		--lora_r 16 \
+		--lora_alpha 32 \
+		--use_4bit
+
+# =============================================================================
 
 GEN_MODEL := mistralai/Mistral-Small-24B-Instruct-2501
 GEN_SEED  := 42
