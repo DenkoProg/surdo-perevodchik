@@ -50,127 +50,55 @@ class DialectTranslator:
             return translation
 
 
-# Initialize translator with the latest checkpoint
-MODEL_PATH = "models/umt5-base-hutsul-baseline/checkpoint-16560"
+# Initialize translator with the multidialect model
+MODEL_PATH = "models/umt5-base-multidialect/final_model"
 translator = DialectTranslator(MODEL_PATH)
 
 DIALECTS = {
-    # === Surzhyk ===
-    "Суржик (Russian-Ukrainian Surzhyk)": {
-        "code": "surzhyk",
-        "description": "Російсько-український суржик - змішування української та російської мов",
-        "region": "Переважно східні та південні регіони України",
-        "enabled": False,
-        "category": "Суржик",
-    },
-    # === Northern Dialects ===
-    "Поліський (Polesian)": {
-        "code": "polesian",
-        "description": "Поліський діалект - північноукраїнське наріччя",
-        "region": "Житомирська, Київська, Чернігівська, Рівненська області",
-        "enabled": False,
-        "category": "Північні діалекти",
-    },
-    # === South-Eastern Dialects ===
-    "Середньонаддніпрянський (Middle Dnieprian)": {
-        "code": "middle_dnieprian",
-        "description": "Середньонаддніпрянський діалект - основа літературної української мови",
-        "region": "Центральна Україна, Київщина, Черкащина, Полтавщина",
-        "enabled": False,
-        "category": "Південно-східні діалекти",
-    },
-    "Слобожанський (Slobozhan)": {
-        "code": "slobozhan",
-        "description": "Слобожанський діалект - говірка Слобідської України",
-        "region": "Харківська, Сумська, Луганська області",
-        "enabled": False,
-        "category": "Південно-східні діалекти",
-    },
-    "Степовий (Steppe)": {
-        "code": "steppe",
-        "description": "Степовий діалект - південноукраїнське наріччя",
-        "region": "Запорізька, Дніпропетровська, Херсонська, Миколаївська області",
-        "enabled": False,
-        "category": "Південно-східні діалекти",
-    },
-    # === South-Western Dialects ===
-    "Волинський (Volynian)": {
-        "code": "volynian",
-        "description": "Волинський діалект - північно-західне наріччя",
-        "region": "Волинська, Рівненська області",
-        "enabled": False,
-        "category": "Південно-західні діалекти",
-    },
-    "Подільський (Podillian)": {
-        "code": "podillian",
-        "description": "Подільський діалект - говірка Поділля",
-        "region": "Вінницька, Хмельницька, Тернопільська області",
-        "enabled": False,
-        "category": "Південно-західні діалекти",
-    },
-    "Верхньонаддністрянський (Upper Dniestrian)": {
-        "code": "upper_dniestrian",
-        "description": "Верхньонаддністрянський діалект",
-        "region": "Івано-Франківська, Тернопільська, Львівська області",
-        "enabled": False,
-        "category": "Південно-західні діалекти",
-    },
-    "Наддністрянський (Sian)": {
-        "code": "sian",
-        "description": "Наддністрянський діалект - говірка Львівщини та Тернопільщини",
-        "region": "Львівська, Тернопільська області",
-        "enabled": False,
-        "category": "Південно-західні діалекти",
-    },
-    "Покутсько-Буковинський (Pokuttia-Bukovynian)": {
-        "code": "pokuttia_bukovynian",
-        "description": "Покутсько-Буковинський діалект - говірка Прикарпаття",
-        "region": "Івано-Франківська, Чернівецька області",
-        "enabled": False,
-        "category": "Південно-західні діалекти",
-    },
     "Гуцульський (Hutsul)": {
         "code": "hutsul",
         "description": "Гуцульський діалект - говірка українців, що проживають в Карпатах",
         "region": "Івано-Франківська, Чернівецька, Закарпатська області",
-        "enabled": True,
         "category": "Південно-західні діалекти",
     },
     "Бойківський (Boyko)": {
-        "code": "boyko",
+        "code": "boiko",
         "description": "Бойківський діалект - карпатська говірка",
         "region": "Львівська, Івано-Франківська області",
-        "enabled": False,
         "category": "Південно-західні діалекти",
     },
     "Закарпатський (Trans-Carpathian)": {
         "code": "transcarpathian",
         "description": "Закарпатський діалект - говірка Закарпаття",
         "region": "Закарпатська область",
-        "enabled": False,
         "category": "Південно-західні діалекти",
     },
-    "Лемківський (Lemkian)": {
-        "code": "lemkian",
-        "description": "Лемківський діалект - говірка лемків",
-        "region": "Історично: Лемківщина (Польща, Словаччина)",
-        "enabled": False,
-        "category": "Південно-західні діалекти",
+    "Суржик (Surzhyk)": {
+        "code": "surzhyk",
+        "description": "Російсько-український суржик - змішування української та російської мов",
+        "region": "Переважно східні та південні регіони України",
+        "category": "Суржик",
     },
+}
+
+DIALECT_PREFIXES = {
+    "hutsul": "Переклади з гуцульської",
+    "boiko": "Переклади з бойківської",
+    "transcarpathian": "Переклади з закарпатської",
+    "surzhyk": "Переклади з суржику",
 }
 
 
 def translate_text(source_text: str, source_dialect: str, num_beams: int, repetition_penalty: float) -> str:
     """Handle translation with selected parameters."""
-    if not DIALECTS[source_dialect]["enabled"]:
-        return "⚠️ Цей діалект ще не підтримується"
-
     if not source_text.strip():
         return ""
 
     try:
+        code = DIALECTS[source_dialect]["code"]
+        prefixed = f"{DIALECT_PREFIXES[code]}: {source_text}"
         translation = translator.translate(
-            source_text,
+            prefixed,
             num_beams=num_beams,
             repetition_penalty=repetition_penalty,
         )
@@ -180,14 +108,30 @@ def translate_text(source_text: str, source_dialect: str, num_beams: int, repeti
 
 
 EXAMPLES = [
-    ["«А ми йиго даруємо шшєстєм, здоров’єм» — видповіли колєдники.", "Гуцульський (Hutsul)", 5, 1.2],
     [
-        "На своє око, то він шє си бізував, бо зір мав такий добрий, шо силєв нитку у вухо й найменчеї игли, хоть йиму вісімдесєтка вже давно проминула поза плечя.",
+        "Сонце було вполудне, коли косари сиділи в студні під буком, перепочивати й курити, а жінки винесли им пити в бербеницях розводу.",
         "Гуцульський (Hutsul)",
-        10,
-        1.5,
+        5,
+        1.2,
     ],
-    ["Лиш ни люб’ю, єк хтос зачєпаєт мою жінку мижи людьми при мині».", "Гуцульський (Hutsul)", 2, 1],
+    [
+        "Хочу з тобов говорити в штири очи.",
+        "Бойківський (Boyko)",
+        5,
+        1.2,
+    ],
+    [
+        "Го виховували адя та бабуля Елизаветта Шарлота з Пфальцу.",
+        "Закарпатський (Trans-Carpathian)",
+        5,
+        1.2,
+    ],
+    [
+        "Найбольше люди люблять два праздника Новий Год і День рождєнія.",
+        "Суржик (Surzhyk)",
+        5,
+        1.2,
+    ],
 ]
 
 custom_css = """
@@ -252,14 +196,12 @@ with gr.Blocks(css=custom_css, title="Діалектний перекладач"
 
             def show_dialect_info(dialect_name):
                 dialect = DIALECTS[dialect_name]
-                status = "✅ Доступно" if dialect["enabled"] else "🚧 У розробці"
                 category = dialect.get("category", "")
                 lines = []
                 if category:
                     lines.append(f"**Категорія:** {category}")
                 lines.append(f"**Опис:** {dialect['description']}")
                 lines.append(f"**Регіон:** {dialect['region']}")
-                lines.append(f"**Статус:** {status}")
                 return "\n".join(lines)
 
             dialect_info = gr.Markdown(

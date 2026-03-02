@@ -133,8 +133,8 @@ train-encoder-decoder-multi: ## Fine-tune encoder-decoder on all dialects (requi
 		--train_file "$(DATA_PATH)/train.csv" \
 		--val_file "$(DATA_PATH)/val.csv" \
 		--model_name $(ENC_DEC_MODEL) \
-		--output_dir $(ENC_DEC_MULTI_OUTPUT) \
-		--epochs 20 \
+		--output_dir $(ENC_DEC_MULTI_OUTPUT)-longer \
+		--epochs 40 \
 		--batch_size 4 \
 		--grad_accum 4 \
 		--weight_decay 0.1 \
