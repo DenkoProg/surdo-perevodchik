@@ -6,6 +6,25 @@ from loguru import logger as eval_logger
 import pandas as pd
 
 
+_PREFIX_RE = re.compile(r"^Переклади з \S+:\s*")
+
+
+def _strip_prefix(text: str) -> str:
+    return _PREFIX_RE.sub("", text).strip()
+
+
+def _make_filter(dialect: str):
+    def process_docs(dataset):
+        return dataset.filter(lambda x: x["dialect"] == dialect)
+    return process_docs
+
+
+filter_hutsul = _make_filter("hutsul")
+filter_boiko = _make_filter("boiko")
+filter_transcarpathian = _make_filter("transcarpathian")
+filter_surzhyk = _make_filter("surzhyk")
+
+
 def doc_to_visual(doc):
     return []
 
@@ -14,7 +33,7 @@ def doc_to_text(doc, lmms_eval_specific_kwargs=None):
     prompt = ""
     if lmms_eval_specific_kwargs:
         prompt = lmms_eval_specific_kwargs.get("prompt", "")
-    return prompt + doc["source"]
+    return prompt + _strip_prefix(doc["source"])
 
 
 def _chrf(hyp: str, ref: str) -> float:
@@ -54,6 +73,8 @@ def process_results(doc, results):
     score = _chrf(prediction, reference)
     return {
         "chrf_score": {
+            "dialect": doc.get("dialect", ""),
+            "source": _strip_prefix(doc.get("source", "")),
             "reference": reference,
             "prediction": prediction,
             "score": score,
@@ -69,22 +90,23 @@ def aggregate_results(results, args=None):
     df = pd.DataFrame(results)
     mean_chrf = df["score"].mean()
     total = len(df)
+    dialect = df["dialect"].iloc[0] if "dialect" in df.columns and len(df) else "unknown"
 
     now = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    file_name = generate_submission_file(f"hutsul_results_{now}.md", args, subpath="results")
+    file_name = generate_submission_file(f"{dialect}_results_{now}.md", args, subpath="results")
 
     with open(file_name, "w", encoding="utf-8") as f:
-        f.write("# Hutsul Translation Evaluation Results\n\n")
+        f.write(f"# {dialect.title()} Translation Evaluation Results\n\n")
         f.write(f"**chrF (avg):** {mean_chrf:.4f}\n")
         f.write(f"**Total samples:** {total}\n\n")
         f.write("## Sample Predictions\n\n")
         f.write("| Source (dialect) | Reference | Prediction | chrF |\n")
         f.write("|------------------|-----------|------------|------|\n")
         for _, row in df.head(50).iterrows():
-            src = re.sub(r"\|", "/", row.get("source", "")) if "source" in df.columns else ""
+            src = re.sub(r"\|", "/", row.get("source", ""))
             ref = re.sub(r"\|", "/", row["reference"])
             pred = re.sub(r"\|", "/", row["prediction"])
             f.write(f"| {src} | {ref} | {pred} | {row['score']:.3f} |\n")
 
-    eval_logger.info(f"chrF: {mean_chrf:.4f} over {total} samples")
+    eval_logger.info(f"[{dialect}] chrF: {mean_chrf:.4f} over {total} samples")
     return mean_chrf

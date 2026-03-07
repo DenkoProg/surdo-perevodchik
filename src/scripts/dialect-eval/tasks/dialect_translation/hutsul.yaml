@@ -1,11 +1,12 @@
 dataset_path: csv
 dataset_kwargs:
   data_files:
-    test: data/parallel/eval.csv
+    test: data/parallel/test.csv
 test_split: test
 task: "hutsul_translation"
 output_type: generate_until
 
+process_docs: !function utils.filter_hutsul
 doc_to_visual: !function utils.doc_to_visual
 doc_to_text: !function utils.doc_to_text
 doc_to_target: "target"
