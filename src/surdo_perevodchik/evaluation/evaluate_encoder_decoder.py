@@ -99,13 +99,25 @@ def run_evaluation(args):
     df = pd.read_csv(args.test_file)
     references = df["target"].tolist()
 
-    metrics = compute_metrics(predictions, references)
+    results = {"overall": compute_metrics(predictions, references)}
 
-    for metric, score in metrics.items():
-        print(f"{metric:15s}: {score:6.2f}")
+    print("Overall:")
+    for metric, score in results["overall"].items():
+        print(f"  {metric:15s}: {score:6.2f}")
+
+    if "dialect" in df.columns:
+        results["per_dialect"] = {}
+        for dialect, group in df.groupby("dialect"):
+            idx = group.index.tolist()
+            preds = [predictions[i] for i in idx]
+            refs = [references[i] for i in idx]
+            results["per_dialect"][dialect] = compute_metrics(preds, refs)
+            print(f"\n{dialect} ({len(group)} samples):")
+            for metric, score in results["per_dialect"][dialect].items():
+                print(f"  {metric:15s}: {score:6.2f}")
 
     with open(results_file, "w", encoding="utf-8") as f:
-        json.dump(metrics, f, indent=2, ensure_ascii=False)
+        json.dump(results, f, indent=2, ensure_ascii=False)
 
 
 if __name__ == "__main__":

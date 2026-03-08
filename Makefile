@@ -47,7 +47,7 @@ evaluate-encoder-decoder: ## Evaluate encoder-decoder model
 	@echo "🔍 Evaluating encoder-decoder model..."
 	@uv run python -m surdo_perevodchik.evaluation.evaluate_encoder_decoder \
 		--model_path $(ENC_DEC_OUTPUT)/$(CHECKPOINT) \
-		--test_file $(DATA_PATH)/eval.csv \
+		--test_file $(DATA_PATH)/test.csv \
 		--output_dir results/evaluation/$(notdir $(ENC_DEC_OUTPUT))
 
 # =============================================================================
@@ -97,7 +97,7 @@ evaluate-decoder-only: ## Evaluate decoder-only model
 	@echo "🔍 Evaluating decoder-only model..."
 	@uv run python -m surdo_perevodchik.evaluation.evaluate_decoder_only \
 		--model_path $(DEC_ONLY_OUTPUT) \
-		--test_file $(DATA_PATH)/eval.csv \
+		--test_file $(DATA_PATH)/test.csv \
 		--output_dir results/evaluation/$(notdir $(DEC_ONLY_OUTPUT)) \
 		--use_4bit
 
@@ -106,7 +106,7 @@ evaluate-decoder-only-base: ## Evaluate base decoder-only model (before fine-tun
 	@echo "🔍 Evaluating base decoder-only model..."
 	@uv run python -m surdo_perevodchik.evaluation.evaluate_decoder_only \
 		--model_path $(DEC_ONLY_MODEL) \
-		--test_file $(DATA_PATH)/eval.csv \
+		--test_file $(DATA_PATH)/test.csv \
 		--output_dir results/evaluation/$(notdir $(DEC_ONLY_MODEL))-base \
 		--use_4bit
 
