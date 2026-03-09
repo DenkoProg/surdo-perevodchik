@@ -21,6 +21,7 @@ dependencies = [
     "setuptools>=80.10.2",
     "tensorboardx>=2.6.4",
     "torch==2.6.0",
+    "torchaudio==2.6.0",
     "torchvision>=0.21.0",
     "tqdm>=4.66.0",
     "transformers>=4.57.1",

@@ -54,6 +54,53 @@ class DialectTranslator:
 MODEL_PATH = "models/umt5-base-multidialect/final_model"
 translator = DialectTranslator(MODEL_PATH)
 
+_asr = None  # (model, processor) tuple
+
+
+def get_asr():
+    global _asr
+    if _asr is None:
+        from transformers import MCTCTForCTC, MCTCTProcessor
+
+        print("Loading ASR model (first use)...")
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        dtype = torch.float16 if device.type == "cuda" else torch.float32
+        processor = MCTCTProcessor.from_pretrained("speechbrain/m-ctc-t-large", cache_dir="models/m-ctc-t-large")
+        model = MCTCTForCTC.from_pretrained("speechbrain/m-ctc-t-large", torch_dtype=dtype, cache_dir="models/m-ctc-t-large")
+        model.to(device)
+        model.eval()
+        _asr = (model, processor)
+        print("ASR model loaded.")
+    return _asr
+
+
+def transcribe_audio(audio_path: str | None) -> str:
+    if audio_path is None:
+        return ""
+    try:
+        import torchaudio
+
+        model, processor = get_asr()
+        device = next(model.parameters()).device
+
+        waveform, sr = torchaudio.load(audio_path)
+        if sr != 16000:
+            waveform = torchaudio.functional.resample(waveform, sr, 16000)
+        if waveform.shape[0] > 1:
+            waveform = waveform.mean(dim=0, keepdim=True)
+
+        inputs = processor(waveform.squeeze().numpy(), sampling_rate=16000, return_tensors="pt")
+        inputs = {k: v.to(device) for k, v in inputs.items()}
+
+        with torch.inference_mode():
+            logits = model(**inputs).logits
+
+        predicted_ids = torch.argmax(logits, dim=-1)
+        return processor.batch_decode(predicted_ids)[0]
+    except Exception as e:
+        return f"[Помилка розпізнавання: {str(e)}]"
+
+
 DIALECTS = {
     "Гуцульський (Hutsul)": {
         "code": "hutsul",
@@ -211,9 +258,16 @@ with gr.Blocks(css=custom_css, title="Діалектний перекладач"
 
             dialect_dropdown.change(fn=show_dialect_info, inputs=[dialect_dropdown], outputs=[dialect_info])
 
+            audio_input = gr.Audio(
+                sources=["microphone", "upload"],
+                type="filepath",
+                label="Аудіо (опційно)",
+                format="wav",
+            )
+
             source_text = gr.Textbox(
                 label="Текст діалектом",
-                placeholder="Введіть текст для перекладу...",
+                placeholder="Введіть текст або запишіть аудіо вище...",
                 lines=8,
                 elem_classes=["translation-area"],
             )
@@ -262,6 +316,12 @@ with gr.Blocks(css=custom_css, title="Діалектний перекладач"
         fn=translate_text,
         inputs=[source_text, dialect_dropdown, num_beams, repetition_penalty],
         outputs=target_text,
+    )
+
+    audio_input.change(
+        fn=transcribe_audio,
+        inputs=[audio_input],
+        outputs=[source_text],
     )
 
     # Footer
