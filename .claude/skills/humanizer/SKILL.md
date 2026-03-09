@@ -467,6 +467,12 @@ Provide:
 
 ---
 
+## Language-specific guides
+
+- **Ukrainian:** See `UKRAINIAN.md` in this directory for Ukrainian-specific patterns (Russified vocabulary, stock transition phrases, title case, missing idiom, hedging overload, and full before/after examples).
+
+---
+
 ## Reference
 
 This skill is based on [Wikipedia:Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing), maintained by WikiProject AI Cleanup. The patterns documented there come from observations of thousands of instances of AI-generated text on Wikipedia.
