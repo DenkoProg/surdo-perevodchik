@@ -78,21 +78,23 @@ def transcribe_audio(audio_path: str | None) -> str:
     if audio_path is None:
         return ""
     try:
-        import torchaudio
+        import soundfile as sf
 
         model, processor = get_asr()
         device = next(model.parameters()).device
 
-        waveform, sr = torchaudio.load(audio_path)
+        audio_array, sr = sf.read(audio_path, dtype="float32")
+        if audio_array.ndim > 1:
+            audio_array = audio_array.mean(axis=1)
         if sr != 16000:
-            waveform = torchaudio.functional.resample(waveform, sr, 16000)
-        if waveform.shape[0] > 1:
-            waveform = waveform.mean(dim=0, keepdim=True)
+            import torchaudio
+            waveform = torch.from_numpy(audio_array).unsqueeze(0)
+            audio_array = torchaudio.functional.resample(waveform, sr, 16000).squeeze().numpy()
 
-        inputs = processor(waveform.squeeze().numpy(), sampling_rate=16000, return_tensors="pt")
+        inputs = processor(audio_array, sampling_rate=16000, return_tensors="pt")
         inputs = {k: v.to(device) for k, v in inputs.items()}
 
-        with torch.inference_mode():
+        with torch.inference_mode(), torch.autocast(device_type=device.type):
             logits = model(**inputs).logits
 
         predicted_ids = torch.argmax(logits, dim=-1)

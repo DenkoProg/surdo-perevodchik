@@ -126,6 +126,14 @@ prepare-data: ## Prepare multi-dialect train/val/eval splits from all dialect co
 		--eval_per_dialect 50 \
 		--seed 42
 
+.PHONY: evaluate-encoder-decoder-multi
+evaluate-encoder-decoder-multi: ## Evaluate multidialect-longer encoder-decoder model on test set
+	@echo "🔍 Evaluating multidialect-longer encoder-decoder model..."
+	@uv run python -m surdo_perevodchik.evaluation.evaluate_encoder_decoder \
+		--model_path $(ENC_DEC_MULTI_OUTPUT)-longer/final_model \
+		--test_file $(DATA_PATH)/test.csv \
+		--output_dir results/evaluation/umt5-base-multidialect-longer
+
 .PHONY: train-encoder-decoder-multi
 train-encoder-decoder-multi: ## Fine-tune encoder-decoder on all dialects (requires prepare-data first)
 	@echo "Training encoder-decoder on all dialects: $(ENC_DEC_MODEL)..."
@@ -244,6 +252,11 @@ generate-surzhyk-local: ## Generate synthetic Surzhyk corpus via LLM (Local GPU,
 
 .PHONY: generate-all-local
 generate-all-local: generate-hutsul-local generate-boiko-local generate-transcarpathian-local generate-surzhyk-local ## Generate all dialect corpora sequentially (Local GPU)
+
+.PHONY: tensorboard
+tensorboard: ## Launch TensorBoard for all model runs
+	@echo "📊 Launching TensorBoard..."
+	@uv run tensorboard --logdir models
 
 .PHONY: demo
 demo: ## Launch Gradio demo for dialect translation
