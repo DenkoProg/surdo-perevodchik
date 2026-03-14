@@ -85,18 +85,25 @@ def transcribe_audio(audio_path: str | None) -> str:
     if audio_path is None:
         return ""
     try:
-        import torchaudio
+        import av
+        import numpy as np
 
         model, processor = get_asr()
         device = next(model.parameters()).device
 
-        # torchaudio handles WAV, FLAC, OGG, WebM (ffmpeg backend), etc.
-        waveform, sr = torchaudio.load(audio_path)
-        if waveform.shape[0] > 1:
-            waveform = waveform.mean(dim=0, keepdim=True)
-        if sr != 16000:
-            waveform = torchaudio.functional.resample(waveform, sr, 16000)
-        audio_array = waveform.squeeze().numpy()
+        # PyAV decodes any browser format (WebM, OGG, WAV, …) without system ffmpeg.
+        # AudioResampler converts to float32 mono 16 kHz in one step.
+        container = av.open(audio_path)
+        audio_stream = next(s for s in container.streams if s.type == "audio")
+        resampler = av.AudioResampler(format="fltp", layout="mono", rate=16000)
+        chunks = []
+        for frame in container.decode(audio_stream):
+            for rf in resampler.resample(frame):
+                chunks.append(rf.to_ndarray()[0])
+        for rf in resampler.resample(None):  # flush resampler
+            chunks.append(rf.to_ndarray()[0])
+        container.close()
+        audio_array = np.concatenate(chunks).astype("float32")
 
         inputs = processor(audio_array, sampling_rate=16000, return_tensors="pt")
         inputs = {k: v.to(device) for k, v in inputs.items()}
@@ -206,7 +213,10 @@ async def api_transcribe(file: UploadFile):
         text = await loop.run_in_executor(None, transcribe_audio, tmp_path)
         return {"text": text}
     finally:
-        os.unlink(tmp_path)
+        try:
+            os.unlink(tmp_path)
+        except OSError:
+            pass
 
 
 HEAD_HTML = """
@@ -613,11 +623,27 @@ HEAD_HTML = """
     color: oklch(64% 0.014 75) !important;
   }
 
-  /* ===== Audio controls ===== */
+  /* ===== Source textarea wrapper ===== */
+  .source-wrap {
+    position: relative;
+    width: 100%;
+  }
+
+  /* ===== Audio controls — vertically centred on the right edge of the input ===== */
   .audio-controls {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
     display: flex;
-    gap: 8px;
+    gap: 6px;
     align-items: center;
+    z-index: 2;
+  }
+
+  /* Right padding keeps text from going under the buttons (2 × 40px + gaps + margin) */
+  .source-textarea .q-field__native {
+    padding-right: 100px !important;
   }
 
   .audio-icon-btn {
@@ -879,22 +905,23 @@ def index():
             # Source column
             with ui.element("div").classes("panel-col"):
                 ui.label("Джерело").classes("panel-label")
-                source = ui.textarea(placeholder="Введіть текст діалектом або запишіть аудіо…")
-                source.props("outlined autogrow")
-                source.classes("main-textarea source-textarea")
+                with ui.element("div").classes("source-wrap"):
+                    source = ui.textarea(placeholder="Введіть текст діалектом або запишіть аудіо…")
+                    source.props("outlined autogrow")
+                    source.classes("main-textarea source-textarea")
 
-                ui.html(
-                    '<div class="audio-controls">'
-                    '<button id="lx-mic-btn" class="audio-icon-btn" title="Записати аудіо">'
-                    '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
-                    '<path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/>'
-                    '<path d="M19 10v2a7 7 0 0 1-14 0v-2"/>'
-                    '<line x1="12" y1="19" x2="12" y2="22"/>'
-                    "</svg></button>"
-                    '<label for="lx-file-input" class="audio-icon-btn" title="Завантажити аудіо файл">+</label>'
-                    '<input type="file" id="lx-file-input" accept=".wav,.mp3,.ogg,.flac,.webm" style="display:none">'
-                    "</div>"
-                )
+                    ui.html(
+                        '<div class="audio-controls">'
+                        '<button id="lx-mic-btn" class="audio-icon-btn" title="Записати аудіо">'
+                        '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
+                        '<path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/>'
+                        '<path d="M19 10v2a7 7 0 0 1-14 0v-2"/>'
+                        '<line x1="12" y1="19" x2="12" y2="22"/>'
+                        "</svg></button>"
+                        '<label for="lx-file-input" class="audio-icon-btn" title="Завантажити аудіо файл">+</label>'
+                        '<input type="file" id="lx-file-input" accept=".wav,.mp3,.ogg,.flac,.webm" style="display:none">'
+                        "</div>"
+                    )
 
             # Arrow divider
             ui.html('<div class="panel-divider">→</div>')
