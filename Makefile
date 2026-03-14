@@ -1,4 +1,25 @@
 
+# =============================================================================
+# Variables
+# =============================================================================
+
+DATA_PATH := data/parallel
+
+ENC_DEC_MODEL        := google/umt5-base
+ENC_DEC_MULTI_OUTPUT := models/umt5-base-multidialect
+ENC_DEC_MAX_LEN      := 256
+
+DEC_ONLY_MODEL        := INSAIT-Institute/MamayLM-Gemma-3-4B-IT-v1.0
+DEC_ONLY_MULTI_OUTPUT := models/mamaylm-multidialect
+DEC_ONLY_MAX_LEN      := 512
+
+GEN_MODEL := mistralai/Mistral-Small-24B-Instruct-2501
+GEN_SEED  := 42
+
+# =============================================================================
+# Setup
+# =============================================================================
+
 .PHONY: install
 install: ## Install dependencies and setup pre-commit hooks
 	@echo "🚀 Installing dependencies from lockfile"
@@ -15,110 +36,11 @@ format: ## Format code and fix linting issues
 	uv run ruff check --fix
 
 # =============================================================================
-# Encoder-Decoder Models (mT5, mbart, etc.)
+# Data Preparation
 # =============================================================================
-
-ENC_DEC_MODEL := google/umt5-base
-ENC_DEC_OUTPUT := models/umt5-base-hutsul-aligned
-CHECKPOINT := checkpoint-16560
-DATA_PATH := data/parallel
-ENC_DEC_MAX_LEN := 256
-
-.PHONY: train-encoder-decoder
-train-encoder-decoder: ## Fine-tune encoder-decoder model (mT5, umT5, mbart)
-	@echo "🚀 Training encoder-decoder: $(ENC_DEC_MODEL)..."
-	@uv run python -m src.surdo_perevodchik.training.train_encoder_decoder \
-		--train_file "$(DATA_PATH)/merged.csv" \
-		--model_name $(ENC_DEC_MODEL) \
-		--output_dir $(ENC_DEC_OUTPUT) \
-		--resume_from_checkpoint $(ENC_DEC_OUTPUT)/$(CHECKPOINT) \
-		--epochs 20 \
-		--batch_size 4 \
-		--grad_accum 4 \
-		--weight_decay 0.1 \
-		--label_smoothing 0.1 \
-		--lr 5e-5 \
-		--bf16 \
-		--optim adamw_bnb_8bit \
-		--max_length $(ENC_DEC_MAX_LEN) \
-
-.PHONY: evaluate-encoder-decoder
-evaluate-encoder-decoder: ## Evaluate encoder-decoder model
-	@echo "🔍 Evaluating encoder-decoder model..."
-	@uv run python -m surdo_perevodchik.evaluation.evaluate_encoder_decoder \
-		--model_path $(ENC_DEC_OUTPUT)/$(CHECKPOINT) \
-		--test_file $(DATA_PATH)/test.csv \
-		--output_dir results/evaluation/$(notdir $(ENC_DEC_OUTPUT))
-
-# =============================================================================
-# Decoder-Only Models (MamayLM, Gemma, Llama, etc.)
-# =============================================================================
-
-DEC_ONLY_MODEL := INSAIT-Institute/MamayLM-Gemma-3-4B-IT-v1.0
-DEC_ONLY_OUTPUT := models/mamaylm-hutsul
-DEC_ONLY_MAX_LEN := 512
-
-.PHONY: train-decoder-only
-train-decoder-only: ## Fine-tune decoder-only model with LoRA (MamayLM, Gemma)
-	@echo "🚀 Training decoder-only: $(DEC_ONLY_MODEL)..."
-	@uv run python -m src.surdo_perevodchik.training.train_decoder_only \
-		--train_file $(DATA_PATH)/merged.csv \
-		--model_name $(DEC_ONLY_MODEL) \
-		--output_dir $(DEC_ONLY_OUTPUT) \
-		--epochs 3 \
-		--batch_size 1 \
-		--grad_accum 16 \
-		--lr 2e-5 \
-		--max_length $(DEC_ONLY_MAX_LEN) \
-		--bf16 \
-		--grad_checkpoint \
-		--use_lora \
-		--lora_r 16 \
-		--lora_alpha 32 \
-		--use_4bit \
-
-.PHONY: train-decoder-only-full
-train-decoder-only-full: ## Full fine-tune decoder-only model (requires more VRAM)
-	@echo "🚀 Full fine-tuning decoder-only: $(DEC_ONLY_MODEL)..."
-	@uv run python -m src.surdo_perevodchik.training.train_decoder_only \
-		--train_file $(DATA_PATH)/merged.csv \
-		--model_name $(DEC_ONLY_MODEL) \
-		--output_dir $(DEC_ONLY_OUTPUT)-full \
-		--epochs 3 \
-		--batch_size 1 \
-		--grad_accum 16 \
-		--lr 5e-6 \
-		--max_length $(DEC_ONLY_MAX_LEN) \
-		--bf16 \
-		--grad_checkpoint \
-
-.PHONY: evaluate-decoder-only
-evaluate-decoder-only: ## Evaluate decoder-only model
-	@echo "🔍 Evaluating decoder-only model..."
-	@uv run python -m surdo_perevodchik.evaluation.evaluate_decoder_only \
-		--model_path $(DEC_ONLY_OUTPUT) \
-		--test_file $(DATA_PATH)/test.csv \
-		--output_dir results/evaluation/$(notdir $(DEC_ONLY_OUTPUT)) \
-		--use_4bit
-
-.PHONY: evaluate-decoder-only-base
-evaluate-decoder-only-base: ## Evaluate base decoder-only model (before fine-tuning)
-	@echo "🔍 Evaluating base decoder-only model..."
-	@uv run python -m surdo_perevodchik.evaluation.evaluate_decoder_only \
-		--model_path $(DEC_ONLY_MODEL) \
-		--test_file $(DATA_PATH)/test.csv \
-		--output_dir results/evaluation/$(notdir $(DEC_ONLY_MODEL))-base \
-		--use_4bit
-
-# =============================================================================
-# Multi-Dialect Training (all dialects combined)
-# =============================================================================
-
-ENC_DEC_MULTI_OUTPUT := models/umt5-base-multidialect
-DEC_ONLY_MULTI_OUTPUT := models/mamaylm-multidialect
 
 .PHONY: prepare-data
-prepare-data: ## Prepare multi-dialect train/val/eval splits from all dialect corpora
+prepare-data: ## Prepare multi-dialect train/val/test splits from all dialect corpora
 	@echo "Preparing multi-dialect data..."
 	@uv run python src/scripts/prepare_multidialect_data.py \
 		--output_dir $(DATA_PATH) \
@@ -126,69 +48,8 @@ prepare-data: ## Prepare multi-dialect train/val/eval splits from all dialect co
 		--eval_per_dialect 50 \
 		--seed 42
 
-.PHONY: evaluate-encoder-decoder-multi
-evaluate-encoder-decoder-multi: ## Evaluate multidialect-longer encoder-decoder model on test set
-	@echo "🔍 Evaluating multidialect-longer encoder-decoder model..."
-	@uv run python -m surdo_perevodchik.evaluation.evaluate_encoder_decoder \
-		--model_path $(ENC_DEC_MULTI_OUTPUT)-longer/final_model \
-		--test_file $(DATA_PATH)/test.csv \
-		--output_dir results/evaluation/umt5-base-multidialect-longer
-
-.PHONY: train-encoder-decoder-multi
-train-encoder-decoder-multi: ## Fine-tune encoder-decoder on all dialects (requires prepare-data first)
-	@echo "Training encoder-decoder on all dialects: $(ENC_DEC_MODEL)..."
-	@uv run python -m src.surdo_perevodchik.training.train_encoder_decoder \
-		--train_file "$(DATA_PATH)/train.csv" \
-		--val_file "$(DATA_PATH)/val.csv" \
-		--model_name $(ENC_DEC_MODEL) \
-		--output_dir $(ENC_DEC_MULTI_OUTPUT)-longer \
-		--epochs 40 \
-		--batch_size 4 \
-		--grad_accum 4 \
-		--weight_decay 0.1 \
-		--label_smoothing 0.1 \
-		--lr 5e-5 \
-		--bf16 \
-		--optim adamw_bnb_8bit \
-		--max_length $(ENC_DEC_MAX_LEN)
-
-.PHONY: train-decoder-only-multi
-train-decoder-only-multi: ## Fine-tune decoder-only on all dialects with LoRA (requires prepare-data first)
-	@echo "Training decoder-only on all dialects: $(DEC_ONLY_MODEL)..."
-	@uv run python -m src.surdo_perevodchik.training.train_decoder_only \
-		--train_file $(DATA_PATH)/train.csv \
-		--val_file $(DATA_PATH)/val.csv \
-		--model_name $(DEC_ONLY_MODEL) \
-		--output_dir $(DEC_ONLY_MULTI_OUTPUT) \
-		--epochs 3 \
-		--batch_size 1 \
-		--grad_accum 16 \
-		--lr 2e-5 \
-		--max_length $(DEC_ONLY_MAX_LEN) \
-		--bf16 \
-		--grad_checkpoint \
-		--use_lora \
-		--lora_r 16 \
-		--lora_alpha 32 \
-		--use_4bit
-
-# =============================================================================
-
-GEN_MODEL := mistralai/Mistral-Small-24B-Instruct-2501
-GEN_SEED  := 42
-
-.PHONY: generate-hutsul
-generate-hutsul: ## Generate synthetic Hutsul corpus (OpenRouter API)
-	@echo "🧪 Generating Hutsul corpus..."
-	@uv run python src/scripts/generate_corpus.py generate \
-		--input data/raw/standard_ukrainian.csv \
-		--output data/parallel/hutsul/synthetic_hutsul_corpus.csv \
-		--rules prompts/hutsul_rules_system.txt \
-		--dictionary data/dicts/hutsul_ukrainian_dictionary.csv \
-		--limit 20000 \
-		--model mistralai/ministral-14b-2512 \
-		--random-seed $(GEN_SEED) \
-		--batch-size 3
+.PHONY: generate-all-local
+generate-all-local: generate-hutsul-local generate-boiko-local generate-transcarpathian-local generate-surzhyk-local ## Generate all dialect corpora sequentially (Local GPU)
 
 .PHONY: generate-hutsul-local
 generate-hutsul-local: ## Generate synthetic Hutsul corpus (Local GPU, 4-bit quantization)
@@ -236,7 +97,7 @@ generate-transcarpathian-local: ## Generate synthetic Transcarpathian corpus (Lo
 		--limit 30000
 
 .PHONY: generate-surzhyk-local
-generate-surzhyk-local: ## Generate synthetic Surzhyk corpus via LLM (Local GPU, 4-bit quantization)
+generate-surzhyk-local: ## Generate synthetic Surzhyk corpus (Local GPU, 4-bit quantization)
 	@echo "🚀 Generating Surzhyk corpus with local GPU model..."
 	@uv run python src/scripts/generate_corpus.py generate \
 		--input data/raw/standard_ukrainian.csv \
@@ -250,8 +111,92 @@ generate-surzhyk-local: ## Generate synthetic Surzhyk corpus via LLM (Local GPU,
 		--batch-size 5 \
 		--limit 30000
 
-.PHONY: generate-all-local
-generate-all-local: generate-hutsul-local generate-boiko-local generate-transcarpathian-local generate-surzhyk-local ## Generate all dialect corpora sequentially (Local GPU)
+# =============================================================================
+# Training (requires prepare-data first)
+# =============================================================================
+
+.PHONY: train-decoder-only-multi
+train-decoder-only-multi: ## Fine-tune MamayLM on all dialects with QLoRA
+	@echo "Training decoder-only on all dialects: $(DEC_ONLY_MODEL)..."
+	@uv run python -m src.surdo_perevodchik.training.train_decoder_only \
+		--train_file $(DATA_PATH)/train.csv \
+		--val_file $(DATA_PATH)/val.csv \
+		--model_name $(DEC_ONLY_MODEL) \
+		--output_dir $(DEC_ONLY_MULTI_OUTPUT) \
+		--epochs 3 \
+		--batch_size 1 \
+		--grad_accum 16 \
+		--lr 2e-4 \
+		--max_length $(DEC_ONLY_MAX_LEN) \
+		--grad_checkpoint \
+		--use_lora \
+		--lora_r 16 \
+		--lora_alpha 32 \
+		--use_4bit \
+
+.PHONY: train-encoder-decoder-multi
+train-encoder-decoder-multi: ## Fine-tune umt5-base on all dialects
+	@echo "Training encoder-decoder on all dialects: $(ENC_DEC_MODEL)..."
+	@uv run python -m src.surdo_perevodchik.training.train_encoder_decoder \
+		--train_file "$(DATA_PATH)/train.csv" \
+		--val_file "$(DATA_PATH)/val.csv" \
+		--model_name $(ENC_DEC_MODEL) \
+		--output_dir $(ENC_DEC_MULTI_OUTPUT)-longer \
+		--epochs 40 \
+		--batch_size 4 \
+		--grad_accum 4 \
+		--weight_decay 0.1 \
+		--label_smoothing 0.1 \
+		--lr 5e-5 \
+		--bf16 \
+		--optim adamw_bnb_8bit \
+		--max_length $(ENC_DEC_MAX_LEN)
+
+# =============================================================================
+# Evaluation
+# =============================================================================
+
+.PHONY: evaluate-decoder-only-base
+evaluate-decoder-only-base: ## Evaluate base MamayLM before fine-tuning (baseline)
+	@echo "🔍 Evaluating base decoder-only model..."
+	@uv run python -m surdo_perevodchik.evaluation.evaluate_decoder_only \
+		--model_path $(DEC_ONLY_MODEL) \
+		--test_file $(DATA_PATH)/test.csv \
+		--output_dir results/evaluation/$(notdir $(DEC_ONLY_MODEL))-base \
+		--use_4bit
+
+.PHONY: evaluate-decoder-only
+evaluate-decoder-only: ## Evaluate fine-tuned MamayLM
+	@echo "🔍 Evaluating decoder-only model..."
+	@uv run python -m surdo_perevodchik.evaluation.evaluate_decoder_only \
+		--model_path $(DEC_ONLY_MULTI_OUTPUT) \
+		--test_file $(DATA_PATH)/test.csv \
+		--output_dir results/evaluation/$(notdir $(DEC_ONLY_MULTI_OUTPUT)) \
+		--use_4bit
+
+.PHONY: evaluate-encoder-decoder-multi
+evaluate-encoder-decoder-multi: ## Evaluate fine-tuned umt5-base (all dialects)
+	@echo "🔍 Evaluating multidialect encoder-decoder model..."
+	@uv run python -m surdo_perevodchik.evaluation.evaluate_encoder_decoder \
+		--model_path $(ENC_DEC_MULTI_OUTPUT)-longer/final_model \
+		--test_file $(DATA_PATH)/test.csv \
+		--output_dir results/evaluation/umt5-base-multidialect-longer
+
+.PHONY: eval-dialect-gpt
+eval-dialect-gpt: ## Evaluate GPT-4o Mini on Hutsul translation (requires .env with OpenRouter key)
+	@cd src/scripts/dialect-eval && python cli.py remote --model gpt-4o-mini
+
+.PHONY: eval-dialect-gemini
+eval-dialect-gemini: ## Evaluate Gemini 2.0 Flash on Hutsul translation
+	@cd src/scripts/dialect-eval && python cli.py remote --model google/gemini-2.0-flash-001
+
+.PHONY: eval-dialect-mistral
+eval-dialect-mistral: ## Evaluate Mistral Large on Hutsul translation
+	@cd src/scripts/dialect-eval && python cli.py remote --model mistralai/mistral-large-2411
+
+# =============================================================================
+# Utilities
+# =============================================================================
 
 .PHONY: tensorboard
 tensorboard: ## Launch TensorBoard for all model runs
@@ -273,22 +218,6 @@ pdf: ## Compile LaTeX document to PDF
 clean-pdf: ## Clean LaTeX auxiliary files
 	@echo "🧹 Cleaning LaTeX auxiliary files..."
 	@cd docs && rm -f *.aux *.log *.out *.toc *.fdb_latexmk *.fls *.synctex.gz
-
-# =============================================================================
-# Dialect Evaluation (lmms-eval)
-# =============================================================================
-
-.PHONY: eval-dialect-gpt
-eval-dialect-gpt: ## Evaluate GPT-4o Mini on Hutsul translation (requires .env with OpenRouter key)
-	@cd src/scripts/dialect-eval && python cli.py remote --model gpt-4o-mini
-
-.PHONY: eval-dialect-gemini
-eval-dialect-gemini: ## Evaluate Gemini 2.0 Flash on Hutsul translation
-	@cd src/scripts/dialect-eval && python cli.py remote --model google/gemini-2.0-flash-001
-
-.PHONY: eval-dialect-mistral
-eval-dialect-mistral: ## Evaluate Mistral Large on Hutsul translation
-	@cd src/scripts/dialect-eval && python cli.py remote --model mistralai/mistral-large-2411
 
 .PHONY: help
 help: ## Show this help message
