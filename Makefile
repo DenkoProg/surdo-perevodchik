@@ -125,13 +125,13 @@ train-decoder-only-multi: ## Fine-tune MamayLM on all dialects with QLoRA
 		--output_dir $(DEC_ONLY_MULTI_OUTPUT) \
 		--epochs 3 \
 		--batch_size 1 \
-		--grad_accum 16 \
+		--grad_accum 4 \
 		--lr 2e-4 \
 		--max_length $(DEC_ONLY_MAX_LEN) \
 		--grad_checkpoint \
 		--use_lora \
-		--lora_r 16 \
-		--lora_alpha 32 \
+		--lora_r 4 \
+		--lora_alpha 4 \
 		--use_4bit \
 
 .PHONY: train-encoder-decoder-multi
