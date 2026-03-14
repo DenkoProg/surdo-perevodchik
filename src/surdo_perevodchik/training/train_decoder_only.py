@@ -23,11 +23,12 @@ except ImportError:
 
 def format_chat_prompt(example, tokenizer):
     # source already contains the dialect prefix: "Переклади з гуцульської: ..."
+    tok = getattr(tokenizer, "tokenizer", tokenizer)
     messages = [
         {"role": "user", "content": example["source"]},
         {"role": "assistant", "content": example["target"]},
     ]
-    text = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=False)
+    text = tok.apply_chat_template(messages, tokenize=False, add_generation_prompt=False)
     return {"text": text}
 
 
