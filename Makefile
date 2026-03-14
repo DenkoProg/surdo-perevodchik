@@ -204,8 +204,8 @@ tensorboard: ## Launch TensorBoard for all model runs
 	@uv run tensorboard --logdir models
 
 .PHONY: demo
-demo: ## Launch Gradio demo for dialect translation
-	@echo "🎭 Launching Gradio demo..."
+demo: ## Launch NiceGUI demo for dialect translation
+	@echo "Launching Лексикон demo on http://0.0.0.0:7860 ..."
 	@uv run python app.py
 
 .PHONY: pdf

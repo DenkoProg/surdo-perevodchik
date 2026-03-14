@@ -1,4 +1,8 @@
-import gradio as gr
+import asyncio
+import os
+import tempfile
+
+from nicegui import app as nicegui_app, ui  # noqa: F401 — needed for FastAPI route registration
 import torch
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
 
@@ -8,13 +12,13 @@ class DialectTranslator:
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.dtype = torch.float16 if self.device.type == "cuda" else torch.float32
 
-        print(f"🔄 Loading model from {model_path} on {self.device} ({self.dtype})...")
+        print(f"Loading model from {model_path} on {self.device} ({self.dtype})...")
         self.model = AutoModelForSeq2SeqLM.from_pretrained(model_path, torch_dtype=self.dtype)
         self.model.to(self.device)
         self.model.eval()
 
         self.tokenizer = AutoTokenizer.from_pretrained(model_path, use_fast=False)
-        print("✅ Model loaded successfully!")
+        print("Model loaded.")
 
     def translate(
         self,
@@ -66,7 +70,9 @@ def get_asr():
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         dtype = torch.float16 if device.type == "cuda" else torch.float32
         processor = MCTCTProcessor.from_pretrained("speechbrain/m-ctc-t-large", cache_dir="models/m-ctc-t-large")
-        model = MCTCTForCTC.from_pretrained("speechbrain/m-ctc-t-large", torch_dtype=dtype, cache_dir="models/m-ctc-t-large")
+        model = MCTCTForCTC.from_pretrained(
+            "speechbrain/m-ctc-t-large", torch_dtype=dtype, cache_dir="models/m-ctc-t-large"
+        )
         model.to(device)
         model.eval()
         _asr = (model, processor)
@@ -88,6 +94,7 @@ def transcribe_audio(audio_path: str | None) -> str:
             audio_array = audio_array.mean(axis=1)
         if sr != 16000:
             import torchaudio
+
             waveform = torch.from_numpy(audio_array).unsqueeze(0)
             audio_array = torchaudio.functional.resample(waveform, sr, 16000).squeeze().numpy()
 
@@ -139,7 +146,6 @@ DIALECT_PREFIXES = {
 
 
 def translate_text(source_text: str, source_dialect: str, num_beams: int, repetition_penalty: float) -> str:
-    """Handle translation with selected parameters."""
     if not source_text.strip():
         return ""
 
@@ -153,7 +159,7 @@ def translate_text(source_text: str, source_dialect: str, num_beams: int, repeti
         )
         return translation
     except Exception as e:
-        return f"❌ Помилка перекладу: {str(e)}"
+        return f"Помилка перекладу: {str(e)}"
 
 
 EXAMPLES = [
@@ -183,163 +189,610 @@ EXAMPLES = [
     ],
 ]
 
-custom_css = """
-.dialect-info {
-    background: #667eea;
-    padding: 20px;
-    border-radius: 10px;
-    color: white;
+# =============================================================================
+# NiceGUI frontend
+# =============================================================================
+
+HEAD_HTML = """
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garant:ital,wght@0,400;0,600;1,400&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ===== Design tokens ===== */
+  :root {
+    --bg:          oklch(97% 0.012 75);
+    --surface:     oklch(99% 0.006 75);
+    --ink:         oklch(14% 0.025 60);
+    --muted:       oklch(52% 0.018 70);
+    --gold:        oklch(70% 0.15 78);
+    --gold-deep:   oklch(56% 0.16 72);
+    --gold-tint:   oklch(96% 0.04 78);
+    --blue:        oklch(36% 0.11 252);
+    --border:      oklch(89% 0.016 75);
+    --border-focus:oklch(70% 0.15 78);
+  }
+
+  /* ===== Quasar/NiceGUI overrides ===== */
+  *, *::before, *::after { box-sizing: border-box; }
+
+  body, .q-page-container, .q-page, .q-layout {
+    background: var(--bg) !important;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--gold);
+    z-index: 9999;
+  }
+
+  .q-page { padding: 0 !important; }
+
+  /* Hide NiceGUI reconnection notice */
+  .nicegui-connection-lost { display: none !important; }
+
+  /* ===== Page wrapper ===== */
+  .page-wrap {
+    max-width: 1000px;
+    width: 100%;
+    margin: 0 auto !important;
+    padding: 52px 32px 80px !important;
+    gap: 0 !important;
+    align-items: stretch !important;
+    flex-direction: column !important;
+  }
+
+  /* ===== Header ===== */
+  .lx-header {
+    display: flex !important;
+    align-items: baseline;
+    justify-content: space-between;
+    width: 100%;
+    padding-bottom: 28px !important;
+    margin-bottom: 36px !important;
+    border-bottom: 1px solid var(--border);
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .lx-wordmark {
+    font-family: 'Cormorant Garant', serif !important;
+    font-size: clamp(2rem, 4vw, 2.75rem) !important;
+    font-weight: 600;
+    color: var(--ink) !important;
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+
+  .lx-tagline {
+    font-size: 0.8rem !important;
+    color: var(--muted) !important;
+    font-weight: 400;
+    max-width: 260px;
+    text-align: right;
+    line-height: 1.55;
+  }
+
+  /* ===== Dialect pills ===== */
+  .pill-row {
+    display: flex !important;
+    flex-wrap: wrap;
+    gap: 8px !important;
+    margin-bottom: 16px !important;
+    width: 100%;
+    align-items: center !important;
+  }
+
+  .dialect-pill.q-btn {
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+    font-size: 0.85rem !important;
+    font-weight: 500 !important;
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+    padding: 7px 18px !important;
+    border-radius: 100px !important;
+    border: 1.5px solid var(--border) !important;
+    background: transparent !important;
+    color: var(--muted) !important;
+    transition: border-color 0.18s ease, color 0.18s ease, background 0.18s ease !important;
+    box-shadow: none !important;
+    min-height: unset !important;
+    height: auto !important;
+  }
+
+  .dialect-pill.q-btn:hover {
+    border-color: var(--gold) !important;
+    color: var(--ink) !important;
+    background: var(--gold-tint) !important;
+  }
+
+  .dialect-pill.pill-active.q-btn {
+    background: var(--gold) !important;
+    color: oklch(16% 0.05 70) !important;
+    border-color: var(--gold) !important;
+    font-weight: 600 !important;
+  }
+
+  /* ===== Info card ===== */
+  .info-card {
+    background: var(--gold-tint) !important;
+    border-left: 3px solid var(--gold);
+    border-radius: 0 8px 8px 0;
+    padding: 14px 20px;
+    margin-bottom: 32px !important;
+    width: 100%;
+    transition: opacity 0.25s ease;
+  }
+
+  .info-inner { display: flex; flex-direction: column; gap: 3px; }
+  .info-meta { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+  .info-category {
+    font-size: 0.7rem; font-weight: 700; color: var(--gold-deep);
+    text-transform: uppercase; letter-spacing: 0.08em;
+  }
+  .info-sep { color: var(--border); font-size: 0.75rem; }
+  .info-region { font-size: 0.75rem; color: var(--muted); }
+  .info-desc { font-size: 0.875rem; color: var(--ink); margin: 0; line-height: 1.55; }
+
+  /* ===== Main panel (two columns) ===== */
+  .main-panel {
+    display: grid !important;
+    grid-template-columns: 1fr 44px 1fr !important;
+    gap: 0 !important;
+    width: 100%;
+    align-items: start;
     margin-bottom: 20px;
-}
+  }
 
-.dialect-selector {
-    font-size: 16px;
-}
+  .panel-col {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+    align-items: stretch !important;
+    min-width: 0;
+  }
 
-.translation-area textarea {
-    font-size: 16px !important;
-    line-height: 1.6 !important;
-}
+  .panel-label {
+    font-size: 0.68rem !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.1em !important;
+    color: var(--muted) !important;
+  }
 
-.header-title {
-    text-align: center;
-    color: white;
+  .panel-divider {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 30px;
+    color: var(--border);
+    font-size: 1.4rem;
+    user-select: none;
+    flex-shrink: 0;
+  }
+
+  /* ===== Textareas ===== */
+  .main-textarea { width: 100% !important; }
+
+  .main-textarea .q-field__control {
+    background: var(--surface) !important;
+    border-radius: 10px !important;
+  }
+
+  .main-textarea.q-field--outlined .q-field__control::before {
+    border: 1.5px solid var(--border) !important;
+    border-radius: 10px !important;
+    transition: border-color 0.18s ease !important;
+  }
+
+  .main-textarea.q-field--outlined.q-field--focused .q-field__control::before {
+    border-color: var(--border-focus) !important;
+  }
+
+  .main-textarea.q-field--outlined .q-field__control::after {
+    display: none !important;
+  }
+
+  .main-textarea .q-field__native {
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+    font-size: 0.975rem !important;
+    line-height: 1.75 !important;
+    color: var(--ink) !important;
+    padding: 14px 16px !important;
+    caret-color: var(--gold);
+    resize: none;
+  }
+
+  .main-textarea .q-field__native::placeholder {
+    color: oklch(68% 0.012 75) !important;
+  }
+
+  .result-textarea .q-field__control {
+    background: oklch(96.5% 0.008 250) !important;
+  }
+
+  .result-textarea .q-field__native {
+    color: var(--blue) !important;
+    cursor: default !important;
+  }
+
+  /* ===== Audio upload ===== */
+  .audio-upload { width: 100% !important; }
+
+  .audio-upload .q-uploader {
+    width: 100% !important;
+    min-height: unset !important;
+    border: 1.5px dashed var(--border) !important;
+    border-radius: 8px !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    transition: border-color 0.18s ease !important;
+  }
+
+  .audio-upload .q-uploader:hover {
+    border-color: var(--gold) !important;
+  }
+
+  .audio-upload .q-uploader__header {
+    background: transparent !important;
+    padding: 8px 14px !important;
+    min-height: unset !important;
+    color: var(--muted) !important;
+    font-size: 0.82rem !important;
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+  }
+
+  .audio-upload .q-uploader__subtitle { display: none !important; }
+
+  .audio-upload .q-uploader__list {
+    padding: 0 14px 8px !important;
+    font-size: 0.8rem !important;
+    color: var(--muted) !important;
+  }
+
+  /* ===== Translate button ===== */
+  .translate-btn.q-btn {
+    width: 100% !important;
+    background: var(--gold) !important;
+    color: oklch(16% 0.05 70) !important;
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+    font-size: 0.975rem !important;
+    font-weight: 600 !important;
+    text-transform: none !important;
+    letter-spacing: 0.01em !important;
+    padding: 14px 24px !important;
+    border-radius: 10px !important;
+    border: none !important;
+    transition: background 0.18s ease, transform 0.12s ease, box-shadow 0.18s ease !important;
+    box-shadow: 0 2px 14px oklch(70% 0.15 78 / 0.28) !important;
+    margin-bottom: 28px;
+  }
+
+  .translate-btn.q-btn:hover {
+    background: var(--gold-deep) !important;
+    box-shadow: 0 4px 22px oklch(70% 0.15 78 / 0.38) !important;
+    transform: translateY(-1px) !important;
+  }
+
+  .translate-btn.q-btn:active {
+    transform: translateY(0) !important;
+    box-shadow: 0 2px 10px oklch(70% 0.15 78 / 0.22) !important;
+  }
+
+  /* Loading spinner inside button */
+  .translate-btn .q-spinner { color: oklch(16% 0.05 70) !important; }
+
+  /* ===== Settings expansion ===== */
+  .settings-expansion {
+    width: 100% !important;
+    margin-bottom: 44px !important;
+    border: 1.5px solid var(--border) !important;
+    border-radius: 10px !important;
+    overflow: hidden !important;
+  }
+
+  .settings-expansion .q-expansion-item__header {
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+    font-size: 0.85rem !important;
+    font-weight: 500 !important;
+    color: var(--muted) !important;
+    padding: 12px 18px !important;
+    min-height: unset !important;
+  }
+
+  .settings-expansion .q-item__label { color: var(--muted) !important; }
+  .settings-expansion .q-item__section--avatar { color: var(--muted) !important; }
+  .settings-expansion .q-focus-helper { display: none !important; }
+
+  .settings-expansion .q-expansion-item__content {
+    padding: 4px 18px 20px !important;
+    border-top: 1px solid var(--border);
+  }
+
+  .slider-label {
+    display: block;
+    font-size: 0.78rem !important;
+    color: var(--muted) !important;
     margin-bottom: 10px;
-}
+    margin-top: 14px;
+  }
 
-.header-subtitle {
-    text-align: center;
-    color: white;
-    font-size: 18px;
-    margin-bottom: 30px;
-}
+  .custom-slider .q-slider__track-container { height: 3px !important; }
+  .custom-slider .q-slider__track--active { background: var(--gold) !important; }
+  .custom-slider .q-slider__track { background: var(--border) !important; }
+  .custom-slider .q-slider__thumb { color: var(--gold) !important; }
+  .custom-slider .q-slider__thumb path { fill: var(--gold) !important; }
+  .custom-slider .q-slider__pin { background: var(--gold) !important; }
+  .custom-slider .q-slider__pin::before { border-top-color: var(--gold) !important; }
 
-.advanced-settings {
-    background: #f7fafc;
-    padding: 15px;
-    border-radius: 8px;
-    margin-top: 10px;
-}
+  /* ===== Section title ===== */
+  .section-title {
+    font-family: 'Cormorant Garant', serif !important;
+    font-size: 1.5rem !important;
+    font-weight: 600 !important;
+    color: var(--ink) !important;
+    margin-bottom: 16px !important;
+    letter-spacing: -0.01em;
+  }
+
+  /* ===== Examples grid ===== */
+  .examples-grid {
+    width: 100% !important;
+    gap: 12px !important;
+    margin-bottom: 60px;
+  }
+
+  .example-card.q-card {
+    background: var(--surface) !important;
+    border: 1.5px solid var(--border) !important;
+    border-radius: 10px !important;
+    padding: 18px !important;
+    cursor: pointer !important;
+    transition: border-color 0.18s ease, background 0.18s ease, transform 0.15s ease, box-shadow 0.18s ease !important;
+    box-shadow: none !important;
+  }
+
+  .example-card.q-card:hover {
+    border-color: var(--gold) !important;
+    background: var(--gold-tint) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px oklch(70% 0.15 78 / 0.14) !important;
+  }
+
+  .example-text {
+    font-size: 0.875rem !important;
+    color: var(--ink) !important;
+    line-height: 1.65 !important;
+    margin-bottom: 14px !important;
+    display: block;
+  }
+
+  .example-badge {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.68rem !important;
+    font-weight: 700 !important;
+    color: var(--gold-deep) !important;
+    background: oklch(92% 0.05 78) !important;
+    padding: 3px 11px !important;
+    border-radius: 100px !important;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+  }
+
+  /* ===== Footer ===== */
+  .lx-footer {
+    display: flex !important;
+    justify-content: center !important;
+    padding-top: 24px !important;
+    border-top: 1px solid var(--border) !important;
+    width: 100%;
+  }
+
+  .footer-text {
+    font-size: 0.78rem !important;
+    color: oklch(64% 0.014 75) !important;
+  }
+
+  /* ===== Animations ===== */
+  @keyframes fadeSlideIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .result-textarea .q-field__native {
+    animation: fadeSlideIn 0.3s ease both;
+  }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 640px) {
+    .page-wrap { padding: 36px 16px 60px !important; }
+
+    .main-panel {
+      grid-template-columns: 1fr !important;
+    }
+
+    .panel-divider {
+      padding: 6px 0 !important;
+      transform: rotate(90deg);
+      justify-self: center;
+    }
+
+    .lx-tagline { text-align: left; max-width: none; }
+
+    .examples-grid { grid-template-columns: 1fr !important; }
+  }
+</style>
 """
 
-with gr.Blocks(css=custom_css, title="Діалектний перекладач", theme=gr.themes.Soft()) as demo:
-    gr.HTML(
-        """
-        <div class="dialect-info">
-            <h1 class="header-title">🗣️ Діалектний перекладач української мови</h1>
-            <p class="header-subtitle">Переклад українських діалектів та суржику на стандартну літературну мову</p>
-        </div>
-        """
-    )
 
-    with gr.Row():
-        with gr.Column(scale=1):
-            gr.Markdown("### 📍 Джерело")
+@ui.page("/")
+def index():
+    ui.add_head_html(HEAD_HTML)
 
-            dialect_dropdown = gr.Dropdown(
-                choices=list(DIALECTS.keys()),
-                value="Гуцульський (Hutsul)",
-                label="Оберіть діалект",
-                elem_classes=["dialect-selector"],
+    # -- Reactive state (Python dict, shared across closures) --
+    state = {"dialect": list(DIALECTS.keys())[0]}
+    pill_btns: dict[str, ui.button] = {}
+
+    # ------------------------------------------------------------------ helpers
+
+    def info_html(name: str) -> str:
+        d = DIALECTS[name]
+        return (
+            f'<div class="info-inner">'
+            f'<div class="info-meta">'
+            f'<span class="info-category">{d["category"]}</span>'
+            f'<span class="info-sep">·</span>'
+            f'<span class="info-region">{d["region"]}</span>'
+            f"</div>"
+            f'<p class="info-desc">{d["description"]}</p>'
+            f"</div>"
+        )
+
+    def select_dialect(name: str) -> None:
+        state["dialect"] = name
+        for n, btn in pill_btns.items():
+            if n == name:
+                btn.classes(add="pill-active")
+            else:
+                btn.classes(remove="pill-active")
+        info_card.set_content(info_html(name))
+
+    async def do_translate() -> None:
+        text = source.value.strip()
+        if not text:
+            return
+        translate_btn.props(add="loading")
+        try:
+            loop = asyncio.get_running_loop()
+            translation = await loop.run_in_executor(
+                None,
+                translate_text,
+                text,
+                state["dialect"],
+                int(beams_slider.value),
+                float(rep_slider.value),
             )
+            result.set_value(translation)
+        finally:
+            translate_btn.props(remove="loading")
 
-            def show_dialect_info(dialect_name):
-                dialect = DIALECTS[dialect_name]
-                category = dialect.get("category", "")
-                lines = []
-                if category:
-                    lines.append(f"**Категорія:** {category}")
-                lines.append(f"**Опис:** {dialect['description']}")
-                lines.append(f"**Регіон:** {dialect['region']}")
-                return "\n".join(lines)
+    async def handle_upload(e) -> None:
+        content = e.content.read()
+        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as f:
+            f.write(content)
+            tmp_path = f.name
+        try:
+            loop = asyncio.get_running_loop()
+            text = await loop.run_in_executor(None, transcribe_audio, tmp_path)
+            source.set_value(text)
+        finally:
+            os.unlink(tmp_path)
 
-            dialect_info = gr.Markdown(
-                value=show_dialect_info("Гуцульський (Hutsul)"),
-                elem_classes=["dialect-info-text"],
-            )
+    def load_example(ex: list) -> None:
+        source.set_value(ex[0])
+        select_dialect(ex[1])
+        beams_slider.set_value(ex[2])
+        rep_slider.set_value(ex[3])
 
-            dialect_dropdown.change(fn=show_dialect_info, inputs=[dialect_dropdown], outputs=[dialect_info])
+    async def on_key(e) -> None:
+        if e.action.keydown and e.key.name == "Enter" and e.modifiers.ctrl:
+            await do_translate()
 
-            audio_input = gr.Audio(
-                sources=["microphone", "upload"],
-                type="filepath",
-                label="Аудіо (опційно)",
-                format="wav",
-            )
+    # ------------------------------------------------------------------ layout
 
-            source_text = gr.Textbox(
-                label="Текст діалектом",
-                placeholder="Введіть текст або запишіть аудіо вище...",
-                lines=8,
-                elem_classes=["translation-area"],
-            )
+    with ui.element("div").classes("page-wrap"):
+        # Header
+        with ui.element("div").classes("lx-header"):
+            ui.html('<span class="lx-wordmark">Лексикон</span>')
+            ui.html('<span class="lx-tagline">Переклад українських діалектів та суржику на літературну мову</span>')
 
-        with gr.Column(scale=1):
-            gr.Markdown("### 🎯 Переклад")
+        # Dialect pills
+        with ui.element("div").classes("pill-row"):
+            for name in DIALECTS:
+                short = name.split(" ")[0]
+                btn = ui.button(short, on_click=lambda n=name: select_dialect(n))
+                btn.props("flat unelevated no-caps")
+                btn.classes("dialect-pill")
+                pill_btns[name] = btn
 
-            target_text = gr.Textbox(
-                label="Переклад",
-                lines=8,
-                interactive=False,
-                elem_classes=["translation-area"],
-            )
+        # Info card
+        info_card = ui.html(info_html(state["dialect"])).classes("info-card")
 
-            translate_btn = gr.Button("🔄 Перекласти", variant="primary", size="lg")
+        # Two-column translation panel
+        with ui.element("div").classes("main-panel"):
+            # Source column
+            with ui.element("div").classes("panel-col"):
+                ui.label("Джерело").classes("panel-label")
+                source = ui.textarea(placeholder="Введіть текст діалектом або завантажте аудіо…")
+                source.props("outlined autogrow")
+                source.classes("main-textarea")
 
-    with gr.Accordion("⚙️ Налаштування моделі", open=False):
-        gr.Markdown("*Експериментальні параметри для контролю якості перекладу*")
-        with gr.Row():
-            num_beams = gr.Slider(
-                minimum=1,
-                maximum=10,
-                value=5,
-                step=1,
-                label="Beam Search (більше = точніше, але повільніше)",
-            )
-            repetition_penalty = gr.Slider(
-                minimum=1.0,
-                maximum=2.0,
-                value=1.2,
-                step=0.1,
-                label="Штраф за повторення",
-            )
+                upload = ui.upload(
+                    label="Завантажити аудіо",
+                    on_upload=handle_upload,
+                    auto_upload=True,
+                    max_file_size=50_000_000,
+                )
+                upload.props('accept=".wav,.mp3,.ogg,.flac" flat dense')
+                upload.classes("audio-upload")
 
-    gr.Markdown("---")
-    gr.Markdown("### 📚 Приклади")
-    gr.Examples(
-        examples=EXAMPLES,
-        inputs=[source_text, dialect_dropdown, num_beams, repetition_penalty],
-        outputs=target_text,
-        fn=translate_text,
-        cache_examples=False,
-    )
+            # Arrow divider
+            ui.html('<div class="panel-divider">→</div>')
 
-    translate_btn.click(
-        fn=translate_text,
-        inputs=[source_text, dialect_dropdown, num_beams, repetition_penalty],
-        outputs=target_text,
-    )
+            # Result column
+            with ui.element("div").classes("panel-col"):
+                ui.label("Переклад").classes("panel-label")
+                result = ui.textarea(placeholder="Тут з\u2019явиться переклад\u2026")
+                result.props("outlined autogrow readonly")
+                result.classes("main-textarea result-textarea")
 
-    audio_input.change(
-        fn=transcribe_audio,
-        inputs=[audio_input],
-        outputs=[source_text],
-    )
+        # Translate button
+        translate_btn = ui.button("Перекласти", on_click=do_translate)
+        translate_btn.props("unelevated no-caps")
+        translate_btn.classes("translate-btn")
 
-    # Footer
-    gr.Markdown(
-        """
-        ---
-        <div style='text-align: center; color: #718096; font-size: 14px;'>
-        <p>📍 Майбутній функціонал: інтерактивна карта для вибору діалекту за регіоном</p>
-        </div>
-        """
-    )
+        # Advanced settings
+        with ui.expansion("Налаштування", icon="tune").classes("settings-expansion"):
+            ui.label("Beam Search — більше = точніше, але повільніше").classes("slider-label")
+            beams_slider = ui.slider(min=1, max=10, value=5, step=1)
+            beams_slider.props("label-always")
+            beams_slider.classes("custom-slider")
 
-if __name__ == "__main__":
-    demo.launch(
-        server_name="0.0.0.0",
-        server_port=7860,
-        share=False,
-        show_error=True,
-    )
+            ui.element("div").style("height: 8px")
+
+            ui.label("Штраф за повторення").classes("slider-label")
+            rep_slider = ui.slider(min=1.0, max=2.0, value=1.2, step=0.1)
+            rep_slider.props("label-always")
+            rep_slider.classes("custom-slider")
+
+        # Examples
+        ui.label("Приклади").classes("section-title")
+
+        with ui.grid(columns=2).classes("examples-grid"):
+            for ex in EXAMPLES:
+
+                def make_handler(example):
+                    return lambda: load_example(example)
+
+                with ui.card().classes("example-card") as card:
+                    card.on("click", make_handler(ex))
+                    ui.label(ex[0][:110] + ("…" if len(ex[0]) > 110 else "")).classes("example-text")
+                    ui.label(ex[1].split(" ")[0]).classes("example-badge")
+
+        # Footer
+        with ui.element("div").classes("lx-footer"):
+            ui.label("Лексикон · Переклад українських діалектів").classes("footer-text")
+
+    # Keyboard shortcut: Ctrl+Enter
+    ui.keyboard(on_key=on_key)
+
+    # Initialise first pill as active
+    pill_btns[state["dialect"]].classes(add="pill-active")
+
+
+if __name__ in {"__main__", "__mp_main__"}:
+    ui.run(host="0.0.0.0", port=7860, title="Лексикон", dark=False, favicon="📖")
