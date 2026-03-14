@@ -262,7 +262,7 @@ HEAD_HTML = """
 
   /* ===== Page wrapper ===== */
   .page-wrap {
-    max-width: 1000px;
+    max-width: 1111px;
     width: 100%;
     margin: 0 auto !important;
     padding: 52px 32px 80px !important;
