@@ -2,6 +2,7 @@ import asyncio
 import os
 import tempfile
 
+from fastapi import UploadFile
 from nicegui import app as nicegui_app, ui  # noqa: F401 — needed for FastAPI route registration
 import torch
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
@@ -84,19 +85,18 @@ def transcribe_audio(audio_path: str | None) -> str:
     if audio_path is None:
         return ""
     try:
-        import soundfile as sf
+        import torchaudio
 
         model, processor = get_asr()
         device = next(model.parameters()).device
 
-        audio_array, sr = sf.read(audio_path, dtype="float32")
-        if audio_array.ndim > 1:
-            audio_array = audio_array.mean(axis=1)
+        # torchaudio handles WAV, FLAC, OGG, WebM (ffmpeg backend), etc.
+        waveform, sr = torchaudio.load(audio_path)
+        if waveform.shape[0] > 1:
+            waveform = waveform.mean(dim=0, keepdim=True)
         if sr != 16000:
-            import torchaudio
-
-            waveform = torch.from_numpy(audio_array).unsqueeze(0)
-            audio_array = torchaudio.functional.resample(waveform, sr, 16000).squeeze().numpy()
+            waveform = torchaudio.functional.resample(waveform, sr, 16000)
+        audio_array = waveform.squeeze().numpy()
 
         inputs = processor(audio_array, sampling_rate=16000, return_tensors="pt")
         inputs = {k: v.to(device) for k, v in inputs.items()}
@@ -192,6 +192,22 @@ EXAMPLES = [
 # =============================================================================
 # NiceGUI frontend
 # =============================================================================
+
+# FastAPI endpoint used by the in-browser microphone recording JS
+@nicegui_app.post("/api/transcribe")
+async def api_transcribe(file: UploadFile):
+    content = await file.read()
+    suffix = os.path.splitext(file.filename or "recording.webm")[1] or ".webm"
+    with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as f:
+        f.write(content)
+        tmp_path = f.name
+    try:
+        loop = asyncio.get_running_loop()
+        text = await loop.run_in_executor(None, transcribe_audio, tmp_path)
+        return {"text": text}
+    finally:
+        os.unlink(tmp_path)
+
 
 HEAD_HTML = """
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -597,7 +613,64 @@ HEAD_HTML = """
     color: oklch(64% 0.014 75) !important;
   }
 
+  /* ===== Audio controls ===== */
+  .audio-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .audio-icon-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    line-height: 1;
+    user-select: none;
+    transition: border-color 0.18s ease, color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+    padding: 0;
+    text-decoration: none;
+  }
+
+  .audio-icon-btn:hover {
+    border-color: var(--gold);
+    color: var(--ink);
+    background: var(--gold-tint);
+  }
+
+  #lx-mic-btn.mic-recording {
+    border-color: oklch(55% 0.2 22);
+    background: oklch(55% 0.2 22);
+    color: white;
+    animation: mic-pulse 1.4s ease-in-out infinite;
+  }
+
+  #lx-mic-btn.mic-loading {
+    cursor: wait;
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+
+  @keyframes mic-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 oklch(55% 0.2 22 / 0.45); }
+    50%       { box-shadow: 0 0 0 9px oklch(55% 0.2 22 / 0); }
+  }
+
   /* ===== Animations ===== */
+  @keyframes lx-spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+
   @keyframes fadeSlideIn {
     from { opacity: 0; transform: translateY(5px); }
     to   { opacity: 1; transform: translateY(0); }
@@ -626,6 +699,97 @@ HEAD_HTML = """
     .examples-grid { grid-template-columns: 1fr !important; }
   }
 </style>
+<script>
+(function () {
+  const ICON_MIC  = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>`;
+  const ICON_STOP = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="5" width="14" height="14" rx="2"/></svg>`;
+  const ICON_SPIN = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 2a10 10 0 1 0 10 10" style="animation:lx-spin 0.8s linear infinite;transform-origin:center"/></svg>`;
+
+  let recorder = null, chunks = [], micStream = null;
+
+  async function lxFillTextarea(blob, filename) {
+    const form = new FormData();
+    form.append('file', blob, filename);
+    try {
+      const resp = await fetch('/api/transcribe', { method: 'POST', body: form });
+      const data = await resp.json();
+      const ta = document.querySelector('.source-textarea .q-field__native');
+      if (ta) {
+        ta.value = data.text || '';
+        ta.dispatchEvent(new Event('input',  { bubbles: true }));
+        ta.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    } catch (err) { console.error('Transcription error:', err); }
+  }
+
+  async function lxToggleMic() {
+    const btn = document.getElementById('lx-mic-btn');
+    if (!btn) return;
+
+    // Stop recording
+    if (recorder && recorder.state === 'recording') {
+      recorder.stop();
+      if (micStream) { micStream.getTracks().forEach(t => t.stop()); micStream = null; }
+      btn.innerHTML = ICON_SPIN;
+      btn.classList.remove('mic-recording');
+      btn.classList.add('mic-loading');
+      btn.disabled = true;
+      return;
+    }
+
+    // Check API availability (requires localhost or HTTPS)
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      btn.title = 'Потрібен HTTPS або localhost для доступу до мікрофона';
+      btn.style.borderColor = 'oklch(55% 0.2 22)';
+      setTimeout(() => { btn.style.borderColor = ''; btn.title = 'Записати аудіо'; }, 2500);
+      return;
+    }
+
+    // Start recording
+    try {
+      micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+      const mime = ['audio/webm;codecs=opus','audio/webm','audio/ogg;codecs=opus','audio/ogg']
+        .find(t => MediaRecorder.isTypeSupported(t)) || '';
+      recorder = new MediaRecorder(micStream, mime ? { mimeType: mime } : {});
+      chunks = [];
+      recorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+      recorder.onstop = async () => {
+        const usedMime = recorder.mimeType || 'audio/webm';
+        const ext = usedMime.includes('ogg') ? '.ogg' : '.webm';
+        await lxFillTextarea(new Blob(chunks, { type: usedMime }), 'recording' + ext);
+        btn.innerHTML = ICON_MIC;
+        btn.classList.remove('mic-loading');
+        btn.disabled = false;
+      };
+      recorder.start(100);
+      btn.innerHTML = ICON_STOP;
+      btn.classList.add('mic-recording');
+    } catch (err) {
+      console.error('Mic access error:', err);
+      btn.innerHTML = ICON_MIC;
+    }
+  }
+
+  // Attach mic listener via retry loop — works regardless of Vue render timing
+  function attachMic() {
+    const btn = document.getElementById('lx-mic-btn');
+    if (btn && !btn._lxAttached) {
+      btn.addEventListener('click', lxToggleMic);
+      btn._lxAttached = true;
+    } else {
+      setTimeout(attachMic, 150);
+    }
+  }
+  setTimeout(attachMic, 0);
+
+  // File-input change handler (triggered by the + label button)
+  document.addEventListener('change', function (e) {
+    if (e.target.id !== 'lx-file-input') return;
+    const file = e.target.files[0];
+    if (file) { lxFillTextarea(file, file.name); e.target.value = ''; }
+  });
+})();
+</script>
 """
 
 
@@ -680,18 +844,6 @@ def index():
         finally:
             translate_btn.props(remove="loading")
 
-    async def handle_upload(e) -> None:
-        content = e.content.read()
-        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as f:
-            f.write(content)
-            tmp_path = f.name
-        try:
-            loop = asyncio.get_running_loop()
-            text = await loop.run_in_executor(None, transcribe_audio, tmp_path)
-            source.set_value(text)
-        finally:
-            os.unlink(tmp_path)
-
     def load_example(ex: list) -> None:
         source.set_value(ex[0])
         select_dialect(ex[1])
@@ -727,18 +879,22 @@ def index():
             # Source column
             with ui.element("div").classes("panel-col"):
                 ui.label("Джерело").classes("panel-label")
-                source = ui.textarea(placeholder="Введіть текст діалектом або завантажте аудіо…")
+                source = ui.textarea(placeholder="Введіть текст діалектом або запишіть аудіо…")
                 source.props("outlined autogrow")
-                source.classes("main-textarea")
+                source.classes("main-textarea source-textarea")
 
-                upload = ui.upload(
-                    label="Завантажити аудіо",
-                    on_upload=handle_upload,
-                    auto_upload=True,
-                    max_file_size=50_000_000,
+                ui.html(
+                    '<div class="audio-controls">'
+                    '<button id="lx-mic-btn" class="audio-icon-btn" title="Записати аудіо">'
+                    '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
+                    '<path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/>'
+                    '<path d="M19 10v2a7 7 0 0 1-14 0v-2"/>'
+                    '<line x1="12" y1="19" x2="12" y2="22"/>'
+                    "</svg></button>"
+                    '<label for="lx-file-input" class="audio-icon-btn" title="Завантажити аудіо файл">+</label>'
+                    '<input type="file" id="lx-file-input" accept=".wav,.mp3,.ogg,.flac,.webm" style="display:none">'
+                    "</div>"
                 )
-                upload.props('accept=".wav,.mp3,.ogg,.flac" flat dense')
-                upload.classes("audio-upload")
 
             # Arrow divider
             ui.html('<div class="panel-divider">→</div>')
