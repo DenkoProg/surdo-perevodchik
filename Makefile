@@ -163,7 +163,8 @@ evaluate-decoder-only-base: ## Evaluate base MamayLM before fine-tuning (baselin
 		--model_path $(DEC_ONLY_MODEL) \
 		--test_file $(DATA_PATH)/test.csv \
 		--output_dir results/evaluation/$(notdir $(DEC_ONLY_MODEL))-base \
-		--use_4bit
+		--use_4bit \
+		--base_model_prompt
 
 .PHONY: evaluate-decoder-only
 evaluate-decoder-only: ## Evaluate fine-tuned MamayLM

@@ -20,15 +20,26 @@ except ImportError:
 
 SYSTEM_PROMPT = "Ти — перекладач з діалектів та суржику на літературну українську мову."
 
+BASE_MODEL_SYSTEM_PROMPT = (
+    "Ти — перекладач з діалектів та суржику на літературну українську мову. "
+    "Відповідай ТІЛЬКИ перекладом — одним реченням без пояснень, варіантів або будь-якого додаткового тексту."
+)
 
-def format_prompt(source: str, tokenizer, use_system_prompt: bool = True) -> str:
+
+def format_prompt(source: str, tokenizer, use_system_prompt: bool = True, base_model_prompt: bool = False) -> str:
     """Format a source text as a chat prompt for generation."""
-    if use_system_prompt:
+    if base_model_prompt:
+        messages = [
+            {"role": "system", "content": BASE_MODEL_SYSTEM_PROMPT},
+            {"role": "user", "content": source},
+        ]
+    elif use_system_prompt:
         user_content = f"{SYSTEM_PROMPT}\n\nПерекладіть: {source}"
+        messages = [{"role": "user", "content": user_content}]
     else:
         user_content = f"Перекладіть на літературну українську: {source}"
+        messages = [{"role": "user", "content": user_content}]
 
-    messages = [{"role": "user", "content": user_content}]
     return tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
 
 
@@ -44,6 +55,7 @@ def generate_predictions(
     repetition_penalty: float = 1.1,
     do_sample: bool = True,
     use_system_prompt: bool = True,
+    base_model_prompt: bool = False,
     use_4bit: bool = False,
     lora_adapter: str = None,
     attn_implementation: str = None,
@@ -102,7 +114,7 @@ def generate_predictions(
         for i in tqdm(range(0, len(sources), batch_size)):
             batch_sources = sources[i : i + batch_size]
 
-            prompts = [format_prompt(src, tokenizer, use_system_prompt) for src in batch_sources]
+            prompts = [format_prompt(src, tokenizer, use_system_prompt, base_model_prompt) for src in batch_sources]
 
             inputs = tokenizer(
                 prompts,
@@ -127,8 +139,10 @@ def generate_predictions(
             for j, output in enumerate(outputs):
                 input_len = inputs["input_ids"][j].shape[0]
                 generated_tokens = output[input_len:]
-                decoded = tokenizer.decode(generated_tokens, skip_special_tokens=True)
-                predictions.append(decoded.strip())
+                decoded = tokenizer.decode(generated_tokens, skip_special_tokens=True).strip()
+                if base_model_prompt:
+                    decoded = next((line.strip() for line in decoded.splitlines() if line.strip()), decoded)
+                predictions.append(decoded)
 
     output_path = Path(output_file)
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -158,6 +172,7 @@ def run_evaluation(args):
         repetition_penalty=args.repetition_penalty,
         do_sample=args.do_sample,
         use_system_prompt=args.use_system_prompt,
+        base_model_prompt=args.base_model_prompt,
         use_4bit=args.use_4bit,
         lora_adapter=args.lora_adapter,
         attn_implementation=args.attn_implementation,
@@ -189,6 +204,18 @@ def run_evaluation(args):
             "do_sample": args.do_sample,
         },
     }
+
+    if "dialect" in df.columns:
+        results["per_dialect"] = {}
+        for dialect, group in df.groupby("dialect"):
+            idx = group.index.tolist()
+            preds = [predictions[i] for i in idx]
+            refs = [references[i] for i in idx]
+            results["per_dialect"][dialect] = compute_metrics(preds, refs)
+            print(f"\n{dialect} ({len(group)} samples):")
+            for metric, score in results["per_dialect"][dialect].items():
+                print(f"  {metric:15s}: {score:6.2f}")
+
     with open(results_file, "w", encoding="utf-8") as f:
         json.dump(results, f, indent=2, ensure_ascii=False)
 
@@ -216,6 +243,12 @@ if __name__ == "__main__":
     # Prompt formatting
     parser.add_argument("--use_system_prompt", action="store_true", default=True, help="Include system prompt")
     parser.add_argument("--no_system_prompt", action="store_false", dest="use_system_prompt")
+    parser.add_argument(
+        "--base_model_prompt",
+        action="store_true",
+        default=False,
+        help="Use strict system-message prompt for base (non-fine-tuned) models to suppress verbose output",
+    )
 
     # Model loading options
     parser.add_argument("--use_4bit", action="store_true", help="Use 4-bit quantization")
