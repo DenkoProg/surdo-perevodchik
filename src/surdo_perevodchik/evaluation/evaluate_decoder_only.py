@@ -26,9 +26,12 @@ BASE_MODEL_SYSTEM_PROMPT = (
 )
 
 
-def format_prompt(source: str, tokenizer, use_system_prompt: bool = True, base_model_prompt: bool = False) -> str:
+def format_prompt(source: str, tokenizer, use_system_prompt: bool = True, base_model_prompt: bool = False, training_prompt: bool = False) -> str:
     """Format a source text as a chat prompt for generation."""
-    if base_model_prompt:
+    if training_prompt:
+        # Match exactly the format used during fine-tuning: raw source as user message, no system prompt
+        messages = [{"role": "user", "content": source}]
+    elif base_model_prompt:
         messages = [
             {"role": "system", "content": BASE_MODEL_SYSTEM_PROMPT},
             {"role": "user", "content": source},
@@ -56,6 +59,7 @@ def generate_predictions(
     do_sample: bool = True,
     use_system_prompt: bool = True,
     base_model_prompt: bool = False,
+    training_prompt: bool = False,
     use_4bit: bool = False,
     lora_adapter: str = None,
     attn_implementation: str = None,
@@ -114,7 +118,7 @@ def generate_predictions(
         for i in tqdm(range(0, len(sources), batch_size)):
             batch_sources = sources[i : i + batch_size]
 
-            prompts = [format_prompt(src, tokenizer, use_system_prompt, base_model_prompt) for src in batch_sources]
+            prompts = [format_prompt(src, tokenizer, use_system_prompt, base_model_prompt, training_prompt) for src in batch_sources]
 
             inputs = tokenizer(
                 prompts,
@@ -123,6 +127,13 @@ def generate_predictions(
                 truncation=True,
                 max_length=1024,
             ).to(model.device)
+
+            # Include end-of-turn token (e.g. Gemma's token id 106) so generation stops
+            # at the turn boundary and doesn't bleed into a next-turn prefix ("model\n..").
+            eot_token_id = tokenizer.convert_tokens_to_ids("<end_of_turn>")
+            stop_ids = [tokenizer.eos_token_id]
+            if isinstance(eot_token_id, int) and eot_token_id != tokenizer.unk_token_id:
+                stop_ids.append(eot_token_id)
 
             outputs = model.generate(
                 **inputs,
@@ -133,14 +144,14 @@ def generate_predictions(
                 repetition_penalty=repetition_penalty,
                 do_sample=do_sample,
                 pad_token_id=tokenizer.pad_token_id,
-                eos_token_id=tokenizer.eos_token_id,
+                eos_token_id=stop_ids,
             )
 
             for j, output in enumerate(outputs):
                 input_len = inputs["input_ids"][j].shape[0]
                 generated_tokens = output[input_len:]
                 decoded = tokenizer.decode(generated_tokens, skip_special_tokens=True).strip()
-                if base_model_prompt:
+                if base_model_prompt or training_prompt:
                     decoded = next((line.strip() for line in decoded.splitlines() if line.strip()), decoded)
                 predictions.append(decoded)
 
@@ -173,6 +184,7 @@ def run_evaluation(args):
         do_sample=args.do_sample,
         use_system_prompt=args.use_system_prompt,
         base_model_prompt=args.base_model_prompt,
+        training_prompt=args.training_prompt,
         use_4bit=args.use_4bit,
         lora_adapter=args.lora_adapter,
         attn_implementation=args.attn_implementation,
@@ -248,6 +260,12 @@ if __name__ == "__main__":
         action="store_true",
         default=False,
         help="Use strict system-message prompt for base (non-fine-tuned) models to suppress verbose output",
+    )
+    parser.add_argument(
+        "--training_prompt",
+        action="store_true",
+        default=False,
+        help="Use the exact prompt format from fine-tuning: raw source as user message with no system prompt wrapping",
     )
 
     # Model loading options

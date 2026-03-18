@@ -122,7 +122,7 @@ train-decoder-only-multi: ## Fine-tune MamayLM on all dialects with QLoRA
 		--train_file $(DATA_PATH)/train.csv \
 		--val_file $(DATA_PATH)/val.csv \
 		--model_name $(DEC_ONLY_MODEL) \
-		--output_dir $(DEC_ONLY_MULTI_OUTPUT) \
+		--output_dir $(DEC_ONLY_MULTI_OUTPUT)-longer \
 		--epochs 3 \
 		--batch_size 1 \
 		--grad_accum 4 \
@@ -130,8 +130,8 @@ train-decoder-only-multi: ## Fine-tune MamayLM on all dialects with QLoRA
 		--max_length $(DEC_ONLY_MAX_LEN) \
 		--grad_checkpoint \
 		--use_lora \
-		--lora_r 4 \
-		--lora_alpha 4 \
+		--lora_r 16 \
+		--lora_alpha 32 \
 		--use_4bit \
 
 .PHONY: train-encoder-decoder-multi
@@ -173,7 +173,8 @@ evaluate-decoder-only: ## Evaluate fine-tuned MamayLM
 		--model_path $(DEC_ONLY_MULTI_OUTPUT) \
 		--test_file $(DATA_PATH)/test.csv \
 		--output_dir results/evaluation/$(notdir $(DEC_ONLY_MULTI_OUTPUT)) \
-		--use_4bit
+		--use_4bit \
+		--training_prompt
 
 .PHONY: evaluate-encoder-decoder-multi
 evaluate-encoder-decoder-multi: ## Evaluate fine-tuned umt5-base (all dialects)
