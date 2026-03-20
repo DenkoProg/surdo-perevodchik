@@ -118,14 +118,14 @@ generate-surzhyk-local: ## Generate synthetic Surzhyk corpus (Local GPU, 4-bit q
 .PHONY: train-decoder-only-multi
 train-decoder-only-multi: ## Fine-tune MamayLM on all dialects with QLoRA
 	@echo "Training decoder-only on all dialects: $(DEC_ONLY_MODEL)..."
-	@uv run python -m src.surdo_perevodchik.training.train_decoder_only \
+	@PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True uv run python -m src.surdo_perevodchik.training.train_decoder_only \
 		--train_file $(DATA_PATH)/train.csv \
 		--val_file $(DATA_PATH)/val.csv \
 		--model_name $(DEC_ONLY_MODEL) \
 		--output_dir $(DEC_ONLY_MULTI_OUTPUT)-longer \
 		--epochs 3 \
 		--batch_size 1 \
-		--grad_accum 4 \
+		--grad_accum 2 \
 		--lr 2e-4 \
 		--max_length $(DEC_ONLY_MAX_LEN) \
 		--grad_checkpoint \
