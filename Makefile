@@ -207,7 +207,7 @@ tensorboard: ## Launch TensorBoard for all model runs
 
 .PHONY: demo
 demo: ## Launch NiceGUI demo for dialect translation
-	@echo "Launching Лексикон demo on http://0.0.0.0:7860 ..."
+	@echo "Launching Лексикон demo on http://0.0.0.0:7870 ..."
 	@uv run python app.py
 
 .PHONY: pdf
