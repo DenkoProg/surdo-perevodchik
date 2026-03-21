@@ -284,29 +284,30 @@ TER (Translation Edit Rate) - метрика оцінювання якості �
 \section*{ВСТУП}
 \addcontentsline{toc}{section}{ВСТУП}
 
-Актуальність теми зумовлена високою варіативністю української мови в реальній комунікації: поряд із літературною нормою поширені регіональні діалекти та російсько-український суржик. В Україні внутрішня міграція відбувалася й раніше, а після початку повномасштабного вторгнення суттєво зросла: люди опиняються в нових мовних середовищах, де діалектні слова, суржик або локальні форми можуть бути незрозумілими у побуті, навчанні чи роботі. Такі самі труднощі виникають в абітурієнтів і студентів із сіл, які переїжджають до міст. Тому автоматичний інструмент ``діалект/суржик $\to$ літературна українська'' корисний для нормалізації коротких текстів: повідомлень, оголошень, чатів.
+\textbf{Актуальність теми.}
+Українська мова існує в умовах значної варіативності: поряд із літературною нормою в різних регіонах побутують гуцульський, бойківський і закарпатський діалекти, а в містах широко вживається суржик - змішане українсько-російське мовлення. Масова внутрішня міграція після початку повномасштабного вторгнення 2022 року поглибила мовні контакти: люди з різними мовними звичками опиняються в одному середовищі, де діалектні та суржикові форми можуть ускладнювати ділову комунікацію, навчання і роботу з документами. Попри очевидну потребу, спеціалізованих автоматичних інструментів нормалізації регіональних діалектів і суржику в Україні майже немає: наявні системи орієнтовані переважно на орфографічні та граматичні помилки і не розраховані на систематичне перетворення діалектних форм на літературну норму.
 
-Для автоматичної корекції української мови наявних інструментів небагато. Більшість орієнтована на стандартні орфографічні та граматичні помилки; семантична нормалізація діалектних або суржикових конструкцій підтримується рідко і здебільшого реалізується rule-based підходами. Трансформерні архітектури відкривають інший шлях: систему навчають безпосередньо на паралельних корпусах ``нестандартний різновид $\to$ стандарт'', що дозволяє переносити підхід на різні мовні різновиди~\citeref{ref:baniata2018}. Якість таких систем оцінюють класичними автоматичними метриками і сучасними нейронними фреймворками оцінювання якості перекладу~\citeref{ref:rei2020}.
+\textbf{Мета роботи} - розробка та дослідження системи автоматичної нормалізації суржику і трьох регіональних діалектів (гуцульського, бойківського, закарпатського) до літературного стандарту сучасної української мови на основі нейронних моделей і підходів до роботи з малоресурсними даними.
 
-Метою бакалаврської кваліфікаційної роботи є розробка та експериментальне оцінювання системи автоматичної нормалізації українських діалектів і російсько-українського суржику до літературної української мови на основі нейронних моделей та підходів до роботи з низькоресурсними даними.
-
-Задачі роботи:
+\textbf{Завдання дослідження}:
 \begin{itemize}
-  \item проаналізувати предметну область та сучасні підходи до нормалізації діалектів і гібридних мовних форм у задачах NLP;
-  \item проаналізувати доступні джерела даних для задачі ``діалект/суржик $\to$ літературна українська'' та обґрунтувати спосіб формування навчального корпусу;
-  \item розробити та експериментально оцінити baseline-рішення на прикладі гуцульського діалекту, сформувавши відповідний паралельний корпус і навчивши модель нормалізації;
-  \item масштабувати підхід на кілька діалектів та суржик, сформувавши багатодіалектний корпус і уніфікований пайплайн підготовки даних;
-  \item провести інструкційне донавчання сучасної україномовної LLM (LapaLLM) для задачі нормалізації та виконати експериментальні дослідження якості на контрольних наборах~\citeref{ref:lapallm};
-  \item реалізувати прикладну систему та продемонструвати її роботу.
+  \item проаналізувати сучасні підходи до автоматичної нормалізації діалектних і гібридних мовних форм;
+  \item обґрунтувати стратегію формування паралельного корпусу для чотирьох мовних різновидів з обмеженим обсягом ручної розмітки;
+  \item зібрати і підготувати паралельний корпус для гуцульського, бойківського, закарпатського діалектів і суржику;
+  \item навчити та порівняти дві моделі нормалізації - кодер-декодерну (umt5-base) і декодерну велику мовну модель (MamayLM) - на спільному багатодіалектному корпусі;
+  \item оцінити якість навчених моделей у порівнянні з нуль-шотовими великими мовними моделями за метриками BLEU, chrF++ і TER;
+  \item реалізувати прикладний вебзастосунок «Лексикон» із підтримкою голосового введення.
 \end{itemize}
 
-Об'єктом дослідження є процеси автоматизованої обробки та нормалізації текстів природної мови українською мовою в умовах високої варіативності мовлення.
+\textbf{Об'єктом дослідження} є процес автоматичної нормалізації нелітературних форм сучасної української мови - суржику та регіональних діалектів.
 
-Предметом дослідження є методи побудови паралельних корпусів для низькоресурсних мовних варіантів, нейронного машинного перекладу та редагування, а також інструкційного донавчання великих мовних моделей для нормалізації діалектних і суржикових форм~\citeref{ref:baniata2018}, \citeref{ref:lapallm}.
+\textbf{Предметом дослідження} є методи формування паралельних корпусів для малоресурсних мовних варіантів, а також методи навчання нейронних моделей нейронного машинного перекладу і великих мовних моделей для задачі нормалізації.
 
-Методи дослідження: аналіз і підготовка корпусів текстових даних, синтетична генерація паралельних прикладів на основі лінгвістичних правил і словникових ресурсів, навчання трансформерних моделей для побудови baseline, інструкційне донавчання великих мовних моделей із параметро-ефективними техніками, оцінювання якості за автоматичними метриками (BLEU, chrF++, TER) і підходами reference-free QE~[3].
+\textbf{Методи дослідження}: аналіз і формування корпусів текстових даних; синтетична генерація паралельних прикладів за допомогою лінгвістичних правил, словникових ресурсів і великої мовної моделі; навчання кодер-декодерних трансформерних моделей; параметро-ефективне донавчання великих мовних моделей (QLoRA); автоматичне оцінювання якості за метриками BLEU, chrF++ і TER.
 
-Результатом роботи є система нормалізації коротких україномовних текстів: спочатку побудовано і оцінено baseline для гуцульського діалекту, потім сформовано багатодіалектний корпус і спеціалізовано LapaLLM на задачу нормалізації. Для демонстрації реалізовано інтерфейс, що дозволяє обирати тип вхідного тексту і отримувати нормалізований результат. Систему можна застосовувати як самостійний інструмент або як компонент ширших україномовних NLP-пайплайнів.
+\textbf{Наукова новизна} роботи полягає в тому, що вперше запропоновано і досліджено єдину систему нормалізації одночасно для суржику і трьох регіональних діалектів. Для бойківського та закарпатського діалектів сформовано перші публічні синтетичні паралельні корпуси. Проведено порівняльне оцінювання кодер-декодерної та декодерної архітектур на задачі мультидіалектної нормалізації з залученням нуль-шотових великих мовних моделей як базових ліній.
+
+\textbf{Практична значущість} роботи полягає у розробці вебзастосунку «Лексикон», що нормалізує тексти гуцульського, бойківського і закарпатського діалектів та суржику до літературної української мови з підтримкою голосового введення. Систему можна використовувати як самостійний інструмент або інтегрувати до ширших конвеєрів автоматичної обробки україномовних текстів.
 
 \clearpage
 
@@ -319,11 +320,11 @@ TER (Translation Edit Rate) - метрика оцінювання якості �
 
 Окремим викликом є те, що діалектні та суржикові тексти часто містять нестандартну орфографію, фонетичні відхилення, домішки іншої мови, варіативні морфологічні форми та неуніфіковані скорочення. У таких умовах переваги можуть мати моделі, менш чутливі до помилок токенізації. Наприклад, byte-рівневі підходи, як у ByT5, зменшують залежність від словникових сегментацій і потенційно краще працюють зі ``шумними'' та нестандартизованими входами~\citeref{ref:xue2022}. Для багатомовних сценаріїв вагомою є також стратегія збалансованого семплінгу під час переднавчання, яка впливає на якість для низькоресурсних мов; у цьому контексті важливі результати щодо Fair/Effective language sampling, наведені в~\citeref{ref:unimax}. Такі підходи створюють теоретичне підґрунтя для вибору архітектур і базових моделей для задачі нормалізації.
 
-Для коректного порівняння моделей та аналізу прогресу потрібне узгоджене оцінювання. У практиці NMT/GEC традиційно використовують BLEU, chrF++, TER та інші автоматичні метрики. Водночас для сучасних систем перекладу/редагування активно розвиваються нейронні методи оцінювання, зокрема COMET, який дозволяє оцінювати якість ближче до людських суджень і використовуватися як додатковий сигнал для аналізу якості~\citeref{ref:rei2020}. Також важливим є напрям quality estimation (оцінка якості без еталонного перекладу), який розглядає підходи від ``ручних'' ознак до великих мовних моделей~\citeref{ref:zhao2024}. Для задачі діалектної нормалізації це актуально, оскільки один і той самий діалектний вираз може мати кілька прийнятних нормалізованих варіантів.
+Для коректного порівняння моделей та аналізу прогресу потрібне узгоджене оцінювання. У практиці НМП і виправлення граматичних помилок стандартними є автоматичні метрики BLEU, chrF++ і TER. Актуальним є також напрям оцінювання якості без еталонного тексту, який охоплює підходи від ручних ознак до великих мовних моделей~\citeref{ref:zhao2024}. Для діалектної нормалізації це важливо: один і той самий діалектний вираз нерідко має кілька рівноправних нормалізованих варіантів.
 
 З боку GEC і редагування текстів для української мови сформувались перші суттєві ресурси. UA-GEC - корпус для граматичної корекції та флюентності - перший систематичний ресурс для навчання моделей редагування українською~\citeref{ref:uaGEC}. Іншим прикладом є інструкційно-донавчена модель Spivavtor, орієнтована на задачі україномовного редагування~\citeref{ref:spivavtor}. Оскільки діалектна нормалізація частково перетинається з редагуванням (виправлення ненормативних форм, узгодження, стилістична нейтралізація), ці роботи створюють методологічну основу та надають корисні напрацювання щодо формату даних і способів навчання.
 
-Основна проблема низькоресурсних задач - нестача розмічених пар ``вхід $\to$ еталон''. У цьому контексті практики синтетичного розширення даних є стандартним інструментом. Робота \citeref{ref:bondarenko4} (та її розширення~\citeref{ref:bondarenko5}) досліджує моделі, навчені на синтетичних даних для українського GEC, підтверджуючи, що синтетика може суттєво впливати на якість, якщо правильно сконструйовані правила ``псування'' (errorification) і контроль доменної близькості. Для діалектів і суржику аналогічна логіка застосовується при генерації паралельних пар: або через лінгвістичні правила та словники, або через LLM-керовану генерацію з додатковим контекстом.
+Основна проблема низькоресурсних задач - нестача розмічених пар ``вхід $\to$ еталон''. У цьому контексті практики синтетичного розширення даних є стандартним інструментом. Робота~\citeref{ref:bondarenko4} досліджує моделі, навчені на синтетичних даних для українського GEC, підтверджуючи, що синтетика може суттєво впливати на якість, якщо правильно сконструйовані правила ``псування'' (errorification) і контроль доменної близькості. Для діалектів і суржику аналогічна логіка застосовується при генерації паралельних пар: або через лінгвістичні правила та словники, або через LLM-керовану генерацію з додатковим контекстом.
 
 Окремої уваги потребує суржик як явище мовного контакту. Лінгвістичні дослідження описують його як змішування українських і російських елементів, що проявляється не лише в лексиці, а й у морфосинтаксисі~\citeref{ref:kentSurzhyk}. З точки зору автоматичної обробки важливим є також виявлення/класифікація змішаного мовлення та його компонентів; цьому присвячені підходи до автоматичного розпізнавання змішаних мов (на прикладі суржику)~\citeref{ref:siraSurzhyk}. Ці джерела важливі для формалізації типових трансформацій ``суржик $\to$ норма'' та для вибору стратегій генерації даних.
 
@@ -717,10 +718,6 @@ Beam search підтримує $B$ найкращих часткових гіп�
 
 Для мов із багатою морфологією символьні метрики часто корисніші. chrF/chrF++ вимірює F-міру на символьних n-грамах.
 
-\subsubsection{Семантичні метрики та оцінювання якості}
-
-Для нормалізації важливо не лише буквальне співпадіння, а і збереження змісту. Тому доцільно застосовувати нейромережеві метрики, наприклад COMET~\citeref{ref:rei2020}, які корелюють з людськими оцінками якості перекладу/редагування.
-
 \subsection{Інформаційне забезпечення навчання: баланс, семплінг, контроль доменів}
 
 \subsubsection{Дисбаланс діалектів та принципи семплінгу}
@@ -804,24 +801,22 @@ Beam search підтримує $B$ найкращих часткових гіп�
 
 \referencesloppy
 \begin{reflist}
-  \item \label{ref:baniata2018} L. H. Baniata, S. Park, і S.-B. Park, ``A Neural Machine Translation Model for Arabic Dialects That Utilizes Multitask Learning (MTL)'', \textit{Computational Intelligence and Neuroscience}, 2018, с.~1--10, Груд 2018, doi: 10.1155/2018/7534712.
-  \item \label{ref:xue2022} L. Xue et al., ``ByT5: Towards a token-free future with pre-trained byte-to-byte models'', Березень 2022, arXiv:2105.13626. doi: 10.48550/arXiv.2105.13626.
-  \item \label{ref:rei2020} R. Rei, C. Stewart, A. C. Farinha, і A. Lavie, ``COMET: A Neural Framework for MT Evaluation'', Жовтень 2020, arXiv:2009.09025. doi: 10.48550/arXiv.2009.09025.
-  \item \label{ref:bondarenko4} M. Bondarenko, A. Yushko, A. Shportko, і A. Fedorych, ``Comparative Study of Models Trained on Synthetic Data for Ukrainian Grammatical Error Correction''.
-  \item \label{ref:bondarenko5} M. Bondarenko, A. Yushko, A. Shportko, і A. Fedorych, ``Comparative Study of Models Trained on Synthetic Data for Ukrainian Grammatical Error Correction''.
-  \item \label{ref:kiulian2024} A. Kiulian et al., ``From Bytes to Borsch: Fine-Tuning Gemma and Mistral for the Ukrainian Language Representation'', Квітень 2024, arXiv:2404.09138. doi: 10.48550/arXiv.2404.09138.
-  \item \label{ref:zhao2024} H. Zhao et al., ``From Handcrafted Features to LLMs: A Brief Survey for Machine Translation Quality Estimation'', \textit{IJCNN 2024}, Чер 2024, с.~1--10. doi: 10.1109/IJCNN60899.2024.10650457.
-  \item \label{ref:omniGEC} R. Kovalchuk, M. Romanyshyn, і P. Ivaniuk, ``Introducing OmniGEC: A Silver Multilingual Dataset for Grammatical Error Correction''.
-  \item \label{ref:kentSurzhyk} K. Kent, ``Language Contact: Morphosyntactic Analysis of Surzhyk Spoken in Central Ukraine'', \textit{Language Contact}.
-  \item \label{ref:lapallm} ``LapaLLM''.\par Доступно у: huggingface.co/lapa-llm
-  \item \label{ref:mamaylm} ``MamayLM''.\par Доступно у: huggingface.co/blog/INSAIT-Institute/mamaylm
-  \item \label{ref:fedchukVysotska} R. Fedchuk і V. Vysotska, ``Mathematical model of a decision support system for identification and correction of errors in Ukrainian texts based on machine learning''.
-  \item \label{ref:haltiuk} M. Haltiuk, ``On the Path to Make Ukrainian a High-Resource Language''.
-  \item \label{ref:spivavtor} A. Saini, A. Chernodub, V. Raheja, і V. Kulkarni, ``Spivavtor: An Instruction Tuned Ukrainian Text Editing Model'', Квітень 2024, arXiv:2404.18880. doi: 10.48550/arXiv.2404.18880.
-  \item \label{ref:siraSurzhyk} N. Sira, G. M. D. Nunzio, і V. Nosilia, ``Towards an Automatic Recognition of Mixed Languages in R: The Case of Ukrainian-Russian Hybrid Language Surzhyk''.
-  \item \label{ref:uaGEC} O. Syvokon, O. Nahorna, P. Kuchmiichuk, і N. Osidach, ``UA-GEC: Grammatical Error Correction and Fluency Corpus for the Ukrainian Language'', \textit{Proceedings of the Second Ukrainian Natural Language Processing Workshop (UNLP)}, 2023, с.~96--102. doi: 10.18653/v1/2023.unlp-1.12.
+  \item \label{ref:baniata2018} L. H. Baniata, S. Park, і S.-B. Park, ``A Neural Machine Translation Model for Arabic Dialects That Utilizes Multitask Learning (MTL)'', \textit{Computational Intelligence and Neuroscience}, 2018, с.~1-10. doi: 10.1155/2018/7534712.
+  \item \label{ref:bondarenko4} M. Bondarenko, A. Yushko, A. Shportko, і A. Fedorych, ``Comparative Study of Models Trained on Synthetic Data for Ukrainian Grammatical Error Correction'', \textit{Proceedings of the Third Ukrainian Natural Language Processing Workshop (UNLP)}, 2024.
   \item \label{ref:unimax} H. W. Chung et al., ``UniMax: Fairer and more Effective Language Sampling for Large-Scale Multilingual Pretraining'', Квітень 2023, arXiv:2304.09151. doi: 10.48550/arXiv.2304.09151.
+  \item \label{ref:fedchukVysotska} R. Fedchuk і V. Vysotska, ``Mathematical Model of a Decision Support System for Identification and Correction of Errors in Ukrainian Texts Based on Machine Learning'', \textit{CEUR Workshop Proceedings}, 2021.
+  \item \label{ref:haltiuk} M. Haltiuk, ``On the Path to Make Ukrainian a High-Resource Language'', \textit{Proceedings of the Second Ukrainian Natural Language Processing Workshop (UNLP)}, 2023.
+  \item \label{ref:kentSurzhyk} K. Kent, ``Language Contact: Morphosyntactic Analysis of Surzhyk Spoken in Central Ukraine'', \textit{Journal of Language Contact}, 2010.
+  \item \label{ref:kiulian2024} A. Kiulian et al., ``From Bytes to Borsch: Fine-Tuning Gemma and Mistral for the Ukrainian Language Representation'', Квітень 2024, arXiv:2404.09138. doi: 10.48550/arXiv.2404.09138.
+  \item \label{ref:omniGEC} R. Kovalchuk, M. Romanyshyn, і P. Ivaniuk, ``Introducing OmniGEC: A Silver Multilingual Dataset for Grammatical Error Correction'', \textit{Proceedings of the Second Ukrainian Natural Language Processing Workshop (UNLP)}, 2023.
   \item \label{ref:vuykoMistral} R. Kyslyi, Y. Maksymiuk, і I. Pysmennyi, ``Vuyko Mistral: Adapting LLMs for Low-Resource Dialectal Translation'', Червень 2025, arXiv:2506.07617. doi: 10.48550/arXiv.2506.07617.
+  \item \label{ref:lapallm} Lapa LLM.\par Доступно у: \url{https://huggingface.co/lapa-llm}
+  \item \label{ref:mamaylm} MamayLM.\par Доступно у: \url{https://huggingface.co/blog/INSAIT-Institute/mamaylm}
+  \item \label{ref:spivavtor} A. Saini, A. Chernodub, V. Raheja, і V. Kulkarni, ``Spivavtor: An Instruction Tuned Ukrainian Text Editing Model'', Квітень 2024, arXiv:2404.18880. doi: 10.48550/arXiv.2404.18880.
+  \item \label{ref:siraSurzhyk} N. Sira, G. M. Di Nunzio, і V. Nosilia, ``Towards an Automatic Recognition of Mixed Languages in R: The Case of Ukrainian-Russian Hybrid Language Surzhyk'', \textit{CLiC-it 2021}, 2021.
+  \item \label{ref:uaGEC} O. Syvokon, O. Nahorna, P. Kuchmiichuk, і N. Osidach, ``UA-GEC: Grammatical Error Correction and Fluency Corpus for the Ukrainian Language'', \textit{Proceedings of the Second Ukrainian Natural Language Processing Workshop (UNLP)}, 2023, с.~96-102. doi: 10.18653/v1/2023.unlp-1.12.
+  \item \label{ref:xue2022} L. Xue et al., ``ByT5: Towards a Token-Free Future with Pre-Trained Byte-to-Byte Models'', \textit{Transactions of the Association for Computational Linguistics}, 2022, arXiv:2105.13626. doi: 10.48550/arXiv.2105.13626.
+  \item \label{ref:zhao2024} H. Zhao et al., ``From Handcrafted Features to LLMs: A Brief Survey for Machine Translation Quality Estimation'', \textit{IJCNN 2024}, Чер 2024, с.~1-10. doi: 10.1109/IJCNN60899.2024.10650457.
 \end{reflist}
 
 \clearpage
