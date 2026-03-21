@@ -133,6 +133,7 @@ train-decoder-only-multi: ## Fine-tune MamayLM on all dialects with QLoRA
 		--lora_r 16 \
 		--lora_alpha 32 \
 		--use_4bit \
+		--resume_from_checkpoint models/mamaylm-multidialect-longer/checkpoint-26000
 
 .PHONY: train-encoder-decoder-multi
 train-encoder-decoder-multi: ## Fine-tune umt5-base on all dialects
@@ -215,6 +216,12 @@ pdf: ## Compile LaTeX document to PDF
 	@echo "📄 Compiling LaTeX document..."
 	@cd docs && xelatex -interaction=nonstopmode main.tex && xelatex -interaction=nonstopmode main.tex
 	@$(MAKE) clean-pdf
+
+.PHONY: rgr
+rgr: ## Compile RGR (розрахунково-графічна робота) to PDF
+	@echo "📄 Compiling RGR..."
+	@cd docs/rgr && xelatex -interaction=nonstopmode rgr.tex && xelatex -interaction=nonstopmode rgr.tex
+	@cd docs/rgr && rm -f *.aux *.log *.out *.toc *.fdb_latexmk *.fls *.synctex.gz
 
 .PHONY: clean-pdf
 clean-pdf: ## Clean LaTeX auxiliary files
