@@ -194,7 +194,7 @@ def main(args):
         save_total_limit=2,
         load_best_model_at_end=True,
         metric_for_best_model="eval_loss",
-        report_to="none",
+        report_to=["tensorboard"],
         # gradient_checkpointing handled by Unsloth's use_gradient_checkpointing="unsloth"
         gradient_checkpointing=args.grad_checkpoint and not UNSLOTH_AVAILABLE,
         gradient_checkpointing_kwargs={"use_reentrant": False} if (args.grad_checkpoint and not UNSLOTH_AVAILABLE) else None,
