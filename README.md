@@ -1,4 +1,4 @@
-# Surdo Perevodchik - Ukrainian Dialect Translator
+# Лексикон - Ukrainian Dialect Translator
 
 Machine translation system for translating Ukrainian dialects (Hutsul, Boikivian, Transcarpathian, Surzhyk) to Standard Literary Ukrainian. Supports two model architectures:
 
@@ -11,7 +11,7 @@ Machine translation system for translating Ukrainian dialects (Hutsul, Boikivian
 make demo
 ```
 
-Starts a Gradio web interface at `http://localhost:7860`.
+Starts a web interface at `http://localhost:7870`.
 
 ## Installation
 
