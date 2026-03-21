@@ -198,38 +198,40 @@
 \section*{АНОТАЦІЯ}
 \addcontentsline{toc}{section}{АНОТАЦІЯ}
 
-Бакалаврська кваліфікаційна робота виконана студентом групи ШІ-42 Ковалем Денисом Петровичем. Тема ``Система для автоматичної нормалізації суржику та діалектних форм української мови''. Робота направлена на здобуття ступеня бакалавра за спеціальністю 122 ``Комп'ютерні науки''.
+Бакалаврська кваліфікаційна робота виконана студентом групи ШІ-42 Ковалем Денисом Петровичем. Тема «Система для автоматичної нормалізації суржику та діалектних форм сучасної української мови». Робота направлена на здобуття ступеня бакалавра за спеціальністю 122 «Комп'ютерні науки».
 
-Об'єктом дослідження є процеси автоматизованої обробки та нормалізації текстів природної мови українською мовою в умовах високої варіативності мовлення.
+Об'єктом дослідження є процеси автоматичної нормалізації нелітературних форм сучасної української мови - суржику та регіональних діалектів.
 
-Предметом досліджень є методи побудови паралельних корпусів для низькоресурсних мовних варіантів та методи нейронного машинного перекладу/редагування і інструкційного донавчання великих мовних моделей для нормалізації діалектних і суржикових форм.
+Предметом дослідження є методи формування паралельних корпусів для низькоресурсних мовних варіантів, а також методи навчання нейронних моделей машинного перекладу та великих мовних моделей для задачі нормалізації діалектного і суржикового тексту.
 
-Досягнення мети відбувається за рахунок розробки baseline-моделі нормалізації для гуцульського діалекту та масштабування підходу на кілька діалектів і суржик із використанням інструкційного донавчання сучасної україномовної LLM (LapaLLM). Подальше опрацювання даних відбувається із використанням методів нейронного машинного перекладу та параметро-ефективних технік донавчання (LoRA/QLoRA).
+У роботі зібрано паралельний корпус із 125~615 навчальних прикладів для чотирьох мовних різновидів - гуцульського, бойківського, закарпатського діалектів і суржику. Для синтетичної генерації використано комбінацію правилових підходів і великої мовної моделі Mistral Small 24B. Навчено дві моделі: кодер-декодерну (umt5-base, повне донавчання) та декодерну велику мовну модель (MamayLM на базі Gemma-3-4B, параметро-ефективне донавчання QLoRA). Якість оцінено за метриками BLEU, chrF++ і TER у порівнянні з нуль-шотовими великими мовними моделями - GPT-4o, Gemini~2.0~Flash і Mistral~Large.
 
-У результаті виконання дипломної роботи створено систему автоматичної нормалізації діалектів і суржику до літературної української мови; розроблено програмну реалізацію з інтерфейсом користувача, що дозволяє обирати тип вхідного тексту (діалект/суржик) і отримувати нормалізований результат.
+Навчені моделі перевершили нуль-шотові великі мовні моделі на суржику (chrF++ = 93,58 для umt5-base) та гуцульському діалекті (chrF++ = 86,90 для umt5-base). Реалізовано вебзастосунок «Лексикон» із підтримкою голосового введення.
 
-Загальний обсяг роботи: 46 сторінок, 5 рисунків, 18 посилань.
+% TODO: оновити після завершення роботи
+Загальний обсяг роботи: ~-- сторінок, ~-- рисунків, 18 посилань.
 
-Ключові слова: нормалізація діалектів, суржик, машинне навчання, NLP, великі мовні моделі, LapaLLM.
+Ключові слова: нормалізація тексту, суржик, діалекти, нейронний машинний переклад, велика мовна модель, донавчання, параметро-ефективне налаштування, паралельний корпус, гуцульський діалект.
 
 \clearpage
 
 \section*{ABSTRACT}
 \addcontentsline{toc}{section}{ABSTRACT}
 
-The bachelor's qualification work was completed by a student of the ShI-42 group Koval Denys Petrovych. The topic is ``System for automatic normalization of surzhyk and dialectal forms of the Ukrainian language''. The work is aimed at obtaining a bachelor's degree in 122 ``Computer Science''.
+The bachelor's qualification work was completed by Koval Denys Petrovych, a student of group ShI-42. The topic is ``System for Automatic Normalization of Surzhyk and Dialectal Forms of the Modern Ukrainian Language''. The work is aimed at obtaining a bachelor's degree in specialty 122 ``Computer Science''.
 
-The research addresses automated normalization of Ukrainian natural language texts, which exhibit high dialectal and stylistic variability.
+The object of research is the process of automatic normalization of non-standard forms of modern Ukrainian - surzhyk and regional dialects.
 
-The study examines methods for building parallel corpora for low-resource language varieties, neural machine translation and editing, and instruction fine-tuning of large language models for dialect and surzhyk normalization.
+The subject of research is methods for building parallel corpora for low-resource language varieties, and methods for training neural machine translation models and large language models for the task of dialect and surzhyk normalization.
 
-The work builds a baseline normalization model for the Hutsul dialect, then scales it to multiple dialects and surzhyk via instruction fine-tuning of LapaLLM, a Ukrainian-oriented LLM. The pipeline uses neural machine translation and parameter-efficient fine-tuning (LoRA/QLoRA).
+A parallel corpus of 125,615 training examples was collected for four language varieties: Hutsul, Boikivian, and Transcarpathian dialects, as well as surzhyk. Synthetic data was generated using a combination of rule-based approaches and the Mistral Small 24B language model. Two models were trained: an encoder-decoder model (umt5-base, full fine-tuning) and a decoder-only large language model (MamayLM based on Gemma-3-4B, QLoRA parameter-efficient fine-tuning). Quality was evaluated using BLEU, chrF++, and TER metrics against zero-shot large language model baselines: GPT-4o, Gemini 2.0 Flash, and Mistral Large.
 
-The work produced a system that normalizes dialectal and surzhyk text to literary Ukrainian, including a user interface where the input type (dialect or surzhyk) can be selected and the normalized result retrieved.
+The fine-tuned models outperformed zero-shot large language models on surzhyk (chrF++ = 93.58 for umt5-base) and the Hutsul dialect (chrF++ = 86.90 for umt5-base). A web application ``Leksykon'' was implemented with voice input support.
 
-The total volume of work: 46 pages, 5 figures, 18 references.
+% TODO: update after completion
+The total volume of work: ~-- pages, ~-- figures, 18 references.
 
-Keywords: dialect normalization, surzhyk, machine learning, NLP, large language models, LapaLLM.
+Keywords: text normalization, surzhyk, dialects, neural machine translation, large language model, fine-tuning, parameter-efficient adaptation, parallel corpus, Hutsul dialect.
 
 \clearpage
 
