@@ -938,20 +938,6 @@ def index():
         translate_btn.props("unelevated no-caps")
         translate_btn.classes("translate-btn")
 
-        # Advanced settings
-        with ui.expansion("Налаштування", icon="tune").classes("settings-expansion"):
-            ui.label("Beam Search — більше = точніше, але повільніше").classes("slider-label")
-            beams_slider = ui.slider(min=1, max=10, value=5, step=1)
-            beams_slider.props("label-always")
-            beams_slider.classes("custom-slider")
-
-            ui.element("div").style("height: 8px")
-
-            ui.label("Штраф за повторення").classes("slider-label")
-            rep_slider = ui.slider(min=1.0, max=2.0, value=1.2, step=0.1)
-            rep_slider.props("label-always")
-            rep_slider.classes("custom-slider")
-
         # Examples
         ui.label("Приклади").classes("section-title")
 
