@@ -230,3 +230,4 @@ unsloth_compiled_cache/
 hf-models/
 outputs/
 docs/labs/other/
+.claude
