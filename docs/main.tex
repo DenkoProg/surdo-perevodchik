@@ -172,7 +172,7 @@
 % ============================================================
 \usepackage[hidelinks,breaklinks=true]{hyperref}
 \usepackage{xurl} % дозволяє перенос довгих URL/DOI
-\usepackage{fancyvrb} % verbatim із контролем розміру шрифту (\VerbatimInput)
+\usepackage{fvextra} % fancyvrb extension: adds breaklines support for \VerbatimInput
 
 % Дозволити більш вільний перенос рядків у списку джерел
 \newcommand{\referencesloppy}{%
@@ -217,17 +217,388 @@
 \section*{ABSTRACT}
 \addcontentsline{toc}{section}{ABSTRACT}
 
-The bachelor's qualification work was completed by Koval Denys Petrovych, a student of group AI-42. The topic is ``System for Automatic Normalization of Surzhyk and Dialectal Forms of the Modern Ukrainian Language''. The work is aimed at obtaining a bachelor's degree in specialty 122 ``Computer Science''.
+The bachelor's qualification work was completed by Koval Denys Petrovych, a student of group AI-42.
+The topic is ``System for Automatic Normalization of Surzhyk and Dialectal Forms of the Modern
+Ukrainian Language.'' The work is aimed at obtaining a bachelor's degree in specialty
+122 ``Computer Science.''
 
-The object of research is the process of automatic normalization of non-standard forms of modern Ukrainian - surzhyk and regional dialects.
+The object of research is the process of automatic normalization of non-standard forms of modern
+Ukrainian - surzhyk and regional dialects - to literary standard Ukrainian.
 
-The subject of research is methods for building parallel corpora for low-resource language varieties, and methods for training neural machine translation models and large language models for the task of dialect and surzhyk normalization.
+The subject of research is methods for constructing parallel corpora for low-resource language
+varieties, and methods for training neural models for the task of text normalization.
 
-A parallel corpus of 125,615 training examples was collected for four language varieties: Hutsul, Boikivian, and Transcarpathian dialects, as well as surzhyk. Synthetic data was generated using a combination of rule-based approaches and the Mistral Small 24B language model. Two models were trained: an encoder-decoder model (umt5-base, full fine-tuning) and a decoder-only large language model (MamayLM based on Gemma-3-4B, QLoRA parameter-efficient fine-tuning). Quality was evaluated using BLEU, chrF++, and TER metrics against zero-shot large language model baselines: GPT-4o, Gemini 2.0 Flash, and Mistral Large.
+A parallel corpus of 125,615 training examples was assembled for four language varieties: Hutsul,
+Boikivian, and Transcarpathian dialects, as well as surzhyk. Synthetic data was generated using
+rule-based approaches (\texttt{SurzhykErrorifier}) and the Mistral-Small-24B language model. Two
+neural models were trained: an encoder-decoder model (umt5-base, full fine-tuning, 40 epochs) and a
+decoder-only large language model (MamayLM based on Gemma-3-4B, QLoRA parameter-efficient
+fine-tuning, 3 epochs). Quality was evaluated using BLEU, chrF++, and TER metrics against zero-shot
+large language model baselines: GPT-4o, Gemini~2.0~Flash, and Mistral~Large. The fine-tuned
+umt5-base model achieved chrF++ = 93.58 on surzhyk and chrF++ = 86.90 on the Hutsul dialect. A web
+application ``Leksykon'' was implemented with voice input support via the SpeechBrain ASR module.
 
-The fine-tuned models outperformed zero-shot large language models on surzhyk (chrF++ = 93.58 for umt5-base) and the Hutsul dialect (chrF++ = 86.90 for umt5-base). A web application ``Leksykon'' was implemented with voice input support.
+\textbf{Keywords:} text normalization, surzhyk, Ukrainian dialects, large language model, QLoRA,
+parallel corpus, Hutsul dialect, Boikivian dialect, Transcarpathian dialect.
 
-Keywords: text normalization, surzhyk, dialects, neural machine translation, large language model, fine-tuning, parameter-efficient adaptation, parallel corpus, Hutsul dialect.
+% -----------------------------------------------------------------------
+\subsection*{1.~Introduction and Problem Statement}
+% -----------------------------------------------------------------------
+
+The Ukrainian language occupies a complex sociolinguistic position in modern Ukraine. Standard
+literary Ukrainian coexists with a wide spectrum of non-standard varieties, ranging from
+regionally grounded dialects to urban contact languages. Two categories of non-standard Ukrainian
+speech are of particular relevance for natural language processing: \textit{surzhyk} and the
+western Ukrainian regional dialects.
+
+Surzhyk is a sociolinguistic phenomenon that emerged during the Soviet era as a result of intensive
+contact between Ukrainian and Russian. Unlike geographic dialects, surzhyk is not bound to a
+specific region: it is widely spoken in central and eastern Ukraine, primarily in urban areas.
+Linguistically, surzhyk is characterized by lexical and morphological mixing without a stable
+phonological system. Common manifestations include Russian lexical substitutions (Ukrainian
+\textit{але} ``but'' replaced by Russian \textit{но}; \textit{зупинка} ``bus stop'' by
+\textit{остановка}), Russian infinitive endings (-ть instead of -ти), and calqued conjunctions
+(\textit{якщо} ``if'' replaced by \textit{єслі}).
+
+The Carpathian and western Ukrainian region is home to three dialects addressed in this work. The
+\textit{Hutsul dialect} is spoken in the Carpathian mountain communities and is relatively well
+documented. Its distinctive features include front-vowel stress shifts (\textit{шапка}
+$\rightarrow$ \textit{шєпка}), the reflexive particle \textit{си} (instead of standard
+\textit{ся}), and archaic verbal suffixes (-\textit{єт} for third-person singular). The
+\textit{Boikivian dialect}, spoken in the foothills of the Carpathians, is more archaic and
+phonologically conservative. Its characteristic features include the preservation of an unrounded
+back vowel [ы] distinct from standard [и] (\textit{бик} $\rightarrow$ \textit{бык}) and the
+shift of the lateral [л] to the bilabial approximant [ў] in coda position (\textit{галка}
+$\rightarrow$ \textit{гавка}). The \textit{Transcarpathian dialect} is the most distant from the
+literary norm, shaped by centuries of contact with Hungarian, Slovak, and Romanian. Key features
+include the vowel shift $o \rightarrow u$ in closed syllables (\textit{кінь} $\rightarrow$
+\textit{кунь}), preservation of the archaic [ы], and numerous contact borrowings.
+
+Automatic text normalization - the task of mapping a non-standard input sequence $x$ to literary
+standard output $y$ - occupies a position between grammatical error correction (GEC) and machine
+translation (MT). Unlike GEC, dialect normalization targets systematic linguistic features that are
+not ``errors'' from the speaker's perspective, but rather reflect a different language variety.
+Unlike MT, normalization operates within a single language family, with significant lexical overlap
+between input and output.
+
+The lack of specialized resources for Ukrainian dialect normalization is a critical gap. Public
+corpora for Ukrainian grammatical error correction - UA-GEC and Spivavtor - are oriented toward
+standard Ukrainian texts and do not cover dialectal input. No public parallel corpus exists for
+Boikivian or Transcarpathian dialects. Existing work on Ukrainian dialectal NLP is sparse:
+Vuyko Mistral targets Hutsul-to-standard translation using limited in-house data; Bytes to Borsch
+focuses on adapting large language models to standard Ukrainian rather than dialectal processing.
+No prior work has addressed all four varieties simultaneously within a unified framework.
+
+The present work addresses this gap through four contributions: (1) construction of a parallel
+normalization corpus of 139,576 sentence pairs for four non-standard Ukrainian varieties, combining
+manual annotation, rule-based generation, and large language model synthesis; (2) training of two
+neural normalization models - an encoder-decoder (umt5-base) and a decoder-only model (MamayLM,
+Gemma-3-4B with QLoRA) - on this corpus; (3) comparative evaluation against zero-shot commercial
+large language model baselines (GPT-4o, Gemini 2.0 Flash, Mistral Large); and (4) deployment of
+the ``Leksykon'' web application integrating normalization with automatic speech recognition.
+
+% -----------------------------------------------------------------------
+\subsection*{2.~Linguistic Characteristics of the Four Varieties}
+% -----------------------------------------------------------------------
+
+The four non-standard varieties addressed in this work differ substantially in their linguistic
+distance from the literary norm and in the availability of annotated resources. The linguistic
+distance ordering - surzhyk, Hutsul, Boikivian, Transcarpathian (from least to most distant) -
+directly predicts normalization difficulty, as confirmed by the evaluation results in Section~5.
+
+\textit{Surzhyk} (${\approx}$50,523 training pairs) is characterized by Russian lexical and
+morphological mixing without a stable phonological system. Normalization reduces largely to lexical
+and morphological substitution: a sufficient dictionary of Russian-Ukrainian lexical correspondences
+and morphological transformation rules captures a large fraction of surzhyk utterances. This means
+that rule-based and LLM-synthetic training data closely resembles real surzhyk usage and yields
+strong training signal.
+
+\textit{Hutsul dialect} (${\approx}$36,640 training pairs) is spoken in the Carpathian mountain
+communities and is characterized by front-vowel stress shifts, the reflexive particle \textit{си}
+instead of standard \textit{ся}, and archaic verbal suffixes. The availability of 9,853 manually
+annotated parallel pairs provides clean training signal for the phonological patterns that rules
+alone cannot capture reliably. These pairs were sourced from a public dataset and validated by
+native speakers.
+
+\textit{Boikivian dialect} (${\approx}$29,754 training pairs) is spoken in the Carpathian foothills
+and is phonologically archaic: it preserves an unrounded back vowel [ы] distinct from standard [и],
+and shifts [л] to bilabial [ў] in coda position. No manually annotated corpora are publicly
+available; training data was generated entirely synthetically, introducing a distribution mismatch
+that limits model performance.
+
+\textit{Transcarpathian dialect} (${\approx}$29,605 training pairs) is the most distant from the
+literary norm, shaped by centuries of contact with Hungarian, Slovak, and Romanian. Key features
+include the vowel shift $o \rightarrow u$ in closed syllables, preservation of archaic [ы], and
+numerous contact borrowings with no Ukrainian equivalents. Training data is entirely synthetic,
+and the distribution mismatch is most severe here.
+
+% -----------------------------------------------------------------------
+\subsection*{3.~Corpus Construction}
+% -----------------------------------------------------------------------
+
+The corpus was constructed using a ``standard-to-dialect'' strategy: given a sentence in standard
+literary Ukrainian, the system generates the corresponding dialectal or surzhyk variant. This
+approach guarantees correct targets by construction - the standard-side output comes from quality
+source texts rather than potentially incorrect normalization outputs. At inference time, the
+direction is inverted (dialect $\rightarrow$ standard), and the model learns to normalize by
+reversing the transformation patterns seen during training.
+
+The primary source of standard Ukrainian sentences was the Spivavtor corpus, a collection of
+Ukrainian text-editing pairs that provides high-quality literary Ukrainian prose. For the Hutsul
+dialect, 9,853 manually annotated parallel pairs (dialect $\rightarrow$ standard) from a public
+dataset were incorporated directly and inverted for training.
+
+Surzhyk data was generated using the \texttt{SurzhykErrorifier} class, which implements two-phase
+generation with a morphological analyzer (pymorphy2) and a manually compiled surzhyk lexicon.
+Phase~1 applies dictionary-based phrase substitution (longest-first matching to avoid partial
+replacements). Phase~2 applies morphological substitution: the correct Ukrainian word form is
+identified via pymorphy2, and its Russian surzhyk equivalent is generated with matching
+morphological features (case, number, gender). This pipeline produced 20,911 high-quality surzhyk
+examples from approximately 40\% of the source corpus.
+
+For all four varieties, dialect pairs were also generated using Mistral-Small-24B-Instruct-2501
+running locally with 4-bit NF4 quantization. The \texttt{DialectCorpusGenerator} class
+orchestrates the pipeline. For each sentence, the \texttt{DialectPromptBuilder} component
+retrieves the $k = 50$ most relevant dialect dictionary entries via TF-IDF cosine similarity and
+incorporates them into a dialect-specific system prompt. Sentences were processed in batches of
+five, with a four-stage quality control pipeline: JSON structure validation, sentence-level format
+validation, MinHash-based deduplication, and JSONL checkpoint logging for resumable generation.
+This pipeline produced 108,812 dialect pairs across all four varieties.
+
+The assembled corpus totals 139,576 sentence pairs: 9,853 manual Hutsul annotations, 108,812
+LLM-generated pairs, and 20,911 rule-based surzhyk examples. After stratified splitting by dialect,
+the final distribution is 125,615 training examples, 13,756 validation examples, and 200 test
+examples (50 hand-annotated per variety, with no overlap with training or validation data).
+
+% -----------------------------------------------------------------------
+\subsection*{4.~Model Architecture and Training}
+% -----------------------------------------------------------------------
+
+Dialect normalization is formulated as a conditional sequence generation task. Given a non-standard
+input sequence $x = (x_1, \ldots, x_m)$, the model learns to generate the corresponding standard
+Ukrainian output $y = (y_1, \ldots, y_n)$ by maximizing the conditional log-likelihood over the
+training corpus:
+\begin{equation}
+\theta^{*} = \arg\max_{\theta} \sum_{k=1}^{N} \log p_{\theta}(y^{(k)} \mid x^{(k)}).
+\label{eq:abs_mle}
+\end{equation}
+
+For encoder-decoder models the output is factorized autoregressively conditioned on the full
+input encoding:
+\begin{equation}
+p_{\theta}(y \mid x) = \prod_{t=1}^{n} p_{\theta}(y_t \mid x,\, y_{<t}).
+\label{eq:abs_factorize}
+\end{equation}
+
+The training objective is the cross-entropy loss with label smoothing (smoothing factor
+$\alpha = 0.1$ for umt5-base):
+\begin{equation}
+\mathcal{L}(\theta) = -\sum_{t=1}^{n}
+\left[
+  (1 - \alpha)\log p_{\theta}(y_t \mid x, y_{<t})
+  + \frac{\alpha}{|V|}\sum_{v \in V}\log p_{\theta}(v \mid x, y_{<t})
+\right].
+\label{eq:abs_loss}
+\end{equation}
+
+Dialect conditioning is achieved by prepending a dialect identifier prefix to the source sequence:
+``\textit{Translate from Hutsul: \{input\}}.'' Both models share a single set of parameters
+across all four varieties, enabling cross-dialect transfer learning.
+
+Both model families rely on the scaled dot-product attention mechanism. Given query matrix $Q$,
+key matrix $K$, and value matrix $V$:
+\begin{equation}
+\mathrm{Attention}(Q, K, V) = \mathrm{softmax}\!\left(\frac{QK^\top}{\sqrt{d_k}}\right)V,
+\label{eq:abs_attn}
+\end{equation}
+where $d_k$ is the key dimensionality. Multi-head attention applies $h$ parallel attention
+heads and projects the concatenated result. The encoder-decoder model uses bidirectional
+self-attention in the encoder and cross-attention in the decoder; the decoder-only model uses
+causal (autoregressive) self-attention throughout.
+
+The first model is based on Google's mT5-base, a massively multilingual text-to-text transformer
+with approximately 580M parameters and a SentencePiece vocabulary of 250,112 subword tokens
+trained on mC4 (101 languages, including Ukrainian). The model was trained with \textit{full
+fine-tuning} - all parameters updated - for up to 40 epochs with early stopping (patience of 5
+epochs on validation BLEU). Training configuration: learning rate $5 \times 10^{-5}$ with cosine
+schedule, AdamW optimizer with 8-bit BitsAndBytes quantization of optimizer states, gradient
+accumulation over 4 micro-batches of size 4 (effective batch size 16), maximum sequence length
+256 tokens, BF16 mixed precision. Label smoothing $\alpha = 0.1$ was applied throughout training.
+The best checkpoint was reached at training step 314,040 (validation BLEU = 71.7).
+
+The second model is based on MamayLM (INSAIT-Institute/MamayLM-Gemma-3-4B-IT-v1.0), a
+Ukrainian-optimized instruction-tuned variant of Google's Gemma-3-4B with approximately 4 billion
+parameters. As a decoder-only autoregressive model, it generates the normalized output
+token-by-token, framed as an instruction-following chat exchange: the system prompt states the
+task, and the user turn contains the dialectal input.
+
+To enable fine-tuning within GPU memory constraints, QLoRA (Quantized Low-Rank Adaptation) was
+applied. The base model weights were quantized to 4-bit NF4 format with double quantization of
+the quantization constants. Low-rank adapter matrices were added to all attention and feed-forward
+projection layers. The LoRA update rule is:
+\begin{equation}
+W' = W + \Delta W = W + BA,
+\quad B \in \mathbb{R}^{d \times r},\;
+A \in \mathbb{R}^{r \times k},\;
+r \ll \min(d, k),
+\label{eq:abs_lora}
+\end{equation}
+with rank $r = 16$ and scaling factor $\alpha_{LoRA} = 32$. This yields approximately 13 million
+trainable parameters - 0.4\% of the total 4B model.
+
+Training was performed for 3 epochs using the SFTTrainer framework with Unsloth acceleration
+(sequence packing, asynchronous checkpoint saving). Configuration: learning rate $2 \times 10^{-4}$
+with cosine schedule and 3\% linear warmup, AdamW optimizer, gradient accumulation over 2 steps
+(effective batch size 2), maximum sequence length 512 tokens, BF16 mixed precision. The
+cross-entropy loss was applied only to the assistant response tokens (the normalized Ukrainian
+output), masking the loss on instruction-turn tokens so that the model learns the output
+distribution without overfitting to the prompt format.
+
+% -----------------------------------------------------------------------
+\subsection*{5.~Evaluation and Results}
+% -----------------------------------------------------------------------
+
+Three complementary metrics were used. BLEU (Bilingual Evaluation Understudy) measures n-gram
+precision between model output and reference, penalizing short outputs via the brevity penalty.
+chrF++ extends BLEU by incorporating character-level n-grams alongside word n-grams, with
+$\beta = 2$ weighting favoring recall. chrF++ is used as the primary metric because it is more
+robust to morphological variation - a common pattern in Ukrainian normalization - than word-level
+BLEU. TER (Translation Edit Rate) measures the minimum number of edit operations needed to
+convert model output to the reference, normalized by reference length; lower values are better.
+All metrics are computed using the SacreBLEU library.
+
+The test set consists of 200 manually annotated sentence pairs (50 per variety), held out from
+both training and validation. All test examples are human-annotated (not LLM-generated), ensuring
+a reliable evaluation signal independent of the synthetic data quality. Three commercial large
+language model baselines were evaluated in zero-shot mode via the OpenRouter API: GPT-4o,
+Gemini~2.0~Flash, and Mistral~Large. Each baseline received the same dialect prefix prompt as
+the fine-tuned models, with no in-context examples. Additionally, MamayLM in its pre-fine-tuning
+state was evaluated to isolate the contribution of fine-tuning from the model's pretraining
+knowledge.
+
+On surzhyk, both fine-tuned models substantially outperform all zero-shot baselines. umt5-base
+achieves chrF++ = 93.58 versus Gemini's 86.67 (the strongest baseline), a margin of 6.9 points.
+MamayLM before fine-tuning scores 65.58; after QLoRA training it reaches 91.22 - a gain of 25.6
+points. The strong performance is explained by the large training corpus (${\approx}$50,500 pairs)
+and the lexical proximity of surzhyk to standard Ukrainian: normalization requires mainly lexical
+and morphological substitution, for which the combined rule-based and LLM-synthetic data is
+representative.
+
+On the Hutsul dialect, umt5-base achieves chrF++ = 86.90, outperforming Gemini~2.0~Flash (65.34)
+by 21.6 points. The improvement from pre-training to post-training for MamayLM is
+16.73 $\rightarrow$ 74.02, an absolute gain of 57.3 points - the largest observed for any
+model-variety combination. This dramatic improvement demonstrates the decisive role of the 9,853
+manually annotated pairs: they provide authentic phonological patterns that the pre-trained model
+had not encountered during general-purpose training, and that LLM-generated data alone cannot
+replicate reliably.
+
+On the Boikivian dialect, commercial large language models outperform the fine-tuned models.
+Gemini~2.0~Flash achieves chrF++ = 74.57, compared to MamayLM fine-tuned (66.82) and umt5-base
+(54.78). The training data for Boikivian is entirely LLM-generated (29,754 pairs), and the
+generation model may not have replicated authentic Boikivian phonology with sufficient fidelity.
+Commercial LLMs with far larger pretraining corpora appear to have encountered more genuine
+Boikivian-like text than the synthetic training data captures.
+
+The Transcarpathian dialect is the most challenging variety for all systems. Fine-tuned models
+score far below zero-shot baselines: umt5-base 27.45, MamayLM fine-tuned 20.93, versus
+Gemini~2.0~Flash 68.16. The Transcarpathian dialect has the greatest linguistic distance from the
+literary norm, with systematic vowel shifts, contact borrowings from three neighboring languages,
+and phonological features largely absent from other Ukrainian varieties. The training data is
+entirely synthetic (29,605 pairs), and the distribution mismatch is most severe here. The fact
+that pre-fine-tuning MamayLM (27.90) marginally outperforms the fine-tuned version (20.93)
+suggests that low-quality synthetic training data can slightly degrade performance on genuinely
+out-of-distribution patterns.
+
+Specialized fine-tuning on quality annotated data decisively outperforms zero-shot large language
+model prompting for varieties where such data is available (surzhyk, Hutsul). For varieties where
+training data is purely synthetic (Boikivian, Transcarpathian), commercial large language models
+with broader pretraining retain a clear advantage. The primary bottleneck for dialect
+normalization is not model capacity or architecture, but the availability of manually annotated
+parallel data.
+
+% -----------------------------------------------------------------------
+\subsection*{6.~The ``Leksykon'' Web Application}
+% -----------------------------------------------------------------------
+
+The ``Leksykon'' system is a web application providing interactive access to the normalization
+system for both typed and spoken dialectal Ukrainian input. It was implemented using NiceGUI~1.4+,
+a Python-native UI framework built over FastAPI/ASGI, enabling the normalization and ASR models
+to be co-located in the same Python process. The application is launched via \texttt{make demo}
+and is accessible at \texttt{http://0.0.0.0:7870}. A CPU fallback mode (float32 precision)
+is available when no GPU is present.
+
+\textbf{Normalization module.} The \texttt{DialectTranslator} class loads the fine-tuned
+umt5-base-multidialect model at startup in float16 precision on GPU. Normalization uses beam
+search with \texttt{num\_beams=5}, \texttt{max\_length=128}, \texttt{repetition\_penalty=1.2},
+and \texttt{no\_repeat\_ngram\_size=3} to discourage repetitive outputs. The user can interactively
+adjust beam width (3-10) and repetition penalty (1.0-2.0) via UI sliders without reloading the
+model, enabling quality-speed trade-off exploration.
+
+\textbf{Speech recognition module.} The ASR module uses the SpeechBrain
+\texttt{m-ctc-t-large} model (MCTCTForCTC architecture, multilingual, pretrained on seven
+languages including Ukrainian). Audio is recorded in the browser via the MediaRecorder API and
+sent to the FastAPI endpoint \texttt{POST /api/transcribe}. The PyAV library decodes the audio
+and resamples it to 16~kHz mono float32 format. Supported audio formats: WebM, OGG, WAV.
+The recognized transcript is populated into the text input field, where it can be reviewed and
+submitted for normalization.
+
+\textbf{User interface.} The application uses a three-column desktop layout with a vertical
+stack on mobile devices (viewport $<$ 768~px). The interface includes a dialect selector
+(four buttons: Hutsul, Boikivian, Transcarpathian, Surzhyk), a text input field with a
+microphone button for voice input, a normalize button, an output field, adjustment sliders,
+and four preset example sentences per dialect for guided testing. The complete frontend is
+implemented in approximately 250 lines of Python using NiceGUI components.
+
+% -----------------------------------------------------------------------
+\subsection*{7.~Conclusions and Future Work}
+% -----------------------------------------------------------------------
+
+The work achieved the following main results:
+
+\begin{enumerate}
+  \item An analysis of existing approaches to dialect normalization and grammatical error
+  correction identified the absence of publicly available parallel corpora for the Boikivian
+  and Transcarpathian dialects. No prior system addresses surzhyk and three Ukrainian dialects
+  within a unified normalization framework.
+
+  \item A manual Hutsul corpus of 9,853 sentence pairs was incorporated, and the Spivavtor
+  corpus was processed as a source of high-quality standard Ukrainian target sentences.
+
+  \item A rule-based surzhyk generation pipeline (\texttt{SurzhykErrorifier}) was implemented
+  using pymorphy2 morphological analysis and a surzhyk substitution lexicon, producing 20,911
+  training examples.
+
+  \item An LLM-based dialect generation pipeline (\texttt{DialectCorpusGenerator} with
+  Mistral-Small-24B-Instruct-2501, TF-IDF dictionary retrieval, and four-stage quality control)
+  produced 108,812 synthetic training pairs across all four varieties.
+
+  \item The umt5-base encoder-decoder model was trained to convergence over 40 epochs (with
+  early stopping), achieving chrF++ = 93.58 on surzhyk and 86.90 on the Hutsul dialect -
+  both substantially above all zero-shot large language model baselines.
+
+  \item The MamayLM (Gemma-3-4B) decoder-only model was fine-tuned with QLoRA (r = 16,
+  $\alpha_{LoRA}$ = 32), updating only 0.4\% of the model's parameters. It achieved
+  chrF++ = 91.22 on surzhyk and 66.82 on Boikivian, outperforming umt5-base on the latter
+  dialect.
+
+  \item The ``Leksykon'' web application integrating umt5-base normalization with SpeechBrain
+  ASR was implemented and deployed.
+\end{enumerate}
+
+The central finding of this work is that specialized fine-tuning on quality annotated data
+significantly outperforms zero-shot large language model prompting for dialect normalization -
+but only when that annotated data is available. For Boikivian and Transcarpathian, where training
+data is entirely synthetic, commercial large language models with broader pretraining exposure
+retain a clear advantage. This result reframes the core challenge of Ukrainian dialect NLP:
+the bottleneck is not model architecture or compute, but the availability of manually annotated
+parallel data.
+
+Future work should prioritize: (1) collection of 3,000-5,000 manual parallel pairs for Boikivian
+and Transcarpathian dialects, which is expected to substantially close the performance gap with
+commercial baselines; (2) fine-tuning of the ASR module on dialectal speech recordings to improve
+recognition accuracy for non-standard input; (3) extension of the normalization system to
+additional Ukrainian dialects (Slobozhan, Podilian, Volhynian); and (4) development of a REST API
+for integration with downstream natural language processing pipelines.
 
 \clearpage
 
@@ -1402,13 +1773,13 @@ MamayLM (до донавч.) & 65.58 & 16.73 & 58.73 & 27.90 \\
 
 \subsection*{А.1 Системний промпт для генерації суржику}
 
-\VerbatimInput[fontsize=\footnotesize]{../prompts/surzhyk_rules_system.txt}
+\VerbatimInput[fontsize=\footnotesize,breaklines=true,breakanywhere=true]{../prompts/surzhyk_rules_system.txt}
 
 \clearpage
 
 \subsection*{А.2 Системний промпт для генерації гуцульського діалекту}
 
-\VerbatimInput[fontsize=\footnotesize]{../prompts/hutsul_rules_system.txt}
+\VerbatimInput[fontsize=\footnotesize,breaklines=true,breakanywhere=true]{../prompts/hutsul_rules_system.txt}
 
 \clearpage
 
@@ -1419,12 +1790,12 @@ MamayLM (до донавч.) & 65.58 & 16.73 & 58.73 & 27.90 \\
 
 \subsection*{Б.1 Системний промпт для генерації бойківського діалекту}
 
-\VerbatimInput[fontsize=\footnotesize]{../prompts/boiko_rules_system.txt}
+\VerbatimInput[fontsize=\footnotesize,breaklines=true,breakanywhere=true]{../prompts/boiko_rules_system.txt}
 
 \clearpage
 
 \subsection*{Б.2 Системний промпт для генерації закарпатського діалекту}
 
-\VerbatimInput[fontsize=\footnotesize]{../prompts/transcarpathian_rules_system.txt}
+\VerbatimInput[fontsize=\footnotesize,breaklines=true,breakanywhere=true]{../prompts/transcarpathian_rules_system.txt}
 
 \end{document}
