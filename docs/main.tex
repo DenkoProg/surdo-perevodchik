@@ -18,7 +18,7 @@
 \usepackage[ukrainian]{babel}
 \usepackage{fontspec}
 \setmainfont{Times New Roman}
-\setmonofont{DejaVu Sans Mono} % підтримка кирилиці у verbatim-блоках
+\setmonofont[Scale=0.85]{DejaVu Sans Mono} % підтримка кирилиці у verbatim-блоках
 
 % ============================================================
 % МАТЕМАТИКА ТА ГРАФІКА
@@ -434,14 +434,7 @@ TER (Translation Edit Rate) - метрика оцінювання якості �
 
 \textit{Правилова генерація суржику.} Реалізовано двофазову заміну. На першій фазі здійснюється фразова заміна: за допомогою регулярних виразів виявляються найдовші збіги із словником багатослівних суржикових конструкцій і замінюються їхніми еквівалентами (наприклад, «тому що» $\to$ «потому шо»). Ця фаза обробляє контекстні сполучення до розбиття тексту на окремі слова. На другій фазі виконується морфологічна заміна на рівні слів: кожне слово лематизується через бібліотеку морфологічного аналізу pymorphy2, і якщо словникова лема входить до списку замін суржику, відповідне слово замінюється з урахуванням граматичних категорій - відмінку, числа і роду. Такий підхід забезпечує не просто лексичну, а морфологічно узгоджену заміну і дав 20~911 прикладів.
 
-\textit{Генерація за допомогою ВМM.} Застосована для всіх чотирьох мовних різновидів. Для кожного діалекту підготовлено окремий системний запит, що містить лінгвістичний опис типових рис, 3-5 демонстраційних пар зі словника та інструкцію щодо кількості і стилю замін. Велика мовна модель Mistral Small 24B (4-бітна квантизація для локальної інференції) обробляла пакети по 5-10 речень і повертала діалектні варіанти. Приклад шаблону запиту зображено на рис.~\ref{fig:prompt_template}.
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=0.9\textwidth]{images/2.2_prompt_template.png}
-\caption{Приклад шаблону запиту для синтетичної генерації діалектних пар: інструкція, правила діалекту і демонстраційні приклади.}
-\label{fig:prompt_template}
-\end{figure}
+\textit{Генерація за допомогою ВМM.} Застосована для всіх чотирьох мовних різновидів. Для кожного діалекту підготовлено окремий системний запит, що містить лінгвістичний опис типових рис, 3-5 демонстраційних пар зі словника та інструкцію щодо кількості і стилю замін. Велика мовна модель Mistral Small 24B (4-бітна квантизація для локальної інференції) обробляла пакети по 5-10 речень і повертала діалектні варіанти.
 
 Контроль якості синтетичних пар проводився після кожного пакету: видалялись дублікати (однакові вхідні або еталонні тексти), відкидались надто короткі (менше трьох слів) та надто довгі пари, перевірялась наявність діалектних слів зі словника у вхідному тексті, вибірково проводився ручний перегляд для оцінки типових артефактів генерації - змішування мов, незавершених речень, залишків форматування у відповіді.
 
@@ -501,7 +494,7 @@ TER (Translation Edit Rate) - метрика оцінювання якості �
 \begin{figure}[h]
 \centering
 \includegraphics[width=0.9\textwidth]{images/2.1_system_scheme.png}
-\caption{Узагальнена схема системи: (а) базова модель «гуцульський~$\to$~літературна», (б)~мультидіалектний і суржиковий етап на основі MamayLM, (в)~демонстраційний інтерфейс.}
+\caption{Загальна схема системи «Лексикон»: генерація корпусу (правилова та LLM-генерація), навчання двох моделей (umt5-base і MamayLM), оцінювання на ручній тестовій вибірці та демонстраційний вебзастосунок (NiceGUI + FastAPI).}
 \label{fig:system_scheme}
 \end{figure}
 
@@ -586,18 +579,18 @@ TER (Translation Edit Rate) - метрика оцінювання якості �
   \label{eq:seq2seq_prob}
 \end{equation}
 
-\textbf{Декодерна ВМM.} Задачу представляємо як інструкцію з трьома ролями: «система», «користувач» і «асистент» (рис.~\ref{fig:chat_format}). Вхідний текст передається у ролі «користувач», нормалізована форма - у ролі «асистент». Об'єднана послідовність лексем $z = (z_1, \ldots, z_{|z|})$ включає всі три ролі. Функція втрат обчислюється лише на лексемах відповіді «асистент»:
+\textbf{Декодерна ВМM.} Задачу представляємо як інструкцію з трьома ролями: «система», «користувач» і «асистент». Вхідний текст передається у ролі «користувач», нормалізована форма - у ролі «асистент». Об'єднана послідовність лексем $z = (z_1, \ldots, z_{|z|})$ включає всі три ролі. Функція втрат обчислюється лише на лексемах відповіді «асистент»:
 \begin{equation}
   L_{mask} = -\sum_{t=1}^{|z|} m_t \log p_\theta(z_t|z_{<t})
   \label{eq:masked_loss}
 \end{equation}
-де $m_t \in \{0, 1\}$ - маска (1 лише на позиціях відповіді «асистент»).
+де $m_t \in \{0, 1\}$ - маска (1 лише на позиціях відповіді «асистент»). Приклад шаблону інструкційного запиту наведено на рис.~\ref{fig:prompt_template}.
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.8\textwidth]{images/2.2_prompt_template.png}
-\caption{Приклад шаблону інструкції для декодерної ВМM: ролі системи, користувача та асистента, де вставляється маркер діалекту.}
-\label{fig:chat_format}
+\includegraphics[width=0.9\textwidth]{images/2.2_prompt_template.png}
+\caption{Шаблон інструкційного запиту для декодерної ВМM: ролі системи, користувача та асистента з маркером діалекту.}
+\label{fig:prompt_template}
 \end{figure}
 
 \subsubsection{Цільова функція: крос-ентропія і згладжування міток}
@@ -678,15 +671,15 @@ TER (Translation Edit Rate) - метрика оцінювання якості �
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.9\textwidth]{images/2.3_baseline_training.png}
-\caption{Графік навчання базової моделі umt5-base на гуцульському діалекті: темп навчання та функція втрат.}
+\includegraphics[width=0.9\textwidth]{images/2.3_baseline_hutsul_training.png}
+\caption{Темп навчання та функція втрат umt5-base під час донавчання на гуцульському діалекті (перший, однодіалектний етап).}
 \label{fig:baseline_training}
 \end{figure}
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.9\textwidth]{images/2.4_baseline_eval.png}
-\caption{Результати оцінювання базової моделі umt5-base: метрика BLEU (ліворуч) та функція втрат на валідаційній вибірці (праворуч) під час навчання.}
+\includegraphics[width=0.9\textwidth]{images/2.4_baseline_hutsul_eval.png}
+\caption{Метрика BLEU (ліворуч) та функція втрат на валідаційній вибірці (праворуч) для гуцульського базового навчання umt5-base.}
 \label{fig:baseline_eval}
 \end{figure}
 
@@ -751,7 +744,7 @@ QLoRA доповнює LoRA 4-бітним квантуванням базово
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.5\textwidth]{images/2.6_lora.jpg}
+\includegraphics[width=0.5\textwidth]{images/2.5_lora.jpg}
 \caption{Ілюстрація LoRA: вихідні ваги $W$ заморожені, а низькорангова поправка $BA$ додається у шарах уваги та прямозв'язних блоках.}
 \label{fig:lora}
 \end{figure}
@@ -1072,16 +1065,9 @@ Typer & $\geq$0.9.0 & Інтерфейси командного рядка ск�
 
 Для генерації бойківського, закарпатського та гуцульського діалектів, а також додаткового суржику, реалізовано клас \texttt{DialectCorpusGenerator}. Він складається з двох взаємодіючих компонентів: \texttt{DialectPromptBuilder} та \texttt{LocalModelClient}.
 
-\textbf{DialectPromptBuilder} відповідає за формування інструкційного запиту до моделі. Для кожного діалекту завантажується відповідний файл правил з теки \texttt{prompts/} (337-568 рядків). Щоб не включати до контексту весь словник (що може перевищувати ліміт лексем моделі), застосовується відбір найрелевантніших статей. Обчислюється TF-IDF косинусна схожість між вхідним реченням та кожним записом словника, і до запиту включаються лише $k = 50$ найближчих статей. Таким чином кожне речення отримує сфокусовану лексичну підказку, адаптовану до його конкретної семантики: речення про транспорт отримує транспортну лексику, а речення про побут - побутову. Шаблон запиту зображено на рис.~\ref{fig:prompt_template_r3}.
+\textbf{DialectPromptBuilder} відповідає за формування інструкційного запиту до моделі. Для кожного діалекту завантажується відповідний файл правил з теки \texttt{prompts/} (337-568 рядків). Щоб не включати до контексту весь словник (що може перевищувати ліміт лексем моделі), застосовується відбір найрелевантніших статей. Обчислюється TF-IDF косинусна схожість між вхідним реченням та кожним записом словника, і до запиту включаються лише $k = 50$ найближчих статей. Таким чином кожне речення отримує сфокусовану лексичну підказку, адаптовану до його конкретної семантики: речення про транспорт отримує транспортну лексику, а речення про побут - побутову. Шаблон запиту наведено на рис.~\ref{fig:prompt_template} (підрозд.~2.2.2).
 
 Відібрані словникові статті замінюють плейсхолдер \texttt{\{dictionary\}} у системному запиті. Запит користувача містить пакет з 5 вхідних речень, пронумерованих списком. Модель повертає відповідний список з 5 перекладів у форматі JSON-масиву рядків.
-
-\begin{figure}[h]
-\centering
-\includegraphics[width=0.9\textwidth]{images/2.2_prompt_template.png}
-\caption{Шаблон інструкційного запиту для генерації діалектних пар.}
-\label{fig:prompt_template_r3}
-\end{figure}
 
 \textbf{LocalModelClient} виконує інференцію на локально розгорнутій моделі \texttt{Mistral-Small-24B-Instruct-2501} з 4-бітним квантуванням NF4 у режимі подвійного квантування. Локальний запуск обрано замість хмарного API з двох причин: по-перше, це усуває залежність від зовнішніх сервісів і ліміти запитів; по-друге, забезпечує повний контроль над параметрами генерації (temperature=0.7, max\_tokens=2048). Пакетна обробка по 5 речень за запит дозволяє моделі розглядати речення у спільному контексті, що підвищує стилістичну узгодженість перекладів у межах одного пакету. При обробці ізольованих речень модель може обрати різний стиль для схожих фраз; спільний контекст 5 речень знижує таку варіативність.
 
@@ -1143,20 +1129,24 @@ Typer & $\geq$0.9.0 & Інтерфейси командного рядка ск�
 
 \textbf{Крок~6: збереження.} Фінальна модель і токенізатор зберігаються у каталог \texttt{models/umt5-base-multi\-dialect/final\_model}, звідки їх завантажує застосунок «Лексикон» у режимі реального часу.
 
-Криву навчання базової моделі на гуцульському діалекті (перший, однодіалектний етап) показано на рис.~\ref{fig:baseline_training_r3}, а динаміку BLEU на валідаційній вибірці - на рис.~\ref{fig:baseline_eval_r3}.
+Графіки мультидіалектного навчання (суржик + 3 діалекти) наведено на
+рис.~\ref{fig:multidialect_umt5_training} та~\ref{fig:multidialect_umt5_eval}.
+Пікове значення BLEU~71.7 досягнуто на кроці 314\,040.
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.9\textwidth]{images/2.3_baseline_training.png}
-\caption{Крива навчання umt5-base на гуцульському діалекті (функція втрат від кроку).}
-\label{fig:baseline_training_r3}
+\includegraphics[width=0.9\textwidth]{images/3.1_multidialect_umt5_training.png}
+\caption{Функція втрат та темп навчання umt5-base під час мультидіалектного донавчання
+(суржик + 3 діалекти, 314\,040 кроків).}
+\label{fig:multidialect_umt5_training}
 \end{figure}
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.9\textwidth]{images/2.4_baseline_eval.png}
-\caption{Динаміка BLEU на валідаційній вибірці гуцульського діалекту за епохами.}
-\label{fig:baseline_eval_r3}
+\includegraphics[width=0.9\textwidth]{images/3.2_multidialect_umt5_eval.png}
+\caption{Динаміка BLEU та функція втрат на валідаційній вибірці під час
+мультидіалектного донавчання umt5-base.}
+\label{fig:multidialect_umt5_eval}
 \end{figure}
 
 \subsubsection{Донавчання MamayLM}
@@ -1175,6 +1165,18 @@ Typer & $\geq$0.9.0 & Інтерфейси командного рядка ск�
 
 \textbf{Крок~6: контрольні точки та завершення.} Unsloth забезпечує асинхронне збереження контрольних точок у фоновому потоці без паузи у навчанні. Після завершення можливе злиття адаптерів у базову модель (\texttt{merge\_and\_unload}) для ефективного розгортання без накладних витрат PEFT під час інференції.
 
+Частково захоплені криві навчання MamayLM наведено на
+рис.~\ref{fig:multidialect_mamaylm_training}. TensorBoard активовано приблизно
+з кроку 25\,000, тому початковий спад функції втрат на графіку відсутній.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.9\textwidth]{images/3.3_multidialect_mamaylm_training_and_eval.png}
+\caption{Функція втрат та темп навчання MamayLM (QLoRA) з кроку~25\,000 до 53\,500
+(TensorBoard увімкнено з проміжного кроку навчання).}
+\label{fig:multidialect_mamaylm_training}
+\end{figure}
+
 \subsection{Оцінювання та аналіз результатів}
 
 \subsubsection{Методологія оцінювання}
@@ -1191,7 +1193,7 @@ Typer & $\geq$0.9.0 & Інтерфейси командного рядка ск�
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.9\textwidth]{images/eval_encoder_decoder.png}
+\includegraphics[width=0.9\textwidth]{images/3.4_eval_encoder_decoder.png}
 \caption{Результати umt5-base на тестовій вибірці за різновидами (BLEU, chrF++, TER).}
 \label{fig:eval_encoder_decoder}
 \end{figure}
@@ -1204,7 +1206,7 @@ Typer & $\geq$0.9.0 & Інтерфейси командного рядка ск�
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.9\textwidth]{images/eval_decoder_only.png}
+\includegraphics[width=0.9\textwidth]{images/3.5_eval_decoder_only.png}
 \caption{Результати MamayLM на тестовій вибірці за різновидами (BLEU, chrF++, TER).}
 \label{fig:eval_decoder_only}
 \end{figure}
@@ -1217,28 +1219,28 @@ MamayLM демонструє сильний результат на суржик
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.9\textwidth]{images/llm_eval_gpt.png}
+\includegraphics[width=0.9\textwidth]{images/3.6_llm_eval_gpt.png}
 \caption{Результати нуль-шотового GPT-4o за різновидами.}
 \label{fig:llm_eval_gpt}
 \end{figure}
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.9\textwidth]{images/llm_eval_gemini.png}
+\includegraphics[width=0.9\textwidth]{images/3.7_llm_eval_gemini.png}
 \caption{Результати нуль-шотового Gemini~2.0 Flash за різновидами.}
 \label{fig:llm_eval_gemini}
 \end{figure}
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.9\textwidth]{images/llm_eval_mistral.png}
+\includegraphics[width=0.9\textwidth]{images/3.8_llm_eval_mistral.png}
 \caption{Результати нуль-шотового Mistral Large за різновидами.}
 \label{fig:llm_eval_mistral}
 \end{figure}
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.9\textwidth]{images/llm_eval_mamaylm.png}
+\includegraphics[width=0.9\textwidth]{images/3.9_llm_eval_mamaylm.png}
 \caption{Нуль-шотові результати MamayLM (до донавчання) за різновидами.}
 \label{fig:llm_eval_mamaylm}
 \end{figure}
@@ -1291,7 +1293,15 @@ MamayLM (до донавч.) & 65.58 & 16.73 & 58.73 & 27.90 \\
 
 Застосунок запускається командою \texttt{make demo} (або безпосередньо \texttt{uv run python app.py}) і доступний за адресою \texttt{http://0.0.0.0:7870}. При старті завантажуються обидва модулі: нормалізатор і модуль АРМ. Якщо ГП недоступний, нормалізатор автоматично перемикається на ЦП-режим (float32 замість float16), що дозволяє запустити застосунок навіть без відеокарти з певним зниженням швидкості.
 
-% TODO: [app_screenshot.png] - зробити скриншот вебзастосунку
+Інтерфейс застосунку показано на рис.~\ref{fig:app_interface}.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.9\textwidth]{images/3.10_interface.png}
+\caption{Інтерфейс вебзастосунку «Лексикон»: вибір різновиду мови, поле введення
+тексту з кнопкою мікрофону та поле нормалізованого результату.}
+\label{fig:app_interface}
+\end{figure}
 
 \subsubsection{Модуль нормалізації}
 
