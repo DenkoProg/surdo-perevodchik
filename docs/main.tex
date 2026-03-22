@@ -210,9 +210,6 @@
 
 Навчені моделі перевершили нуль-шотові великі мовні моделі на суржику (chrF++ = 93,58 для umt5-base) та гуцульському діалекті (chrF++ = 86,90 для umt5-base). Реалізовано вебзастосунок «Лексикон» із підтримкою голосового введення.
 
-% TODO: оновити після завершення роботи
-Загальний обсяг роботи: ~-- сторінок, ~-- рисунків, 18 посилань.
-
 Ключові слова: нормалізація тексту, суржик, діалекти, нейронний машинний переклад, велика мовна модель, донавчання, параметро-ефективне налаштування, паралельний корпус, гуцульський діалект.
 
 \clearpage
@@ -220,7 +217,7 @@
 \section*{ABSTRACT}
 \addcontentsline{toc}{section}{ABSTRACT}
 
-The bachelor's qualification work was completed by Koval Denys Petrovych, a student of group ShI-42. The topic is ``System for Automatic Normalization of Surzhyk and Dialectal Forms of the Modern Ukrainian Language''. The work is aimed at obtaining a bachelor's degree in specialty 122 ``Computer Science''.
+The bachelor's qualification work was completed by Koval Denys Petrovych, a student of group AI-42. The topic is ``System for Automatic Normalization of Surzhyk and Dialectal Forms of the Modern Ukrainian Language''. The work is aimed at obtaining a bachelor's degree in specialty 122 ``Computer Science''.
 
 The object of research is the process of automatic normalization of non-standard forms of modern Ukrainian - surzhyk and regional dialects.
 
@@ -229,9 +226,6 @@ The subject of research is methods for building parallel corpora for low-resourc
 A parallel corpus of 125,615 training examples was collected for four language varieties: Hutsul, Boikivian, and Transcarpathian dialects, as well as surzhyk. Synthetic data was generated using a combination of rule-based approaches and the Mistral Small 24B language model. Two models were trained: an encoder-decoder model (umt5-base, full fine-tuning) and a decoder-only large language model (MamayLM based on Gemma-3-4B, QLoRA parameter-efficient fine-tuning). Quality was evaluated using BLEU, chrF++, and TER metrics against zero-shot large language model baselines: GPT-4o, Gemini 2.0 Flash, and Mistral Large.
 
 The fine-tuned models outperformed zero-shot large language models on surzhyk (chrF++ = 93.58 for umt5-base) and the Hutsul dialect (chrF++ = 86.90 for umt5-base). A web application ``Leksykon'' was implemented with voice input support.
-
-% TODO: update after completion
-The total volume of work: ~-- pages, ~-- figures, 18 references.
 
 Keywords: text normalization, surzhyk, dialects, neural machine translation, large language model, fine-tuning, parameter-efficient adaptation, parallel corpus, Hutsul dialect.
 
