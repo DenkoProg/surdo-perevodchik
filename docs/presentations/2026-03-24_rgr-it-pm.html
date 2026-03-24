@@ -1,0 +1,1608 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>РГР — Управління ІТ-проектами</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
+  <style>
+    /* ============================================
+       THEME — Warm parchment + gold
+    ============================================ */
+    :root {
+      --bg:        #F7F4EE;
+      --surface:   #FDFCFA;
+      --ink:       #1C1712;
+      --muted:     #7A7266;
+      --gold:      #C4943A;
+      --gold-deep: #9E7128;
+      --gold-tint: #F7F1E3;
+      --blue:      #2A4070;
+      --red:       #9B2335;
+      --green:     #2A6040;
+      --yellow:    #A07828;
+      --border:    #E2DDD5;
+
+      --font-display: 'Syne', sans-serif;
+      --font-body:    'DM Sans', sans-serif;
+
+      --title-size:  clamp(1.6rem, 4.5vw, 3.8rem);
+      --h2-size:     clamp(1.1rem, 2.5vw, 1.9rem);
+      --h3-size:     clamp(0.88rem, 1.6vw, 1.25rem);
+      --body-size:   clamp(0.72rem, 1.2vw, 0.95rem);
+      --small-size:  clamp(0.6rem, 0.9vw, 0.75rem);
+
+      --slide-padding: clamp(1.2rem, 3.5vw, 3rem);
+      --content-gap:   clamp(0.5rem, 1.2vw, 1.2rem);
+      --element-gap:   clamp(0.28rem, 0.6vw, 0.6rem);
+
+      --ease: cubic-bezier(0.16, 1, 0.3, 1);
+      --dur:  0.65s;
+    }
+
+    /* === RESET === */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    /* ============================================
+       VIEWPORT BASE — mandatory
+    ============================================ */
+    html, body { height: 100%; overflow-x: hidden; }
+    html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+
+    .slide {
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
+      overflow: hidden;
+      scroll-snap-align: start;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      background: var(--bg);
+    }
+    .slide-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      max-height: 100%;
+      overflow: hidden;
+      padding: var(--slide-padding);
+    }
+    img { max-width: 100%; max-height: min(50vh, 400px); object-fit: contain; }
+
+    @media (max-height: 700px) {
+      :root { --slide-padding: clamp(0.7rem, 2.5vw, 1.6rem); --h2-size: clamp(1rem, 2.2vw, 1.5rem); --content-gap: clamp(0.35rem, 0.9vw, 0.8rem); }
+    }
+    @media (max-height: 600px) {
+      :root { --slide-padding: clamp(0.5rem, 2vw, 1.1rem); --body-size: clamp(0.62rem, 1vw, 0.82rem); }
+      .nav-dots { display: none; }
+    }
+    @media (max-height: 500px) {
+      :root { --slide-padding: clamp(0.4rem, 1.5vw, 0.8rem); --h2-size: clamp(0.9rem, 2vw, 1.2rem); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.2s !important; }
+      html { scroll-behavior: auto; }
+    }
+
+    /* === BASE === */
+    body { font-family: var(--font-body); background: var(--bg); color: var(--ink); -webkit-font-smoothing: antialiased; }
+    h1, h2, h3, h4 { font-family: var(--font-display); }
+
+    /* === SLIDE COUNTER === */
+    .slide-counter {
+      position: fixed;
+      bottom: clamp(0.7rem, 1.8vw, 1.3rem);
+      right: clamp(0.9rem, 2.2vw, 1.8rem);
+      font-family: var(--font-display);
+      font-size: clamp(0.65rem, 1vw, 0.82rem);
+      color: var(--muted);
+      z-index: 100;
+      letter-spacing: 0.12em;
+      user-select: none;
+    }
+
+    /* === NAV DOTS === */
+    .nav-dots {
+      position: fixed;
+      left: clamp(0.5rem, 1.2vw, 1rem);
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      z-index: 100;
+    }
+    .nav-dot {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: var(--border);
+      border: none;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+      padding: 0;
+    }
+    .nav-dot.active { background: var(--gold); transform: scale(1.7); }
+
+    /* === SHARED ELEMENTS === */
+    .slide-tag {
+      font-size: var(--small-size);
+      font-weight: 600;
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      margin-bottom: 0.25em;
+    }
+    .slide-h2 {
+      font-size: var(--h2-size);
+      font-weight: 700;
+      color: var(--ink);
+      line-height: 1.15;
+      margin-bottom: var(--content-gap);
+    }
+    .divider {
+      width: clamp(2.5rem, 5vw, 4rem);
+      height: 2px;
+      background: linear-gradient(90deg, var(--gold), transparent);
+      margin: clamp(0.4rem, 0.8vw, 0.8rem) 0;
+    }
+
+    /* === ENTRANCE ANIMATIONS === */
+    .reveal {
+      opacity: 0;
+      transform: translateY(18px);
+      transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
+    }
+    .slide.visible .reveal { opacity: 1; transform: translateY(0); }
+    .reveal:nth-child(1) { transition-delay: 0.05s; }
+    .reveal:nth-child(2) { transition-delay: 0.13s; }
+    .reveal:nth-child(3) { transition-delay: 0.21s; }
+    .reveal:nth-child(4) { transition-delay: 0.29s; }
+    .reveal:nth-child(5) { transition-delay: 0.37s; }
+    .reveal:nth-child(6) { transition-delay: 0.45s; }
+    .reveal:nth-child(7) { transition-delay: 0.53s; }
+    .reveal:nth-child(8) { transition-delay: 0.61s; }
+
+    /* ============================================
+       SLIDE 1: TITLE
+    ============================================ */
+    .slide-title {
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+    .slide-title::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 70% 40% at 50% 0%, rgba(196,148,58,0.12) 0%, transparent 65%),
+        radial-gradient(ellipse 40% 25% at 50% 100%, rgba(196,148,58,0.06) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .title-eyebrow {
+      font-size: var(--small-size);
+      color: var(--muted);
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      margin-bottom: clamp(0.4rem, 1vw, 0.9rem);
+    }
+    .title-main {
+      font-family: var(--font-display);
+      font-size: var(--title-size);
+      font-weight: 800;
+      color: var(--gold);
+      letter-spacing: -0.02em;
+      line-height: 1.05;
+      margin-bottom: clamp(0.4rem, 1vw, 0.9rem);
+      max-width: 72vw;
+    }
+    .title-rule {
+      width: clamp(2.5rem, 6vw, 4.5rem);
+      height: 2px;
+      background: linear-gradient(90deg, var(--gold), transparent);
+      margin: 0 auto clamp(0.5rem, 1.2vw, 1rem);
+    }
+    .title-sub {
+      font-family: var(--font-display);
+      font-size: clamp(0.82rem, 1.8vw, 1.3rem);
+      font-weight: 500;
+      color: var(--ink);
+      margin-bottom: clamp(0.2rem, 0.5vw, 0.5rem);
+    }
+    .title-caption {
+      font-size: clamp(0.68rem, 1.1vw, 0.85rem);
+      color: var(--muted);
+      letter-spacing: 0.05em;
+    }
+    .title-meta {
+      display: flex;
+      gap: clamp(1rem, 3vw, 3rem);
+      justify-content: center;
+      margin-top: clamp(0.6rem, 1.5vw, 1.3rem);
+      flex-wrap: wrap;
+    }
+    .meta-item { font-size: var(--small-size); color: var(--muted); }
+    .meta-item strong { color: var(--ink); font-weight: 600; }
+
+    /* ============================================
+       SHARED: 4-card grid (slides 2, 9)
+    ============================================ */
+    .four-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--element-gap);
+      flex: 1;
+      max-height: min(62vh, 480px);
+    }
+    .info-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: clamp(0.6rem, 1.3vw, 1rem);
+      display: flex;
+      flex-direction: column;
+      gap: 0.3em;
+      overflow: hidden;
+    }
+    .info-card .card-icon {
+      font-size: clamp(1.1rem, 2vw, 1.5rem);
+      line-height: 1;
+      margin-bottom: 0.1em;
+    }
+    .info-card .card-label {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: clamp(0.78rem, 1.4vw, 1rem);
+      color: var(--ink);
+    }
+    .info-card .card-text {
+      font-size: var(--small-size);
+      color: var(--muted);
+      line-height: 1.45;
+    }
+    .info-card.social  { border-left: 3px solid #2A6040; }
+    .info-card.tech    { border-left: 3px solid var(--blue); }
+    .info-card.science { border-left: 3px solid var(--gold-deep); }
+    .info-card.compete { border-left: 3px solid var(--red); }
+
+    /* ============================================
+       SLIDE 3: GOALS — goal callout + task list
+    ============================================ */
+    .goal-callout {
+      background: var(--gold-tint);
+      border: 1px solid rgba(196,148,58,0.35);
+      border-radius: 8px;
+      padding: clamp(0.5rem, 1.1vw, 0.9rem) clamp(0.8rem, 1.5vw, 1.2rem);
+      font-size: var(--body-size);
+      color: var(--ink);
+      line-height: 1.5;
+      margin-bottom: var(--content-gap);
+    }
+    .task-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(0.2rem, 0.5vw, 0.5rem) clamp(0.8rem, 1.5vw, 1.5rem);
+      flex: 1;
+      max-height: min(50vh, 380px);
+      overflow: hidden;
+    }
+    .task-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5em;
+      font-size: var(--small-size);
+      color: var(--ink);
+      line-height: 1.4;
+    }
+    .task-num {
+      font-family: var(--font-display);
+      font-weight: 700;
+      color: var(--gold);
+      font-size: var(--small-size);
+      min-width: 1.4em;
+      flex-shrink: 0;
+    }
+
+    /* ============================================
+       SLIDE 4: ANALYSIS — comparison table
+    ============================================ */
+    .compare-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: var(--small-size);
+      flex: 1;
+      max-height: min(62vh, 460px);
+    }
+    .compare-table th {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: var(--small-size);
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      text-align: left;
+      padding: clamp(0.35rem, 0.7vw, 0.6rem) clamp(0.5rem, 1vw, 0.9rem);
+      border-bottom: 2px solid var(--border);
+      background: var(--gold-tint);
+    }
+    .compare-table td {
+      padding: clamp(0.35rem, 0.7vw, 0.6rem) clamp(0.5rem, 1vw, 0.9rem);
+      border-bottom: 1px solid var(--border);
+      color: var(--ink);
+      line-height: 1.4;
+      vertical-align: top;
+    }
+    .compare-table tr:last-child td { border-bottom: none; }
+    .compare-table .gap-row { background: rgba(155, 35, 53, 0.06); }
+    .compare-table .gap-row td { color: var(--red); font-weight: 600; }
+    .badge {
+      display: inline-block;
+      font-size: clamp(0.55rem, 0.85vw, 0.7rem);
+      font-weight: 600;
+      padding: 0.15em 0.5em;
+      border-radius: 3px;
+      letter-spacing: 0.05em;
+    }
+    .badge-red  { background: rgba(155,35,53,0.12); color: var(--red); }
+    .badge-blue { background: rgba(42,64,112,0.12); color: var(--blue); }
+    .badge-gold { background: rgba(196,148,58,0.18); color: var(--gold-deep); }
+
+    /* ============================================
+       SLIDE 5: PROBLEM STATEMENT — split layout
+    ============================================ */
+    .split-two {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(1rem, 2vw, 2rem);
+      flex: 1;
+      max-height: min(68vh, 540px);
+      overflow: hidden;
+    }
+    .split-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: clamp(1rem, 2vw, 1.8rem);
+      display: flex;
+      flex-direction: column;
+      gap: 0.6em;
+      overflow: hidden;
+      justify-content: center;
+    }
+    .split-panel .panel-title {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: clamp(0.9rem, 1.6vw, 1.2rem);
+      color: var(--gold-deep);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.45em;
+      margin-bottom: 0.4em;
+    }
+    .diamond-list { display: flex; flex-direction: column; gap: 0.65em; }
+    .diamond-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.6em;
+      font-size: clamp(0.8rem, 1.3vw, 1rem);
+      line-height: 1.45;
+    }
+    .diamond-icon { color: var(--gold); flex-shrink: 0; font-size: 0.95em; margin-top: 0.1em; }
+    .diamond-key { font-weight: 600; color: var(--ink); min-width: 4.5em; flex-shrink: 0; }
+    .diamond-val { color: var(--muted); }
+    .smart-list { display: flex; flex-direction: column; gap: 0.65em; }
+    .smart-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.6em;
+      font-size: clamp(0.8rem, 1.3vw, 1rem);
+      line-height: 1.45;
+    }
+    .smart-letter {
+      font-family: var(--font-display);
+      font-weight: 800;
+      color: var(--gold);
+      font-size: clamp(1rem, 1.7vw, 1.3rem);
+      min-width: 1.2em;
+      flex-shrink: 0;
+    }
+    .smart-text { color: var(--ink); }
+
+    /* ============================================
+       SLIDE 6: STAKEHOLDERS — power/interest grid
+    ============================================ */
+    .power-grid-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      max-height: min(68vh, 520px);
+      overflow: hidden;
+    }
+    .power-grid {
+      flex: 1;
+      position: relative;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface);
+      overflow: hidden;
+    }
+    .grid-axis-x {
+      position: absolute;
+      bottom: clamp(0.5rem, 1vw, 0.8rem);
+      left: 50%;
+      right: clamp(0.5rem, 1vw, 0.8rem);
+      height: 1px;
+      background: var(--border);
+    }
+    .grid-axis-y {
+      position: absolute;
+      left: 50%;
+      top: clamp(0.5rem, 1vw, 0.8rem);
+      bottom: clamp(0.5rem, 1vw, 0.8rem);
+      width: 1px;
+      background: var(--border);
+    }
+    .grid-label {
+      position: absolute;
+      font-size: clamp(0.55rem, 0.85vw, 0.7rem);
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .grid-label.top-left  { top: 0.4em; left: 0.6em; color: var(--gold-deep); }
+    .grid-label.top-right { top: 0.4em; right: 0.6em; }
+    .grid-label.bot-left  { bottom: 0.4em; left: 0.6em; }
+    .grid-label.bot-right { bottom: 0.4em; right: 0.6em; }
+    .stakeholder-dot {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.15em;
+      cursor: default;
+    }
+    .dot-circle {
+      width: clamp(0.85rem, 1.5vw, 1.2rem);
+      height: clamp(0.85rem, 1.5vw, 1.2rem);
+      border-radius: 50%;
+      background: var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: clamp(0.45rem, 0.8vw, 0.62rem);
+      color: white;
+      border: 2px solid var(--gold-deep);
+    }
+    .dot-label {
+      font-size: clamp(0.48rem, 0.75vw, 0.62rem);
+      color: var(--ink);
+      white-space: nowrap;
+      background: rgba(247,244,238,0.9);
+      padding: 0.05em 0.25em;
+      border-radius: 2px;
+    }
+
+    /* ============================================
+       SLIDE 7: WBS — card grid
+    ============================================ */
+    .wbs-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--element-gap);
+      flex: 1;
+      max-height: min(62vh, 480px);
+    }
+    .wbs-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: clamp(0.55rem, 1.1vw, 0.9rem);
+      display: flex;
+      flex-direction: column;
+      gap: 0.3em;
+      overflow: hidden;
+    }
+    .wbs-num {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: clamp(1rem, 1.8vw, 1.4rem);
+      color: var(--gold);
+      line-height: 1;
+    }
+    .wbs-title {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: clamp(0.72rem, 1.3vw, 0.95rem);
+      color: var(--ink);
+      line-height: 1.2;
+    }
+    .wbs-tasks {
+      font-size: var(--small-size);
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    /* ============================================
+       SLIDE 8: GANTT — bar chart
+    ============================================ */
+    .gantt-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: var(--element-gap);
+      max-height: min(68vh, 520px);
+      overflow: hidden;
+    }
+    .gantt-row {
+      display: flex;
+      align-items: center;
+      gap: clamp(0.4rem, 0.8vw, 0.8rem);
+      flex-shrink: 0;
+    }
+    .gantt-label {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: var(--small-size);
+      color: var(--ink);
+      min-width: clamp(2rem, 4vw, 3.5rem);
+      flex-shrink: 0;
+    }
+    .gantt-desc {
+      font-size: var(--small-size);
+      color: var(--muted);
+      min-width: clamp(5rem, 11vw, 10rem);
+      flex-shrink: 0;
+    }
+    .gantt-track {
+      flex: 1;
+      height: clamp(1.1rem, 2vw, 1.8rem);
+      position: relative;
+      background: rgba(226,221,213,0.4);
+      border-radius: 4px;
+    }
+    .gantt-bar {
+      position: absolute;
+      top: 0; bottom: 0;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      padding: 0 0.4em;
+      font-size: clamp(0.5rem, 0.8vw, 0.65rem);
+      font-weight: 600;
+      color: white;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+    .gantt-bar.critical { background: var(--gold-deep); }
+    .gantt-bar.slack    { background: var(--muted); }
+    .gantt-weeks {
+      display: flex;
+      gap: 0;
+      flex: 1;
+      margin-left: clamp(7.4rem, 15.5vw, 13.8rem);
+      border-bottom: 1px solid var(--border);
+      margin-bottom: clamp(0.1rem, 0.3vw, 0.3rem);
+    }
+    .week-tick {
+      flex: 1;
+      font-size: clamp(0.45rem, 0.7vw, 0.58rem);
+      color: var(--muted);
+      text-align: center;
+      border-left: 1px solid var(--border);
+      padding-bottom: 0.15em;
+    }
+    .cp-callout {
+      background: var(--gold-tint);
+      border: 1px solid rgba(196,148,58,0.3);
+      border-radius: 6px;
+      padding: clamp(0.3rem, 0.6vw, 0.5rem) clamp(0.6rem, 1.2vw, 1rem);
+      font-size: var(--small-size);
+      color: var(--gold-deep);
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    /* ============================================
+       SLIDE 9: RISKS — matrix + top 3 cards
+    ============================================ */
+    .risk-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(0.8rem, 1.6vw, 1.5rem);
+      flex: 1;
+      max-height: min(68vh, 530px);
+      overflow: hidden;
+    }
+    .risk-matrix {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      gap: 4px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      font-size: var(--body-size);
+      flex: 1;
+    }
+    .risk-cell {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 0.2em;
+      padding: 0.5em;
+      text-align: center;
+      font-weight: 600;
+    }
+    .risk-cell .risk-ids { font-size: clamp(0.62rem, 0.95vw, 0.78rem); font-weight: 500; }
+    .risk-cell.r-red    { background: rgba(155,35,53,0.18); color: var(--red); }
+    .risk-cell.r-yellow { background: rgba(160,120,40,0.15); color: var(--yellow); }
+    .risk-cell.r-green  { background: rgba(42,96,64,0.12); color: var(--green); }
+    .risk-cell.r-empty  { background: rgba(226,221,213,0.3); }
+    .risk-axis-label { font-size: clamp(0.48rem, 0.72vw, 0.58rem); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; }
+    .risk-cards { display: flex; flex-direction: column; gap: var(--element-gap); overflow: hidden; }
+    .risk-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: clamp(0.5rem, 1vw, 0.8rem);
+      display: flex;
+      flex-direction: column;
+      gap: 0.25em;
+      flex: 1;
+      overflow: hidden;
+    }
+    .risk-card .risk-id {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: var(--small-size);
+      color: var(--red);
+    }
+    .risk-card .risk-desc {
+      font-size: var(--small-size);
+      color: var(--ink);
+      font-weight: 500;
+      line-height: 1.35;
+    }
+    .risk-card .risk-mit {
+      font-size: clamp(0.55rem, 0.85vw, 0.68rem);
+      color: var(--muted);
+      line-height: 1.35;
+    }
+    .risk-card .risk-mit span { color: var(--green); font-weight: 600; }
+
+    /* ============================================
+       SLIDE 10: TECH STACK — layered badges
+    ============================================ */
+    .stack-layers {
+      display: flex;
+      flex-direction: column;
+      gap: clamp(0.55rem, 1.1vw, 1rem);
+      flex: 1;
+      max-height: min(72vh, 560px);
+      overflow: hidden;
+      justify-content: center;
+    }
+    .stack-row {
+      display: flex;
+      align-items: center;
+      gap: clamp(0.7rem, 1.4vw, 1.4rem);
+      flex-shrink: 0;
+    }
+    .stack-layer-label {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: clamp(0.7rem, 1.1vw, 0.9rem);
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      min-width: clamp(5rem, 8vw, 7.5rem);
+      flex-shrink: 0;
+    }
+    .stack-badges { display: flex; flex-wrap: wrap; gap: 0.5em; }
+    .tech-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3em;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: clamp(0.32rem, 0.65vw, 0.55rem) clamp(0.65rem, 1.2vw, 1rem);
+      font-size: clamp(0.75rem, 1.2vw, 0.95rem);
+      color: var(--ink);
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .tech-badge.gold  { border-color: rgba(196,148,58,0.5); background: var(--gold-tint); color: var(--gold-deep); }
+    .tech-badge.blue  { border-color: rgba(42,64,112,0.4);  background: rgba(42,64,112,0.06); color: var(--blue); }
+
+    /* ============================================
+       SLIDE 11: RESULTS TABLE
+    ============================================ */
+    .results-layout {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      gap: var(--element-gap);
+      max-height: min(68vh, 520px);
+      overflow: hidden;
+    }
+    .results-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: var(--small-size);
+      flex-shrink: 0;
+    }
+    .results-table th {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: var(--small-size);
+      color: var(--gold-deep);
+      text-align: left;
+      padding: clamp(0.25rem, 0.5vw, 0.45rem) clamp(0.4rem, 0.8vw, 0.7rem);
+      border-bottom: 2px solid var(--border);
+      background: var(--gold-tint);
+    }
+    .results-table td {
+      padding: clamp(0.2rem, 0.4vw, 0.38rem) clamp(0.4rem, 0.8vw, 0.7rem);
+      border-bottom: 1px solid var(--border);
+      color: var(--ink);
+      vertical-align: middle;
+    }
+    .results-table .dialect-sep td {
+      background: var(--gold-tint);
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: var(--small-size);
+      color: var(--gold-deep);
+      padding-top: clamp(0.3rem, 0.6vw, 0.5rem);
+    }
+    .results-table .best td { background: rgba(42,96,64,0.06); }
+    .results-table .best .val { color: var(--green); font-weight: 700; }
+    .val { font-weight: 500; }
+    .insight-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--element-gap);
+      flex-shrink: 0;
+    }
+    .insight-chip {
+      border-radius: 6px;
+      padding: clamp(0.25rem, 0.5vw, 0.45rem) clamp(0.4rem, 0.7vw, 0.6rem);
+      font-size: clamp(0.5rem, 0.8vw, 0.65rem);
+      line-height: 1.4;
+      font-weight: 500;
+    }
+    .insight-chip.good   { background: rgba(42,96,64,0.1);  color: var(--green); border: 1px solid rgba(42,96,64,0.2); }
+    .insight-chip.warn   { background: rgba(160,120,40,0.1); color: var(--yellow); border: 1px solid rgba(160,120,40,0.2); }
+    .insight-chip.bad    { background: rgba(155,35,53,0.08); color: var(--red); border: 1px solid rgba(155,35,53,0.15); }
+
+    /* ============================================
+       SLIDE 12: APP ARCHITECTURE
+    ============================================ */
+    .arch-flow {
+      display: flex;
+      align-items: stretch;
+      gap: 0;
+      flex: 1;
+      max-height: min(62vh, 480px);
+      overflow: hidden;
+    }
+    .arch-step {
+      flex: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: clamp(0.6rem, 1.2vw, 1rem);
+      display: flex;
+      flex-direction: column;
+      gap: 0.35em;
+      position: relative;
+    }
+    .arch-step + .arch-step {
+      margin-left: clamp(1.2rem, 2.5vw, 2.2rem);
+    }
+    .arch-step + .arch-step::before {
+      content: '→';
+      position: absolute;
+      left: calc(-1 * clamp(1.2rem, 2.5vw, 2.2rem));
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--gold);
+      font-size: clamp(0.9rem, 1.7vw, 1.3rem);
+      width: clamp(1.2rem, 2.5vw, 2.2rem);
+      text-align: center;
+    }
+    .arch-icon {
+      font-size: clamp(1.2rem, 2.2vw, 1.7rem);
+      line-height: 1;
+    }
+    .arch-title {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: clamp(0.72rem, 1.3vw, 0.95rem);
+      color: var(--ink);
+    }
+    .arch-desc {
+      font-size: var(--small-size);
+      color: var(--muted);
+      line-height: 1.45;
+    }
+    .arch-tag {
+      margin-top: auto;
+      display: inline-block;
+      font-size: clamp(0.5rem, 0.75vw, 0.62rem);
+      font-weight: 600;
+      color: var(--gold-deep);
+      background: var(--gold-tint);
+      padding: 0.15em 0.45em;
+      border-radius: 3px;
+      letter-spacing: 0.05em;
+    }
+
+    /* ============================================
+       SLIDE 13: CONCLUSIONS
+    ============================================ */
+    .conclusions-grid {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: clamp(0.8rem, 1.6vw, 1.5rem);
+      flex: 1;
+      max-height: min(64vh, 500px);
+      overflow: hidden;
+    }
+    .conclusion-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: clamp(0.9rem, 1.6vw, 1.4rem);
+      display: flex;
+      flex-direction: column;
+      gap: 0.5em;
+      overflow: hidden;
+      justify-content: center;
+    }
+    .conclusion-panel .panel-head {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: clamp(0.9rem, 1.5vw, 1.15rem);
+      padding-bottom: 0.4em;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 0.35em;
+    }
+    .conclusion-panel .panel-head.done    { color: var(--green); }
+    .conclusion-panel .panel-head.science { color: var(--blue); }
+    .conclusion-panel .panel-head.future  { color: var(--gold-deep); }
+    .check-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5em;
+      font-size: clamp(0.78rem, 1.25vw, 0.97rem);
+      line-height: 1.5;
+      color: var(--ink);
+    }
+    .check-icon { flex-shrink: 0; }
+    .check-icon.ok     { color: var(--green); }
+    .check-icon.sci    { color: var(--blue); }
+    .check-icon.future { color: var(--gold); }
+    .right-panels { display: flex; flex-direction: column; gap: var(--element-gap); overflow: hidden; }
+  </style>
+</head>
+<body>
+
+<!-- === SLIDE COUNTER === -->
+<div class="slide-counter" id="slideCounter">1 / 13</div>
+
+<!-- === NAV DOTS === -->
+<nav class="nav-dots" id="navDots" aria-label="Навігація по слайдах"></nav>
+
+<!-- ============================================
+     SLIDE 1: TITLE
+============================================ -->
+<section class="slide slide-title" id="slide-1" aria-label="Титульний слайд">
+  <div class="slide-content" style="align-items:center; text-align:center;">
+    <p class="title-eyebrow reveal">Національний університет «Львівська політехніка»</p>
+    <p class="title-eyebrow reveal" style="margin-top:-0.3em; margin-bottom:clamp(0.5rem,1.2vw,1rem);">
+      ІКНІ · Кафедра штучного інтелекту · Управління ІТ-проектами
+    </p>
+    <h1 class="title-main reveal">Лексикон</h1>
+    <div class="title-rule reveal"></div>
+    <p class="title-sub reveal">Розробка системи автоматичної нормалізації<br>суржику та діалектів сучасної української мови</p>
+    <div class="title-meta reveal">
+      <span class="meta-item"><strong>Студент:</strong> Коваль Денис Петрович, гр. ШІ-42</span>
+      <span class="meta-item"><strong>Керівник:</strong> Сивоконь Олексій Олегович</span>
+      <span class="meta-item"><strong>2026</strong></span>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================
+     SLIDE 2: RELEVANCE
+============================================ -->
+<section class="slide" id="slide-2" aria-label="Актуальність теми">
+  <div class="slide-content">
+    <div class="reveal">
+      <p class="slide-tag">Актуальність</p>
+      <h2 class="slide-h2">Чому це важливо зараз</h2>
+    </div>
+    <div class="four-grid">
+      <div class="info-card social reveal">
+        <span class="card-icon">🏘️</span>
+        <span class="card-label">Соціальна</span>
+        <span class="card-text">Внутрішня міграція в Україні — мільйони носіїв регіональних діалектів у нових мовних середовищах</span>
+      </div>
+      <div class="info-card tech reveal">
+        <span class="card-icon">🤖</span>
+        <span class="card-label">Технологічна</span>
+        <span class="card-text">Голосові та текстові системи обробки мови не розуміють діалектний ввід — втрачається точність і довіра користувачів</span>
+      </div>
+      <div class="info-card science reveal">
+        <span class="card-icon">🔬</span>
+        <span class="card-label">Наукова</span>
+        <span class="card-text">Малоресурсна задача: для гуцульського, бойківського, закарпатського діалектів бракує паралельних корпусів</span>
+      </div>
+      <div class="info-card compete reveal">
+        <span class="card-icon">🚀</span>
+        <span class="card-label">Конкурентна</span>
+        <span class="card-text">Відсутність відкритих українських систем нормалізації суржику та діалектів — незайнята ринкова ніша</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================
+     SLIDE 3: GOALS
+============================================ -->
+<section class="slide" id="slide-3" aria-label="Мета та завдання">
+  <div class="slide-content">
+    <div class="reveal">
+      <p class="slide-tag">Мета та завдання</p>
+      <h2 class="slide-h2">Що ми розробляємо</h2>
+    </div>
+    <div class="goal-callout reveal">
+      <strong>Мета:</strong> розробити та оцінити систему автоматичної нормалізації для 4 мовних варіантів
+      — гуцульського, бойківського, закарпатського діалектів і суржику — на основі нейронних моделей.
+    </div>
+    <div class="task-list">
+      <div class="task-item reveal"><span class="task-num">1.</span><span>Зібрати та підготувати паралельний корпус (~125 тис. прикладів)</span></div>
+      <div class="task-item reveal"><span class="task-num">5.</span><span>Донавчити декодерну ВМM (MamayLM/Gemma-3-4B) з QLoRA</span></div>
+      <div class="task-item reveal"><span class="task-num">2.</span><span>Синтезувати дані для малоресурсних діалектів (Mistral Small 24B)</span></div>
+      <div class="task-item reveal"><span class="task-num">6.</span><span>Оцінити якість за метриками BLEU, chrF++, TER</span></div>
+      <div class="task-item reveal"><span class="task-num">3.</span><span>Навчити базову модель umt5-base на гуцульському</span></div>
+      <div class="task-item reveal"><span class="task-num">7.</span><span>Порівняти з нуль-шотовими ВМM (GPT-4o, Gemini, Mistral)</span></div>
+      <div class="task-item reveal"><span class="task-num">4.</span><span>Масштабувати на 4 діалекти — мультидіалектна модель</span></div>
+      <div class="task-item reveal"><span class="task-num">8.</span><span>Розробити вебзастосунок «Лексикон» для демонстрації</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================
+     SLIDE 4: ANALYSIS
+============================================ -->
+<section class="slide" id="slide-4" aria-label="Аналіз предметної галузі">
+  <div class="slide-content">
+    <div class="reveal">
+      <p class="slide-tag">Аналіз предметної галузі</p>
+      <h2 class="slide-h2">Існуючі підходи та їхні обмеження</h2>
+    </div>
+    <table class="compare-table reveal">
+      <thead>
+        <tr>
+          <th style="width:22%">Підхід</th>
+          <th style="width:28%">Приклади</th>
+          <th>Обмеження</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Правилові системи</strong></td>
+          <td>Словники, транслітерація, pymorphy2</td>
+          <td>Крихкі, не масштабуються на нові варіанти мови <span class="badge badge-red">крихкість</span></td>
+        </tr>
+        <tr>
+          <td><strong>Seq2seq моделі</strong></td>
+          <td>UA-GEC, Spivavtor</td>
+          <td>Спрямовані лише на граматичні помилки літературної норми, без діалектів <span class="badge badge-blue">scope</span></td>
+        </tr>
+        <tr>
+          <td><strong>Декодерні ВМM</strong></td>
+          <td>Vuyko Mistral, Bytes&nbsp;to&nbsp;Borsch</td>
+          <td>Лише гуцульський або нуль-шотовий режим — без донавчання на мультидіалектному корпусі <span class="badge badge-gold">coverage</span></td>
+        </tr>
+        <tr class="gap-row">
+          <td colspan="3">
+            ⚠ <strong>GAP:</strong> немає жодної відкритої системи нормалізації суржику і діалектів із власним паралельним корпусом
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============================================
+     SLIDE 5: PROBLEM STATEMENT
+============================================ -->
+<section class="slide" id="slide-5" aria-label="Постановка задачі">
+  <div class="slide-content">
+    <div class="reveal">
+      <p class="slide-tag">Постановка задачі</p>
+      <h2 class="slide-h2">Критичні питання та SMART-цілі</h2>
+    </div>
+    <div class="split-two">
+      <div class="split-panel reveal">
+        <div class="panel-title">◆ Конфліктний діамант проекту</div>
+        <div class="diamond-list">
+          <div class="diamond-row"><span class="diamond-icon">◆</span><span class="diamond-key">Ресурси:</span><span class="diamond-val">GPU Vast.ai (обмежено), 1 виконавець</span></div>
+          <div class="diamond-row"><span class="diamond-icon">◆</span><span class="diamond-key">Час:</span><span class="diamond-val">1 семестр — 19 тижнів</span></div>
+          <div class="diamond-row"><span class="diamond-icon">◆</span><span class="diamond-key">Якість:</span><span class="diamond-val">BLEU / chrF++ / TER на тестових наборах</span></div>
+          <div class="diamond-row"><span class="diamond-icon">◆</span><span class="diamond-key">Результат:</span><span class="diamond-val">працююча система + відкритий репозиторій</span></div>
+        </div>
+      </div>
+      <div class="split-panel reveal">
+        <div class="panel-title">S M A R T — перевірка цілей</div>
+        <div class="smart-list">
+          <div class="smart-row"><span class="smart-letter">S</span><span class="smart-text">Конкретна: нормалізація 4 варіантів мови</span></div>
+          <div class="smart-row"><span class="smart-letter">M</span><span class="smart-text">Вимірювана: chrF++ > 80 для суржику та гуцульського</span></div>
+          <div class="smart-row"><span class="smart-letter">A</span><span class="smart-text">Досяжна: реалізується одним студентом за семестр</span></div>
+          <div class="smart-row"><span class="smart-letter">R</span><span class="smart-text">Релевантна: моделі та корпуси доступні відкрито</span></div>
+          <div class="smart-row"><span class="smart-letter">T</span><span class="smart-text">Часова: захист до кінця семестру (19 тижнів)</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================
+     SLIDE 6: STAKEHOLDERS
+============================================ -->
+<section class="slide" id="slide-6" aria-label="Зацікавлені сторони">
+  <div class="slide-content">
+    <div class="reveal">
+      <p class="slide-tag">Зацікавлені сторони</p>
+      <h2 class="slide-h2">Матриця «Влада / Інтерес» — 10 стейкхолдерів</h2>
+    </div>
+    <div class="power-grid-wrap reveal">
+      <div class="power-grid">
+        <!-- Axis labels -->
+        <span class="grid-label top-left">Висока влада<br>Високий інтерес</span>
+        <span class="grid-label top-right">Висока влада<br>Низький інтерес</span>
+        <span class="grid-label bot-left">Низька влада<br>Високий інтерес</span>
+        <span class="grid-label bot-right">Низька влада<br>Низький інтерес</span>
+        <!-- Dividers -->
+        <div class="grid-axis-x"></div>
+        <div class="grid-axis-y"></div>
+
+        <!-- High Power / High Interest -->
+        <div class="stakeholder-dot" style="left:18%; top:22%">
+          <div class="dot-circle" style="background:var(--gold-deep);border-color:var(--gold);">S1</div>
+          <span class="dot-label">Коваль</span>
+        </div>
+        <div class="stakeholder-dot" style="left:32%; top:30%">
+          <div class="dot-circle" style="background:var(--gold-deep);border-color:var(--gold);">S2</div>
+          <span class="dot-label">Сивоконь</span>
+        </div>
+        <div class="stakeholder-dot" style="left:22%; top:38%">
+          <div class="dot-circle" style="background:var(--gold-deep);border-color:var(--gold);">S3</div>
+          <span class="dot-label">Кафедра</span>
+        </div>
+
+        <!-- High Power / Low Interest -->
+        <div class="stakeholder-dot" style="left:65%; top:25%">
+          <div class="dot-circle" style="background:var(--blue);border-color:#1a2d52;">S4</div>
+          <span class="dot-label">MamayLM</span>
+        </div>
+        <div class="stakeholder-dot" style="left:78%; top:38%">
+          <div class="dot-circle" style="background:var(--blue);border-color:#1a2d52;">S8</div>
+          <span class="dot-label">EdTech</span>
+        </div>
+
+        <!-- Low Power / High Interest -->
+        <div class="stakeholder-dot" style="left:15%; top:62%">
+          <div class="dot-circle" style="background:var(--green);border-color:#1a4030;">S5</div>
+          <span class="dot-label">Носії діалектів</span>
+        </div>
+        <div class="stakeholder-dot" style="left:30%; top:70%">
+          <div class="dot-circle" style="background:var(--green);border-color:#1a4030;">S6</div>
+          <span class="dot-label">Мігранти</span>
+        </div>
+        <div class="stakeholder-dot" style="left:44%; top:63%">
+          <div class="dot-circle" style="background:var(--green);border-color:#1a4030;">S9</div>
+          <span class="dot-label">Активісти</span>
+        </div>
+
+        <!-- Low Power / Low Interest -->
+        <div class="stakeholder-dot" style="left:65%; top:65%">
+          <div class="dot-circle" style="background:var(--muted);border-color:#5a5248;">S7</div>
+          <span class="dot-label">NLP-спільнота</span>
+        </div>
+        <div class="stakeholder-dot" style="left:80%; top:72%">
+          <div class="dot-circle" style="background:var(--muted);border-color:#5a5248;">S10</div>
+          <span class="dot-label">ІТ-компанії</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================
+     SLIDE 7: WBS
+============================================ -->
+<section class="slide" id="slide-7" aria-label="Структура робіт WBS">
+  <div class="slide-content">
+    <div class="reveal">
+      <p class="slide-tag">Планування</p>
+      <h2 class="slide-h2">WBS — 6 пакетів робіт, 13 завдань</h2>
+    </div>
+    <div class="wbs-grid">
+      <div class="wbs-card reveal">
+        <span class="wbs-num">01</span>
+        <span class="wbs-title">Управління проектом</span>
+        <span class="wbs-tasks">Координація та комунікація · Управління ризиками</span>
+      </div>
+      <div class="wbs-card reveal">
+        <span class="wbs-num">02</span>
+        <span class="wbs-title">Дослідження та аналіз</span>
+        <span class="wbs-tasks">Огляд літератури · Аналіз підходів до нормалізації</span>
+      </div>
+      <div class="wbs-card reveal">
+        <span class="wbs-num">03</span>
+        <span class="wbs-title">Підготовка даних</span>
+        <span class="wbs-tasks">Збір і розмітка · Словники · Синтетична генерація (Mistral Small 24B)</span>
+      </div>
+      <div class="wbs-card reveal" style="border-top:3px solid var(--gold);">
+        <span class="wbs-num">04</span>
+        <span class="wbs-title">Розробка моделей</span>
+        <span class="wbs-tasks">Seq2seq umt5-base · MamayLM QLoRA (Gemma-3-4B)</span>
+      </div>
+      <div class="wbs-card reveal" style="border-top:3px solid var(--gold);">
+        <span class="wbs-num">05</span>
+        <span class="wbs-title">Оцінювання та інтеграція</span>
+        <span class="wbs-tasks">Автоматична оцінка (BLEU/chrF++/TER) · Ручна оцінка · Застосунок NiceGUI</span>
+      </div>
+      <div class="wbs-card reveal">
+        <span class="wbs-num">06</span>
+        <span class="wbs-title">Документація та захист</span>
+        <span class="wbs-tasks">Дипломна робота · Технічна документація · Захист РГР</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================
+     SLIDE 8: GANTT / CRITICAL PATH
+============================================ -->
+<section class="slide" id="slide-8" aria-label="Діаграма Ганта та критичний шлях">
+  <div class="slide-content">
+    <div class="reveal">
+      <p class="slide-tag">Планування</p>
+      <h2 class="slide-h2">Критичний шлях і Діаграма Ганта (19 тижнів)</h2>
+    </div>
+    <div class="gantt-wrap reveal">
+      <!-- Week ticks -->
+      <div class="gantt-weeks">
+        <div class="week-tick">1</div><div class="week-tick">2</div><div class="week-tick">3</div>
+        <div class="week-tick">4</div><div class="week-tick">5</div><div class="week-tick">6</div>
+        <div class="week-tick">7</div><div class="week-tick">8</div><div class="week-tick">9</div>
+        <div class="week-tick">10</div><div class="week-tick">11</div><div class="week-tick">12</div>
+        <div class="week-tick">13</div><div class="week-tick">14</div><div class="week-tick">15</div>
+        <div class="week-tick">16</div><div class="week-tick">17</div><div class="week-tick">18</div>
+        <div class="week-tick">19</div>
+      </div>
+
+      <!-- A: 1-3 critical -->
+      <div class="gantt-row">
+        <span class="gantt-label">A</span>
+        <span class="gantt-desc">Підготовка даних</span>
+        <div class="gantt-track">
+          <div class="gantt-bar critical" style="left:0%;width:15.8%;">тиж 1-3</div>
+        </div>
+      </div>
+      <!-- B: 4-9 critical -->
+      <div class="gantt-row">
+        <span class="gantt-label">B</span>
+        <span class="gantt-desc">Навчання umt5-base</span>
+        <div class="gantt-track">
+          <div class="gantt-bar critical" style="left:15.8%;width:31.6%;">тиж 4-9</div>
+        </div>
+      </div>
+      <!-- C: 7-9 slack -->
+      <div class="gantt-row">
+        <span class="gantt-label">C</span>
+        <span class="gantt-desc">Baseline гуцульський</span>
+        <div class="gantt-track">
+          <div class="gantt-bar slack" style="left:31.6%;width:15.8%;">тиж 7-9 (резерв 1 тиж)</div>
+        </div>
+      </div>
+      <!-- D: 10-13 critical -->
+      <div class="gantt-row">
+        <span class="gantt-label">D</span>
+        <span class="gantt-desc">Мультидіалект</span>
+        <div class="gantt-track">
+          <div class="gantt-bar critical" style="left:47.4%;width:21.1%;">тиж 10-13</div>
+        </div>
+      </div>
+      <!-- E: 14-15 critical -->
+      <div class="gantt-row">
+        <span class="gantt-label">E</span>
+        <span class="gantt-desc">MamayLM QLoRA</span>
+        <div class="gantt-track">
+          <div class="gantt-bar critical" style="left:68.4%;width:10.5%;">тиж 14-15</div>
+        </div>
+      </div>
+      <!-- F: 16-19 critical -->
+      <div class="gantt-row">
+        <span class="gantt-label">F</span>
+        <span class="gantt-desc">Оцінювання + застосунок</span>
+        <div class="gantt-track">
+          <div class="gantt-bar critical" style="left:78.9%;width:21.1%;">тиж 16-19</div>
+        </div>
+      </div>
+
+      <div class="cp-callout">
+        Критичний шлях: <strong>A → B → D → E → F = 19 тижнів</strong> &nbsp;|&nbsp;
+        <span style="color:var(--muted); font-weight:400;">Операція C — резерв 1 тиждень</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================
+     SLIDE 9: RISKS
+============================================ -->
+<section class="slide" id="slide-9" aria-label="Аналіз ризиків">
+  <div class="slide-content">
+    <div class="reveal">
+      <p class="slide-tag">Ризики</p>
+      <h2 class="slide-h2">Матриця ризиків та реагування</h2>
+    </div>
+    <div class="risk-layout">
+      <!-- 3x3 Matrix (Impact axis: cols, Probability axis: rows) -->
+      <div style="display:flex; flex-direction:column; gap:0.4em; overflow:hidden; flex:1;">
+        <div style="display:flex; align-items:center; gap:0.4em; flex-shrink:0;">
+          <span style="font-size:var(--small-size);color:var(--muted);font-weight:600;writing-mode:vertical-lr;transform:rotate(180deg);padding:0.3em 0;min-width:1.2em;">Ймовірність ↑</span>
+          <div class="risk-matrix reveal">
+            <div class="risk-cell r-red"><span class="risk-axis-label">P=3</span><span class="risk-ids">R02</span></div>
+            <div class="risk-cell r-red"><span class="risk-ids">R01</span></div>
+            <div class="risk-cell r-red"></div>
+            <div class="risk-cell r-yellow"><span class="risk-axis-label">P=2</span><span class="risk-ids">R04, R05, R06</span></div>
+            <div class="risk-cell r-red"><span class="risk-ids">R03</span></div>
+            <div class="risk-cell r-empty"></div>
+            <div class="risk-cell r-green"><span class="risk-axis-label">P=1</span><span class="risk-ids">R11, R12</span></div>
+            <div class="risk-cell r-yellow"><span class="risk-ids">R07, R08, R09</span></div>
+            <div class="risk-cell r-green"><span class="risk-ids">R10</span></div>
+          </div>
+        </div>
+        <div style="display:flex; padding-left:1.6em; gap:0; flex-shrink:0;">
+          <div style="flex:1;text-align:center;font-size:var(--small-size);color:var(--muted);">I=1</div>
+          <div style="flex:1;text-align:center;font-size:var(--small-size);color:var(--muted);">I=2</div>
+          <div style="flex:1;text-align:center;font-size:var(--small-size);color:var(--muted);">I=3 →</div>
+        </div>
+      </div>
+
+      <!-- Top 3 risk cards -->
+      <div class="risk-cards">
+        <div class="risk-card reveal">
+          <span class="risk-id">R01 — ЧЕРВОНИЙ (P=3, I=3)</span>
+          <span class="risk-desc">Недостатньо паралельних діалектних даних</span>
+          <span class="risk-mit"><span>Реагування:</span> LLM-синтетика (Mistral Small 24B) + веб-парсинг діалектних текстів</span>
+        </div>
+        <div class="risk-card reveal">
+          <span class="risk-id">R02 — ЧЕРВОНИЙ (P=3, I=2)</span>
+          <span class="risk-desc">Низька якість синтетичних даних</span>
+          <span class="risk-mit"><span>Реагування:</span> дедуплікація, фільтрація за довжиною, словникова валідація</span>
+        </div>
+        <div class="risk-card reveal">
+          <span class="risk-id">R03 — ЧЕРВОНИЙ (P=2, I=3)</span>
+          <span class="risk-desc">Перенавчання на малих реальних даних</span>
+          <span class="risk-mit"><span>Реагування:</span> ранній зупин (терпіння 5 епох), аугментація, label smoothing</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================
+     SLIDE 10: TECH STACK
+============================================ -->
+<section class="slide" id="slide-10" aria-label="Технологічний стек">
+  <div class="slide-content">
+    <div class="reveal">
+      <p class="slide-tag">Програмне забезпечення</p>
+      <h2 class="slide-h2">Технологічний стек</h2>
+    </div>
+    <div class="stack-layers">
+      <div class="stack-row reveal">
+        <span class="stack-layer-label">Дані</span>
+        <div class="stack-badges">
+          <span class="tech-badge gold">Python 3.11+</span>
+          <span class="tech-badge">pymorphy2</span>
+          <span class="tech-badge">Mistral Small 24B</span>
+          <span class="tech-badge">HuggingFace Datasets</span>
+        </div>
+      </div>
+      <div class="stack-row reveal">
+        <span class="stack-layer-label">Навчання</span>
+        <div class="stack-badges">
+          <span class="tech-badge gold">PyTorch 2.6</span>
+          <span class="tech-badge gold">HuggingFace Transformers</span>
+          <span class="tech-badge">PEFT</span>
+          <span class="tech-badge">TRL</span>
+          <span class="tech-badge blue">Unsloth</span>
+        </div>
+      </div>
+      <div class="stack-row reveal">
+        <span class="stack-layer-label">Моделі</span>
+        <div class="stack-badges">
+          <span class="tech-badge blue">google/umt5-base</span>
+          <span class="tech-badge blue">INSAIT/MamayLM-Gemma-3-4B-IT</span>
+          <span class="tech-badge">QLoRA r=16, alpha=32</span>
+        </div>
+      </div>
+      <div class="stack-row reveal">
+        <span class="stack-layer-label">Оцінка</span>
+        <div class="stack-badges">
+          <span class="tech-badge">SacreBLEU</span>
+          <span class="tech-badge">chrF++</span>
+          <span class="tech-badge">TER</span>
+          <span class="tech-badge">TensorBoard</span>
+        </div>
+      </div>
+      <div class="stack-row reveal">
+        <span class="stack-layer-label">Застосунок</span>
+        <div class="stack-badges">
+          <span class="tech-badge gold">NiceGUI</span>
+          <span class="tech-badge gold">FastAPI</span>
+          <span class="tech-badge blue">SpeechBrain M-CTC-T-large</span>
+        </div>
+      </div>
+      <div class="stack-row reveal">
+        <span class="stack-layer-label">Інфра</span>
+        <div class="stack-badges">
+          <span class="tech-badge">Git / GitHub</span>
+          <span class="tech-badge">GNU Make</span>
+          <span class="tech-badge">Vast.ai GPU</span>
+          <span class="tech-badge">uv (пакетний менеджер)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================
+     SLIDE 11: RESULTS
+============================================ -->
+<section class="slide" id="slide-11" aria-label="Результати оцінювання">
+  <div class="slide-content">
+    <div class="reveal">
+      <p class="slide-tag">Результати</p>
+      <h2 class="slide-h2">Метрики якості — тестовий набір (~50 прикладів / діалект)</h2>
+    </div>
+    <div class="results-layout">
+      <table class="results-table reveal">
+        <thead>
+          <tr>
+            <th>Діалект</th>
+            <th>Модель</th>
+            <th>BLEU ↑</th>
+            <th>chrF++ ↑</th>
+            <th>TER ↓</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="dialect-sep"><td colspan="5">Суржик</td></tr>
+          <tr class="best"><td></td><td>umt5-base</td><td class="val best-val">89.42</td><td class="val best-val">93.58</td><td class="val best-val">5.98</td></tr>
+          <tr><td></td><td>MamayLM</td><td class="val">78.48</td><td class="val">91.22</td><td class="val">11.96</td></tr>
+          <tr><td></td><td>GPT-4o (0-shot)</td><td class="val">88.97</td><td class="val">—</td><td class="val">—</td></tr>
+          <tr class="dialect-sep"><td colspan="5">Гуцульський</td></tr>
+          <tr class="best"><td></td><td>umt5-base</td><td class="val best-val">74.68</td><td class="val best-val">86.90</td><td class="val best-val">12.53</td></tr>
+          <tr><td></td><td>MamayLM</td><td class="val">64.84</td><td class="val">74.02</td><td class="val">37.60</td></tr>
+          <tr class="dialect-sep"><td colspan="5">Бойківський</td></tr>
+          <tr><td></td><td>umt5-base</td><td class="val">29.12</td><td class="val">54.78</td><td class="val">49.37</td></tr>
+          <tr class="best"><td></td><td>MamayLM</td><td class="val best-val">51.81</td><td class="val best-val">66.82</td><td class="val best-val">35.26</td></tr>
+          <tr class="dialect-sep"><td colspan="5">Закарпатський</td></tr>
+          <tr><td></td><td>umt5-base</td><td class="val">6.20</td><td class="val">27.45</td><td class="val">82.21</td></tr>
+          <tr><td></td><td>GPT-4o (0-shot)</td><td class="val">65.39</td><td class="val">—</td><td class="val">—</td></tr>
+        </tbody>
+      </table>
+      <div class="insight-row reveal">
+        <div class="insight-chip good">✓ Суржик: umt5 ≈ GPT-4o<br>chrF++ 93.58</div>
+        <div class="insight-chip good">✓ Гуцульський: umt5<br>перевищує GPT-4o</div>
+        <div class="insight-chip warn">△ Бойківський: MamayLM<br>краще (+22.7 BLEU)</div>
+        <div class="insight-chip bad">✗ Закарпатський: потрібна<br>більша ручна розмітка</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================
+     SLIDE 12: APP
+============================================ -->
+<section class="slide" id="slide-12" aria-label="Застосунок Лексикон">
+  <div class="slide-content">
+    <div class="reveal">
+      <p class="slide-tag">Застосунок</p>
+      <h2 class="slide-h2">«Лексикон» — архітектура та стек</h2>
+    </div>
+    <div class="arch-flow">
+      <div class="arch-step reveal">
+        <span class="arch-icon">🎙️</span>
+        <span class="arch-title">Ввід</span>
+        <span class="arch-desc">Текст або голос<br>WebM / OGG / WAV</span>
+        <span class="arch-tag">NiceGUI</span>
+      </div>
+      <div class="arch-step reveal">
+        <span class="arch-icon">👂</span>
+        <span class="arch-title">АРМ</span>
+        <span class="arch-desc">SpeechBrain<br>M-CTC-T-large<br>→ 16 кГц моно</span>
+        <span class="arch-tag">SpeechBrain</span>
+      </div>
+      <div class="arch-step reveal">
+        <span class="arch-icon">🗂️</span>
+        <span class="arch-title">Вибір діалекту</span>
+        <span class="arch-desc">Гуцульський<br>Бойківський<br>Закарпатський<br>Суржик</span>
+        <span class="arch-tag">FastAPI</span>
+      </div>
+      <div class="arch-step reveal" style="border:1px solid rgba(196,148,58,0.5); background:var(--gold-tint);">
+        <span class="arch-icon">🧠</span>
+        <span class="arch-title">Нормалізація</span>
+        <span class="arch-desc">umt5-base<br>beam search<br>num_beams=5<br>float16 / GPU</span>
+        <span class="arch-tag" style="background:var(--gold);color:white;">umt5-base</span>
+      </div>
+      <div class="arch-step reveal">
+        <span class="arch-icon">📝</span>
+        <span class="arch-title">Результат</span>
+        <span class="arch-desc">Нормалізований літературний текст</span>
+        <span class="arch-tag">make demo</span>
+      </div>
+    </div>
+    <p class="reveal" style="margin-top:var(--element-gap); font-size:var(--small-size); color:var(--muted);">
+      Запуск: <code style="background:var(--gold-tint);padding:0.1em 0.4em;border-radius:3px;color:var(--gold-deep);">make demo</code> &nbsp;→&nbsp; http://0.0.0.0:7870
+    </p>
+  </div>
+</section>
+
+<!-- ============================================
+     SLIDE 13: CONCLUSIONS
+============================================ -->
+<section class="slide" id="slide-13" aria-label="Висновки">
+  <div class="slide-content">
+    <div class="reveal">
+      <p class="slide-tag">Висновки</p>
+      <h2 class="slide-h2">Підсумки проекту</h2>
+    </div>
+    <div class="conclusions-grid">
+      <!-- Left: done -->
+      <div class="conclusion-panel reveal">
+        <div class="panel-head done">✅ Виконано</div>
+        <div class="check-item"><span class="check-icon ok">✓</span><span>Корпус: 125 615 навч. / 13 756 вал. / 200 тест. прикладів (4 діалекти)</span></div>
+        <div class="check-item"><span class="check-icon ok">✓</span><span>umt5-base: chrF++=93.58 (суржик), 86.90 (гуцульський)</span></div>
+        <div class="check-item"><span class="check-icon ok">✓</span><span>MamayLM QLoRA: chrF++=66.82 (бойківський — кращий результат)</span></div>
+        <div class="check-item"><span class="check-icon ok">✓</span><span>Вебзастосунок «Лексикон» з ASR та вибором діалекту</span></div>
+        <div class="check-item"><span class="check-icon ok">✓</span><span>Порівняння з GPT-4o, Gemini 2.0 Flash, Mistral Large</span></div>
+        <div class="check-item"><span class="check-icon ok">✓</span><span>Відкритий репозиторій з кодом, корпусом, документацією</span></div>
+      </div>
+
+      <!-- Right: contribution + future -->
+      <div class="right-panels">
+        <div class="conclusion-panel reveal">
+          <div class="panel-head science">🔬 Науковий внесок</div>
+          <div class="check-item"><span class="check-icon sci">→</span><span>Перша система суржик + 3 діалекти одночасно</span></div>
+          <div class="check-item"><span class="check-icon sci">→</span><span>Перший відкритий корпус для бойківського та закарпатського</span></div>
+        </div>
+        <div class="conclusion-panel reveal">
+          <div class="panel-head future">🔭 Подальші напрями</div>
+          <div class="check-item"><span class="check-icon future">→</span><span>Більше ручної розмітки для закарпатського (найслабший результат)</span></div>
+          <div class="check-item"><span class="check-icon future">→</span><span>Мультизадачне навчання та адаптація до нових варіантів мови</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+/* ============================================
+   PRESENTATION CONTROLLER
+============================================ */
+class SlidePresentation {
+  constructor() {
+    this.slides = Array.from(document.querySelectorAll('.slide'));
+    this.total = this.slides.length;
+    this.current = 0;
+    this.counter = document.getElementById('slideCounter');
+    this.dotsNav = document.getElementById('navDots');
+    this.buildDots();
+    this.setupIntersectionObserver();
+    this.setupKeyboardNav();
+    this.setupWheelNav();
+    this.setupTouchNav();
+    this.updateCounter(0);
+  }
+
+  buildDots() {
+    this.slides.forEach((_, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'nav-dot' + (i === 0 ? ' active' : '');
+      btn.setAttribute('aria-label', `Слайд ${i + 1}`);
+      btn.addEventListener('click', () => this.goTo(i));
+      this.dotsNav.appendChild(btn);
+    });
+  }
+
+  updateCounter(idx) {
+    this.current = idx;
+    this.counter.textContent = `${idx + 1} / ${this.total}`;
+    const dots = this.dotsNav.querySelectorAll('.nav-dot');
+    dots.forEach((d, i) => d.classList.toggle('active', i === idx));
+  }
+
+  setupIntersectionObserver() {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          const idx = this.slides.indexOf(entry.target);
+          if (idx !== -1) this.updateCounter(idx);
+        }
+      });
+    }, { threshold: 0.5 });
+    this.slides.forEach(s => observer.observe(s));
+  }
+
+  goTo(idx) {
+    idx = Math.max(0, Math.min(this.total - 1, idx));
+    this.slides[idx].scrollIntoView({ behavior: 'smooth' });
+  }
+
+  setupKeyboardNav() {
+    document.addEventListener('keydown', e => {
+      if (['ArrowDown', 'ArrowRight', ' ', 'PageDown'].includes(e.key)) {
+        e.preventDefault();
+        this.goTo(this.current + 1);
+      } else if (['ArrowUp', 'ArrowLeft', 'PageUp'].includes(e.key)) {
+        e.preventDefault();
+        this.goTo(this.current - 1);
+      } else if (e.key === 'Home') {
+        e.preventDefault();
+        this.goTo(0);
+      } else if (e.key === 'End') {
+        e.preventDefault();
+        this.goTo(this.total - 1);
+      }
+    });
+  }
+
+  setupWheelNav() {
+    let lastWheel = 0;
+    document.addEventListener('wheel', e => {
+      const now = Date.now();
+      if (now - lastWheel < 600) return;
+      lastWheel = now;
+      if (e.deltaY > 0) this.goTo(this.current + 1);
+      else if (e.deltaY < 0) this.goTo(this.current - 1);
+    }, { passive: true });
+  }
+
+  setupTouchNav() {
+    let startY = 0;
+    document.addEventListener('touchstart', e => { startY = e.touches[0].clientY; }, { passive: true });
+    document.addEventListener('touchend', e => {
+      const diff = startY - e.changedTouches[0].clientY;
+      if (Math.abs(diff) > 50) {
+        if (diff > 0) this.goTo(this.current + 1);
+        else this.goTo(this.current - 1);
+      }
+    }, { passive: true });
+  }
+}
+
+new SlidePresentation();
+</script>
+</body>
+</html>
