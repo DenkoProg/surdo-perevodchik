@@ -863,8 +863,8 @@ def index():
                 translate_text,
                 text,
                 state["dialect"],
-                int(beams_slider.value),
-                float(rep_slider.value),
+                5,
+                1.2,
             )
             result.set_value(translation)
         finally:
@@ -873,8 +873,6 @@ def index():
     def load_example(ex: list) -> None:
         source.set_value(ex[0])
         select_dialect(ex[1])
-        beams_slider.set_value(ex[2])
-        rep_slider.set_value(ex[3])
 
     async def on_key(e) -> None:
         if e.action.keydown and e.key.name == "Enter" and e.modifiers.ctrl:
