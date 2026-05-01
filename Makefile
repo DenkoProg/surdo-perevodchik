@@ -125,6 +125,7 @@ train-decoder-only-multi: ## Fine-tune MamayLM on all dialects with QLoRA
 		--output_dir $(DEC_ONLY_MULTI_OUTPUT)-longer \
 		--epochs 3 \
 		--batch_size 1 \
+		--eval_batch_size 16 \
 		--grad_accum 2 \
 		--lr 2e-4 \
 		--max_length $(DEC_ONLY_MAX_LEN) \
@@ -133,7 +134,7 @@ train-decoder-only-multi: ## Fine-tune MamayLM on all dialects with QLoRA
 		--lora_r 16 \
 		--lora_alpha 32 \
 		--use_4bit \
-		--resume_from_checkpoint models/mamaylm-multidialect-longer/checkpoint-26000
+		--resume_from_checkpoint models/mamaylm-multidialect-longer/checkpoint-6000
 
 .PHONY: train-encoder-decoder-multi
 train-encoder-decoder-multi: ## Fine-tune umt5-base on all dialects

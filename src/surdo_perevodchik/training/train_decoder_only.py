@@ -3,7 +3,12 @@ import os
 
 from datasets import load_dataset
 import torch
-from transformers import TrainingArguments
+from transformers import TrainerCallback, TrainingArguments
+
+
+class _CudaCacheFlushCallback(TrainerCallback):
+    def on_evaluate(self, args, state, control, **kwargs):  # noqa: ARG002
+        torch.cuda.empty_cache()
 
 
 try:
@@ -163,6 +168,8 @@ def main(args):
         desc="Formatting validation data",
     )
 
+    eval_batch_size = args.eval_batch_size or args.batch_size
+
     # Step-based eval/save avoids epoch-boundary memory spikes.
     eval_strategy = "steps" if args.eval_steps else "epoch"
     save_strategy = "steps" if args.save_steps else "epoch"
@@ -174,7 +181,7 @@ def main(args):
     training_args = TrainingArguments(
         output_dir=args.output_dir,
         per_device_train_batch_size=args.batch_size,
-        per_device_eval_batch_size=args.batch_size,
+        per_device_eval_batch_size=eval_batch_size,
         gradient_accumulation_steps=args.grad_accum,
         learning_rate=args.lr,
         num_train_epochs=args.epochs,
@@ -212,6 +219,7 @@ def main(args):
         max_seq_length=args.max_length,
         dataset_num_proc=2,
         packing=args.packing,
+        callbacks=[_CudaCacheFlushCallback()],
     )
 
     trainer.train(resume_from_checkpoint=args.resume_from_checkpoint)
@@ -260,6 +268,7 @@ if __name__ == "__main__":
         default="adamw_8bit",
         help="Optimizer. adamw_8bit is recommended with Unsloth; paged_adamw_8bit for vanilla transformers.",
     )
+    parser.add_argument("--eval_batch_size", type=int, default=None, help="Eval batch size (defaults to --batch_size if not set)")
     parser.add_argument("--eval_steps", type=int, default=500)
     parser.add_argument("--save_steps", type=int, default=500)
 
