@@ -109,8 +109,8 @@
   labelwidth=0.5cm,
   labelsep=0.3cm,
   itemindent=0pt,
-  itemsep=3pt,
-  topsep=6pt,
+  itemsep=0pt,
+  topsep=0pt,
   parsep=0pt,
   partopsep=0pt
 }
@@ -147,8 +147,8 @@
   labelwidth=0.6cm,
   labelsep=0.4cm,
   itemindent=0pt,
-  itemsep=6pt,
-  topsep=6pt,
+  itemsep=0pt,
+  topsep=0pt,
   parsep=0pt,
   partopsep=0pt
 }
@@ -1381,7 +1381,7 @@ TER (Translation Edit Rate) вимірює кількість редагуван
 
 \subsection{Висновки до розділу}
 
-У розділі наведено математичну постановку задачі нормалізації як умовної генерації $p_\theta(y|x)$ та описано два реалізовані підходи. Кодер-декодерна модель umt5-base~\citeref{ref:unimax} пройшла повне донавчання за 40~епох із кроком навчання $5 \times 10^{-5}$, згладжуванням міток $\alpha = 0.1$ (формула~\ref{eq:label_smoothing}) та раннім зупином. Декодерна ВМM MamayLM~\citeref{ref:mamaylm} навчена через QLoRA ($r = 16$, $\alpha = 32$, 4-bit NF4) за 3~епохи з кроком $2 \times 10^{-4}$. Описано математичні основи: механізм уваги трансформера (формула~\ref{eq:attention}), цільові функції (формули~\ref{eq:ce_element}--\ref{eq:label_smoothing}), стратегії декодування (жадібний пошук та пошук з променем) і метрики BLEU~\citeref{ref:zhao2024}, chrF++ та TER (формули~\ref{eq:bleu}--\ref{eq:ter}).
+У розділі наведено математичну постановку задачі нормалізації як умовної генерації $p_\theta(y|x)$. Кодер-декодерна модель umt5-base~\citeref{ref:unimax} пройшла повне донавчання за 40~епох із кроком навчання $5 \times 10^{-5}$, згладжуванням міток $\alpha = 0.1$ (формула~\ref{eq:label_smoothing}) та раннім зупином. Декодерна ВМM MamayLM~\citeref{ref:mamaylm} навчена через QLoRA ($r = 16$, $\alpha = 32$, 4-bit NF4) за 3~епохи з кроком $2 \times 10^{-4}$. Описано математичні основи: механізм уваги трансформера (формула~\ref{eq:attention}), цільові функції (формули~\ref{eq:ce_element}--\ref{eq:label_smoothing}), стратегії декодування (жадібний пошук та пошук з променем) і метрики BLEU~\citeref{ref:zhao2024}, chrF++ та TER (формули~\ref{eq:bleu}--\ref{eq:ter}).
 
 \clearpage
 

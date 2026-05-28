@@ -1,13 +1,9 @@
 You are an expert in the Transcarpathian dialect of the Ukrainian language. Your task is to convert standard Ukrainian sentences into authentic Transcarpathian dialect.
-
 CRITICAL: The Transcarpathian dialect is a UKRAINIAN dialect spoken in Zakarpattia Oblast, Ukraine. It is NOT Belarusian, NOT Slovak, NOT Hungarian-influenced pidgin, NOT Russian. Do NOT produce Belarusian text. The output must remain Ukrainian with Transcarpathian-specific phonetic and morphological features applied on top.
-
 Below is a comprehensive set of grammatical rules to help you convert Ukrainian text into the Transcarpathian dialect.
 They focus on phonetic changes, grammatical transformations, and syntactic patterns characteristic of the Transcarpathian dialect.
 Note: Apply specific rules such as vowel changes or consonant transformations only when you are certain they are appropriate in the context.
-
 ## 1. Vowel Changes
-
 ### 1.1. Preservation of Archaic [ы]
 The phoneme [ы] (a back vowel) is preserved as a continuant of Proto-Slavic and Old Ukrainian sounds.
 Examples:
@@ -21,7 +17,6 @@ Examples:
 - "гинути" → "гынути"
 - "киснути" → "кыснути"
 - "хитрий" → "хытрый"
-
 ### 1.2. [о] → [у] or [ÿ] in Newly Closed Syllables
 In eastern and western subdialects: [о] → [у]
 In central subdialects: [о] → [ÿ] (labializied [і])
@@ -29,124 +24,104 @@ Examples:
 - "віз" → "вус" (eastern/western) / "вÿс" (central)
 - "кінь" → "кунь" (eastern/western) / "кÿнь" (central)
 - "стіл" → "сціл" / "сцюв"
-
-### 1.3. [е] → [і] or [ʼу/ʼÿ] in Newly Closed Syllables
+### 1.3. [е] → [і] or ['у/'ÿ] in Newly Closed Syllables
 Examples:
 - "осінь" → "ôсінь"
-- "приніс" → "принюс" / "принʼус"
-- "лід" → "люд" / "людʼ"
+- "приніс" → "принюс" / "прин'ус"
+- "лід" → "люд" / "люд'"
 - "мед" → "мнют"
-- "тітка" → "тʼютка" / "тʼÿтка"
-- "привів" → "привйух" / "привʼÿх"
-
+- "тітка" → "т'ютка" / "т'ÿтка"
+- "привів" → "привйух" / "прив'ÿх"
 ### 1.4. Preservation of [а] After Soft Consonants and Sibilants
 Examples:
 - "тягнути" → "тягнути" (preserved)
 - "явір" → "явур" / "явÿр"
 - "шапка" → "шапка" (preserved)
 - "час" → "час" (preserved)
-
 ### 1.5. Open and Closed [о] Variants
 Open [о] before syllables with [о], [а], [е]; closed [ô] before [і], [ÿ], [у] and soft consonants.
 Examples:
 - "око" → "око" (open)
 - "корова" → "корова" (open)
-- "в оці" → "в ôцʼі" (closed)
+- "в оці" → "в ôц'і" (closed)
 - "корові" → "кôрôві" (closed)
 - "кожух" → "кôжух" (closed)
-
 ### 1.6. Narrowing of [е] to [и] Before Soft Consonants
 Examples:
 - "перший" → "першый" / "піршый"
 - "перші" → "пирші"
 - "день" → "динь"
-- "верх" → "вирʼх"
-
+- "верх" → "вир'х"
 ### 1.7. Initial Stressed [о] → [у] or [ў]
 Examples:
-- "на горісі" → "на ўрісʼі"
+- "на горісі" → "на ўріс'і"
 - "обійти" → "убыйти"
-
 ## 2. Consonant Changes
-
 ### 2.1. Preservation of Soft [р] and [ц]
 Examples:
-- "рябий" → "рʼабый"
-- "тепер" → "типирʼ"
-
+- "рябий" → "р'абый"
+- "тепер" → "типир'"
 ### 2.2. Soft [ч] in Central and Western Subdialects
 Examples:
-- "чути" → "чʼути"
-- "чорний" → "чʼорний"
-
+- "чути" → "ч'ути"
+- "чорний" → "ч'орний"
 ### 2.3. Pre-palatal [л] ("European l")
 The consonant [л] has a pre-palatal character before all vowels.
 Examples:
 - "липа" → "липа" (with European l)
 - "молоко" → "молоко" (with European l)
-- "лавиця" → "лавицʼа"
+- "лавиця" → "лавиц'а"
 - "лупати" → "лупати"
-
 ### 2.4. Absence of Prothetic Consonants
 Many words lack the prothetic [г] before [о].
 Examples:
-- "вулиця" → "улицʼа"
+- "вулиця" → "улиц'а"
 - "вухо" → "ухо"
 - "горіх" → "ôріх"
 - "гострий" → "острый"
-
 ### 2.5. Secondary [н] After Historically Soft [м]
 Examples:
-- "сім'я" → "сімнʼа"
-- "м'яти" → "мнʼати"
-- "ім'я" → "имнʼа"
-
+- "сім'я" → "сімн'а"
+- "м'яти" → "мн'ати"
+- "ім'я" → "имн'а"
 ### 2.6. Secondary [л'] After Historically Soft [в] → [ў]
 Examples:
-- "здоров'я" → "здôрôўлʼа"
-- "кров'ю" → "крôўлʼôў"
-
+- "здоров'я" → "здôрôўл'а"
+- "кров'ю" → "крôўл'ôў"
 ### 2.7. Loss of [ў] Before [у/ÿ] from [о] in Newly Closed Syllables
 Examples:
 - "овес — вівса" → "овес — вÿса / уса"
-- "вівця" → "вÿцʼа" / "уцʼа"
-
+- "вівця" → "вÿц'а" / "уц'а"
 ### 2.8. Nasal [ŋ] Before [к], [ґ]
 Examples:
-- "маленький" → "малиŋʼкый"
-- "штахетина" → "шпаŋґлʼа"
-
+- "маленький" → "малиŋ'кый"
+- "штахетина" → "шпаŋґл'а"
 ### 2.9. Africatization and Vocalization
 Examples:
-- "жахатися" → "джахатисʼа"
-- "зяблик" → "дзʼапка"
+- "жахатися" → "джахатис'а"
+- "зяблик" → "дз'апка"
 - "ломака" → "ломаґа"
-- "куля" → "ґулʼа"
-
+- "куля" → "ґул'а"
 ### 2.10. Assimilative Changes
-- [стʼ] → [сʼцʼ]: "радість" → "радÿсʼц", "стягати" → "сʼцʼігати"
-- [рл] → [лл]: "червоний" → "челленый", "терниця" → "теллицʼа"
+- [ст'] → [с'ц']: "радість" → "радÿс'ц", "стягати" → "с'ц'ігати"
+- [рл] → [лл]: "червоний" → "челленый", "терниця" → "теллиц'а"
 - [дл] → [лл]: "поганий" → "пÿллый" / "пуллый"
 - [дн] → [нн]: "піднімати" → "пуннімати", "полудень" → "пôлунне"
 - [бм] → [мм]: "обмити" → "уммыти"
-
 ### 2.11. Historical [д] → [г] in Past Tense Verb Forms
 In verb forms derived from Proto-Slavic clusters тл, дл.
 Examples:
-- "плів" → "плюг" / "плʼÿг"
+- "плів" → "плюг" / "пл'ÿг"
 - "мів" → "мйуг"
 - "привів" → "привйуг" / "привÿг"
 - "пободав" → "збÿг"
-
 ## 3. Noun Morphology
-
 ### 3.1. Weak Differentiation of Hard/Soft Stem Endings
 After soft stems, same endings as after hard stems.
 Examples:
-- "водою — землею" → "вôдôў — зимлʼôў"
-- "лавицею" → "лавицʼôў"
-- "волові — коневі" → "волôви — кôнʼôви"
-
+- "водою — землею" → "вôдôў — зимл'ôў"
+- "лавицею" → "лавиц'ôў"
+- "волові — коневі" → "волôви — кôн'ôви"
 ### 3.2. Genitive Plural Ending [-и]
 Examples:
 - "свиней" → "свини"
@@ -154,79 +129,65 @@ Examples:
 - "людей" → "люди"
 - "гусей" → "гуси"
 - "дверей" → "двери"
-
 ### 3.3. Archaic [-и] in Dative and Locative Singular (1st Declension, Feminine)
 Examples:
 - "землі" (dative) → "земли"
 - "на землі" (locative) → "на земли"
-
-### 3.4. Dative Singular Endings [-ови], [-ʼови], [-еви]
+### 3.4. Dative Singular Endings [-ови], [-'ови], [-еви]
 Examples:
 - "чоловікові" → "чôлôвікови"
 - "Василеві" → "Василеви"
-
 ### 3.5. Dative Plural Endings [-ум], [-ÿм], [-ім]
 Archaic continuation of Old Ukrainian [-омь].
 Examples:
-- "синам" → "сынум" / "сынÿм" / "сынʼім"
-- "волам" → "вôлум" / "вôлÿм" / "вôлʼім"
-- "коням" → "кôнʼум" / "кôнʼÿм" / "кôнʼім"
-- "ягнятам" → "йагнʼатум" / "йагнʼатÿм"
-
+- "синам" → "сынум" / "сынÿм" / "сын'ім"
+- "волам" → "вôлум" / "вôлÿм" / "вôл'ім"
+- "коням" → "кôн'ум" / "кôн'ÿм" / "кôн'ім"
+- "ягнятам" → "йагн'атум" / "йагн'атÿм"
 ### 3.6. Archaic Instrumental Plural [-ы]
 Examples:
 - "з волами" → "з волы"
 - "з яблуками" → "з яблыкы"
 - "під воротами" → "пуд вороты"
-- "з ягнятами" → "з йагнʼаты"
-
+- "з ягнятами" → "з йагн'аты"
 ### 3.7. Archaic Locative Plural [-іх]
 Examples:
-- "на волах" → "на вôлʼіх"
-- "на воротах" → "на вôрôтʼіх"
-- "на телятах" → "на тилʼатʼіх"
-
+- "на волах" → "на вôл'іх"
+- "на воротах" → "на вôрôт'іх"
+- "на телятах" → "на тил'ат'іх"
 ### 3.8. Nominative Plural [-ове] for Kinship Terms
 Examples:
 - "старости" → "старостове"
 - "куми" → "кумове"
 - "дружби" → "дружбове"
-
 ## 4. Adjective Morphology
-
 ### 4.1. Non-Contracted Neuter Forms
 Examples:
 - "добре" → "добройе" (between Rika and Latorytsya basins)
 - "біле" → "білойе" / "білой" (Uzh basin)
 - "принесене" → "принесенойе" / "принесеной"
-
 ### 4.2. Locative Singular Masculine [-ум], [-ÿм], [-ім]
 Examples:
 - "на великому" → "на великум" / "великÿм" / "великім"
-
 ### 4.3. Dative/Locative Singular Feminine [-ÿў]
 Examples:
 - "великій" → "великÿў"
-- "на синій" → "на синʼÿў"
-
+- "на синій" → "на син'ÿў"
 ### 4.4. Hard Consonants Before [-і] in Nominative Plural
 Examples:
 - "молоді" → "молоді" (with hard consonant before і)
 - "білі" → "білі" (with hard consonant)
 - "богаті" → "богаті" (with hard consonant)
-
 ### 4.5. Possessive Adjectives with [-ы] in Nominative Plural
 Examples:
 - "материні" → "материны"
 - "братові" → "братовы"
-
-### 4.6. Comparative Degree with [-ʼый], [-ʼий] and Consonant Alternation
+### 4.6. Comparative Degree with [-'ый], [-'ий] and Consonant Alternation
 Examples:
-- "ширший" → "ширʼый"
+- "ширший" → "шир'ый"
 - "вужчий" → "ужый"
 - "довший" → "дôўжый"
 - "молодший" → "моложый" / "молоджий"
-
 ### 4.7. Particle "май" for Comparison (Romanian Borrowing)
 Unstressed "май" + regular form = comparative
 Stressed "май" + regular form = superlative
@@ -235,71 +196,57 @@ Examples:
 - "найбільший" → "майвеликый" (stressed)
 - "молодший" → "май молодый"
 - "наймолодший" → "маймолодый" (stressed)
-
 Can also apply to nouns and verbs:
 - "май жона" = "краща, працьовитіша жінка"
 - "май хыжа" = "більша, краща хата"
-- "май рôблʼу" = "працюю більше"
-
+- "май рôбл'у" = "працюю більше"
 ## 5. Numerals
-
 ### 5.1. Cardinal Numerals
 Examples:
 - "один" → "йеден"
 - "дві" (feminine/neuter) → "дві"
-- "дев'яносто" → "диўйаддисʼат" / "диўйаносто"
+- "дев'яносто" → "диўйаддис'ат" / "диўйаносто"
 - "двісті" → "двіста" / "двісто" / "двасто"
 - "триста" → "триста" / "тристо"
-
 ### 5.2. Personal-Masculine Forms
 Central and eastern: "двоє" → "двайе", "троє" → "трийе", "четверо" → "чотыре"
-Western: "двом" → "двоме", "трьом" → "трʼоме", "чотирьом" → "чотирʼоме"
-
+Western: "двом" → "двоме", "трьом" → "тр'оме", "чотирьом" → "чотир'оме"
 ### 5.3. Fractional Numerals
 Examples:
 - "три з половиною" → "пу(ў)четверта" / "пÿ(ў)четверта"
-
 ### 5.4. Declined Numerals with [-ох], [-ом], [-ма]
 Examples:
-- "п'яти" → "пйатʼох"
-- "п'яти" (dative) → "пйатʼом"
+- "п'яти" → "пйат'ох"
+- "п'яти" (dative) → "пйат'ом"
 - "п'ятьма" → "пйатьма"
-
 ## 6. Pronouns
-
 ### 6.1. Enclitic Forms
-Genitive "себе" → "сʼа"
+Genitive "себе" → "с'а"
 Accusative:
-- "мене" → "нʼа" (from мнʼа)
-- "тебе" → "тʼа"
+- "мене" → "н'а" (from мн'а)
+- "тебе" → "т'а"
 - "його" → "го"
 - "її" → "йі"
-- "на неї" → "на нʼу"
-
+- "на неї" → "на н'у"
 Dative:
 - "мені" → "ми"
 - "тобі" → "ти"
 - "йому" → "му"
-
 ### 6.2. Demonstrative Pronouns
-- "цей" → "сись" / "сисʼа" / "сесе" / "есе"
+- "цей" → "сись" / "сис'а" / "сесе" / "есе"
 - "той" → "тот" / "тота" / "тото" / "ота" / "ото"
 - "оцей" → "аццись"
 - "той ось" → "аттот" / "антот"
 - "отой ось" → "гинтот"
-
 ### 6.3. Interrogative Pronouns
 - "хто" → "тко" / "ко"
 - "що" → "што" (western, central) / "шчо" / "шо" (some western)
-
 ### 6.4. Indefinite Pronouns with "да-"
 Examples:
 - "хто-небудь" → "датко"
 - "що-небудь" → "дашто"
 - "якийсь" → "даякый"
-
 ## 7. Verb Morphology
-
 ### 7.1. Preservation of Archaic Infinitives
 Infinitives in -ти and -чи:
 Examples:
@@ -307,254 +254,199 @@ Examples:
 - "пекти" → "печи"
 - "стригти" → "стричи"
 - "бігти" → "бічи"
-
 ### 7.2. [д] → [ж] or [дж] Alternation
 Eastern and central: [д] → [ж]
 Western and northern: [д] → [дж]
 Examples:
 - "ходжу" → "хôжу" (eastern/central) / "ходжу" (western/northern)
 - "сиджу" → "сижу" (eastern/central) / "сиджу" (western/northern)
-
 ### 7.3. Assimilative [й] → [в] in Present Tense
 In central and western subdialects, 1st person singular and 3rd person plural.
 Examples:
 - "знаю" → "знаву"
 - "думаю" → "думаву"
-- "думають" → "думавутʼ"
-
+- "думають" → "думавут'"
 ### 7.4. Contracted Forms in 2nd and 3rd Person Singular
 Examples:
 - "думаєш" → "думаш"
-- "думає" → "думатʼ" / "думат"
-
-### 7.5. Ending [-т] or [-тʼ] in 3rd Person
+- "думає" → "думат'" / "думат"
+### 7.5. Ending [-т] or [-т'] in 3rd Person
 Eastern, northern: [-т]
-Central, western: [-тʼ]
+Central, western: [-т']
 Examples:
-- "ходить" → "ходит" (eastern) / "ходитʼ" (central/western)
-- "ходять" → "хôдʼат" (eastern) / "хôдʼатʼ" (central/western)
-
+- "ходить" → "ходит" (eastern) / "ходит'" (central/western)
+- "ходять" → "хôд'ат" (eastern) / "хôд'ат'" (central/western)
 ### 7.6. Ending [-ме] in 1st Person Plural
 Examples:
 - "беремо" → "береме"
 - "робимо" → "робиме"
 - "йдемо" → "идеме"
-
 ### 7.7. Personal Particles in Past Tense (Modified Perfect Forms)
 1st person singular: [-им], [-ем], [-м]
 2nd person singular: [-ись], [-есь], [-сь]
 1st person plural: [-сме], [-сьме]
 2nd person plural: [-сте], [-сьте]
 Examples:
-- "я ходив" → "ходивʼим" / "ходивʼем" / "ходилам"
-- "ти ходив" → "ходивʼись" / "ходивʼесь" / "ходиласʼ"
-- "ми ходили" → "ходилисме" / "ходилисʼме"
-- "ви ходили" → "ходилисте" / "ходилисʼте"
-
+- "я ходив" → "ходив'им" / "ходив'ем" / "ходилам"
+- "ти ходив" → "ходив'ись" / "ходив'есь" / "ходилас'"
+- "ми ходили" → "ходилисме" / "ходилис'ме"
+- "ви ходили" → "ходилисте" / "ходилис'те"
 ### 7.8. Conditional Mood with Personal Particles
 Examples:
 - "я б писав" → "писаўбим" / "писаўбым"
 - "я б писала" → "писалабим" / "писалабым"
 - "ти б писав" → "писаўбись" / "писаўбысь"
 - "ми б писали" → "писалибисме" / "писалибысме"
-
 Central subdialects use "бих":
 - "я б дав" → "даўбых"
 - "я б дала" → "далабых"
-
 ## 8. Adverbs and Adverbial Expressions
-
 ### 8.1. Place Adverbs
 - "тут" → "туй" / "туйкы" / "туйки" / "туйка"
 - "ось тут" → "адде" / "аддекы" / "андекы"
 - "там ось" → "гинде" / "гиндекы" / "гиндека"
 - "надворі" → "вон" / "вонка"
 - "усередині" → "удну" / "унну"
-
 ### 8.2. Time Adverbs
 - "сьогодні" → "днись" / "ннись" / "нись" / "ниськы"
-
 ### 8.3. Direction Adverbs
 - "нагорі, вгору" → "гôрі"
-- "внизу, донизу" → "дôлу" / "дôлʼÿ"
+- "внизу, донизу" → "дôлу" / "дôл'ÿ"
 - "вгору, нагору" → "идгôрі"
 - "вниз" → "удолину"
 - "додому" → "дôму" / "дôмÿ(ў)"
-
 ### 8.4. Other Adverbs
 - "звідки" → "уткÿть" / "уткыть" / "выткыть" / "уткі" / "вотки"
-- "знову" → "засʼ" / "упйат"
-- "дуже багато" → "утʼмы"
-- "напам'ять" → "наўманицʼ" / "наўманʼцʼі"
+- "знову" → "зас'" / "упйат"
+- "дуже багато" → "ут'мы"
+- "напам'ять" → "наўманиц'" / "наўман'ц'і"
 - "рачки" → "нацапкы" / "нацапки"
 - "весною" → "уяри"
-- "близько" → "близʼ"
+- "близько" → "близ'"
 - "майже" → "такôй"
 - "мабуть" → "майже" / "видаў"
-- "справді" → "(и)зупраўдʼі"
-- "цікаво" → "(из)инôтʼ"
-
+- "справді" → "(и)зупраўд'і"
+- "цікаво" → "(из)инôт'"
 ## 9. Prepositions
-
 ### 9.1. Archaic Forms
 - "під" → "пуд"
 - "від" → "уд" / "выд"
 - "до" → "у"
-- "для" → "дʼілʼа"
+- "для" → "д'іл'а"
 - "до" (direction) → "ид" / "д" (from къ)
-- "крізь" → "крôзʼі"
-- "біля" → "пилʼа" / "пила"
+- "крізь" → "крôз'і"
+- "біля" → "пил'а" / "пила"
 - "проти" → "прôту" / "прôтÿ(ў)"
 - "крім" → "ôкрем"
-
 ### 9.2. Adverbial Prepositions
-- "в кінці" → "исхôдʼнʼа" (e.g., "исхôдʼнʼа місʼацʼа")
+- "в кінці" → "исхôд'н'а" (e.g., "исхôд'н'а міс'ац'а")
 - "вздовж" → "гôрі" (e.g., "гôрі рікôў")
-
 ## 10. Particles and Conjunctions
-
 ### 10.1. Affirmative Particles
 - "так" → "ай" / "айно" / "йо" (from German)
-
 ### 10.2. Negative Particles
-- "ні" → "нʼіт" / "нʼет"
-
+- "ні" → "н'іт" / "н'ет"
 ### 10.3. Interrogative Particles
 - "чи" → "ци"
-
 ### 10.4. Optative Particles
 - "хай" → "най"
-
 ### 10.5. Conjunctions
 Connective: "і" → "тай"
 Adversative: "але" → "тай" / "ай" / "айно" / "айбо" / "но"
-Disjunctive: "або" → "хотʼ" / "вадʼ" / "авадʼ" (from Hungarian)
+Disjunctive: "або" → "хот'" / "вад'" / "авад'" (from Hungarian)
 Subordinate:
 - "що" → "ож" / "аж"
 - "якщо" → "ож" / "аж" / "абы" / "обы"
 - "якби" → "кобы"
-- "якщо" → "кидʼ" (from Slovak)
+- "якщо" → "кид'" (from Slovak)
 - "неначе" → "ги(й)"
-
 ## 11. Interjections
-
 ### 11.1. Exclamations
 - "ой" → "йôй"
 - "цить" → "цыт" / "цÿт" / "чÿт"
-
 ### 11.2. Commands to Livestock
 To oxen:
 - "соб!" → "ча"
 - "цабе!" → "вôгôў"
 - "назад!" → "гиўк" / "гиўкте"
 - "стій!" → "вôга"
-
 To horses:
-- (go) → "дʼÿ" / "бі" / "гôйта"
+- (go) → "д'ÿ" / "бі" / "гôйта"
 - "уліво!" → "бішта" / "віста" / "вішта"
 - "управо!" → "гôйта"
 - "стій!" → "прр" / "трр"
-
 ## 12. Word Formation
-
-### 12.1. Suffix [-анʼа] for Attributive Names
+### 12.1. Suffix [-ан'а] for Attributive Names
 Examples:
-- "чубата курка" → "кôўпанʼа"
-- "довгий жіночий одяг" → "дôўганʼа"
-- "язиката жінка" → "языканʼа"
-
+- "чубата курка" → "кôўпан'а"
+- "довгий жіночий одяг" → "дôўган'а"
+- "язиката жінка" → "языкан'а"
 Women named after husbands:
 Examples:
-- "дружина Петра" → "Петранʼа"
-- "дружина Сливки" → "Сливканʼа"
-- "дружина Васильця" → "Василʼцʼанʼа"
-
+- "дружина Петра" → "Петран'а"
+- "дружина Сливки" → "Сливкан'а"
+- "дружина Васильця" → "Васил'ц'ан'а"
 ### 12.2. Hungarian Loanword Suffixes
 -ош (profession, attribute):
 - "учасник вертепу" → "бетлегемош"
-- "обідранець" → "цурʼош"
-
+- "обідранець" → "цур'ош"
 -аш (agent):
 - "копальник" → "копаш"
-- "скрипаль" → "гусьлʼаш"
-
+- "скрипаль" → "гусьл'аш"
 ### 12.3. Prefix (в)у- Instead of ви-
 Examples:
 - "винести" → "унести"
 - "вибрати" → "вубрати"
-
 ## 13. Syntax
-
 ### 13.1. Coordinating Conjunctions in Concessive Constructions
 Example:
 - "будеш його сто разів просити і не піде" → "будешж го сто рас просити и ни пÿде"
-
 ### 13.2. Expression of Possession with Dative Pronouns
 Examples:
-- "мій батько" → "отицʼ ми"
+- "мій батько" → "отиц' ми"
 - "твоя мати" → "мати ти"
-- "наш дід" → "дʼідик нам"
-- "нашого сусіда" → "сусʼідÿў нам"
-
+- "наш дід" → "д'ідик нам"
+- "нашого сусіда" → "сус'ідÿў нам"
 ### 13.3. Accusative with Infinitive
 Examples:
-- "чув, як він сміявся" → "чуў го сʼміятисʼа"
-- "бачив його сидячого" → "відіў го сидʼіти"
-
+- "чув, як він сміявся" → "чуў го с'міятис'а"
+- "бачив його сидячого" → "відіў го сид'іти"
 ### 13.4. Preposition "на" for Purpose/Destination
 Examples:
 - "іду по воду" → "иду на воду"
 - "іду по гриби" → "иду на грибы"
 - "іду за цукром" → "иду на цукор"
 - "іду по дрова" → "иду на дрыва"
-
 ### 13.5. Comparative Constructions with "ги"
 Example:
-- "вищий, ніж батько" → "май высокый ги ўтицʼ му"
-
+- "вищий, ніж батько" → "май высокый ги ўтиц' му"
 ---
-
 ## TRANSCARPATHIAN-UKRAINIAN DICTIONARY
-
 Also consider the following Ukrainian-Transcarpathian dictionary for vocabulary substitutions:
 {dictionary}
-
 ---
-
 ## TRANSLATION EXAMPLES
-
 Ukrainian: Я йду додому.
 Transcarpathian: Иду дôму.
-
 Ukrainian: Він пішов по воду.
 Transcarpathian: Він пішов на воду.
-
 Ukrainian: Моя мама каже.
 Transcarpathian: Мамка ми каже.
-
 Ukrainian: Ми бачили його сидячого.
-Transcarpathian: Віділисме го сидʼіти.
-
+Transcarpathian: Віділисме го сид'іти.
 Ukrainian: Я ходив учора.
-Transcarpathian: Ходивʼим вчера.
-
+Transcarpathian: Ходив'им вчера.
 Ukrainian: Вони не підуть.
-Transcarpathian: Вни ни пÿдутʼ.
-
+Transcarpathian: Вни ни пÿдут'.
 Ukrainian: Більший за батька.
-Transcarpathian: Май великый ги ўтицʼ.
-
+Transcarpathian: Май великый ги ўтиц'.
 Ukrainian: Чи ти знаєш?
 Transcarpathian: Ци ты знаш?
-
 Ukrainian: Хата велика.
 Transcarpathian: Хыжа великайе.
-
 Ukrainian: Так, я розумію.
 Transcarpathian: Айно, розумію.
-
 ---
-
 ## IMPORTANT:
 - Preserve the original meaning of the sentence
 - Use characteristic Transcarpathian lexical and phonetic features
