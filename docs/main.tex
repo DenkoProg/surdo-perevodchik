@@ -8,7 +8,7 @@
   a4paper,
   left=2.5cm,
   right=1.5cm,
-  top=2cm,
+  top=1.5cm,
   bottom=2cm
 ]{geometry}
 
@@ -18,7 +18,7 @@
 \usepackage[ukrainian]{babel}
 \usepackage{fontspec}
 \setmainfont{Times New Roman}
-\setmonofont[Scale=0.85]{DejaVu Sans Mono} % підтримка кирилиці у verbatim-блоках
+\setmonofont{Times New Roman}
 
 % ============================================================
 % МАТЕМАТИКА ТА ГРАФІКА
@@ -34,15 +34,34 @@
 % Міжрядковий інтервал: 1,5 рядка
 % ============================================================
 \usepackage{setspace}
-\onehalfspacing
+\setstretch{1.5}
+\usepackage{indentfirst}
 \setlength{\parindent}{1.27cm}
 \setlength{\parskip}{0pt}
 \usepackage{microtype}
 
 % ============================================================
+% НУМЕРАЦІЯ СТОРІНОК (починається з 4 для склеювання з Титулкою)
+% ============================================================
+\usepackage{fancyhdr}
+\setlength{\headheight}{17pt}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot[R]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+\fancypagestyle{plain}{%
+  \fancyhf{}%
+  \fancyfoot[R]{\thepage}%
+  \renewcommand{\headrulewidth}{0pt}%
+  \renewcommand{\footrulewidth}{0pt}%
+}
+
+% ============================================================
 % ЗАГОЛОВКИ (Header_Level_1/2/3)
 % ============================================================
 \usepackage{titlesec}
+\usepackage{titletoc}
 
 % Header_Level_1: Заголовки розділів
 % Шрифт: Times New Roman, 16 п, напівжирний
@@ -62,7 +81,7 @@
 \titleformat{\subsection}
   {\bfseries\fontsize{14pt}{21pt}\selectfont}
   {\thesubsection}{0.5em}{}
-\titlespacing*{\subsection}{1.27cm}{6pt}{6pt}
+\titlespacing*{\subsection}{1.27cm}{0pt}{0pt}
 
 % Header_Level_3: Заголовки підрозділів нижчого рівня
 % Шрифт: Times New Roman, 14 п, напівжирний, курсив
@@ -72,7 +91,7 @@
 \titleformat{\subsubsection}
   {\bfseries\itshape\fontsize{14pt}{21pt}\selectfont}
   {\thesubsubsection}{0.5em}{}
-\titlespacing*{\subsubsection}{1.27cm}{6pt}{0pt}
+\titlespacing*{\subsubsection}{1.27cm}{0pt}{0pt}
 
 % ============================================================
 % СПИСКИ (Marked_List / Numbered_List)
@@ -188,10 +207,34 @@
 % Клікабельне посилання як [1] на запис у списку джерел
 \newcommand{\citeref}[1]{\hyperref[#1]{[\ref*{#1}]}}
 
+% Формат записів змісту: крапкові лідери для всіх рівнів
+\titlecontents{section}
+  [0em]
+  {\addvspace{4pt}\bfseries}
+  {\thecontentslabel.\enspace}
+  {}
+  {\titlerule*[4pt]{.}\contentspage}[\addvspace{2pt}]
+
+\titlecontents{subsection}
+  [1.5em]
+  {}
+  {\thecontentslabel.\enspace}
+  {}
+  {\titlerule*[4pt]{.}\contentspage}
+
+\titlecontents{subsubsection}
+  [3.5em]
+  {}
+  {\thecontentslabel.\enspace}
+  {}
+  {\titlerule*[4pt]{.}\contentspage}
+
 % Глибина змісту до Header_Level_3
 \setcounter{tocdepth}{3}
 
 \begin{document}
+
+\setcounter{page}{4}
 
 % Глобальні налаштування для кращого переносу рядків
 \sloppy
@@ -605,6 +648,8 @@ for integration with downstream natural language processing pipelines.
 % -------- зміст --------
 \section*{ЗМІСТ}
 \addcontentsline{toc}{section}{ЗМІСТ}
+\renewcommand{\contentsname}{}
+\vspace{-2\baselineskip}
 \tableofcontents
 
 \clearpage
@@ -612,8 +657,6 @@ for integration with downstream natural language processing pipelines.
 % -------- умовні позначення --------
 \section*{ПЕРЕЛІК УМОВНИХ ПОЗНАЧЕНЬ}
 \addcontentsline{toc}{section}{ПЕРЕЛІК УМОВНИХ ПОЗНАЧЕНЬ}
-
-{\setlength{\parindent}{0pt}
 
 АРМ - автоматичне розпізнавання мовлення (Automatic Speech Recognition) - технологія перетворення мовленнєвого сигналу на текст.
 
@@ -641,9 +684,7 @@ PEFT (Parameter-Efficient Fine-Tuning) - підхід до донавчання 
 
 QLoRA (Quantized LoRA) - варіант методу LoRA із квантизацією ваг базової моделі до 4 біт для зменшення вимог до пам'яті.
 
-TER (Translation Edit Rate) - метрика оцінювання якості перекладу, що вимірює кількість редагувань, необхідних для приведення результату до еталонного тексту.
-
-} % end \parindent=0pt
+TER (Translation Edit Rate) - метрика оцінювання якості перекладу, що вимірює кількість редагувань, необхідних для приведення результату до еталонного.
 
 \clearpage
 
@@ -1747,22 +1788,22 @@ MamayLM (до донавч.) & 65.58 & 16.73 & 58.73 & 27.90 \\
 
 \referencesloppy
 \begin{reflist}
-  \item \label{ref:baniata2018} L. H. Baniata, S. Park, і S.-B. Park, ``A Neural Machine Translation Model for Arabic Dialects That Utilizes Multitask Learning (MTL)'', \textit{Computational Intelligence and Neuroscience}, 2018, с.~1-10. doi: 10.1155/2018/7534712.
-  \item \label{ref:bondarenko4} M. Bondarenko, A. Yushko, A. Shportko, і A. Fedorych, ``Comparative Study of Models Trained on Synthetic Data for Ukrainian Grammatical Error Correction'', \textit{Proceedings of the Third Ukrainian Natural Language Processing Workshop (UNLP)}, 2024.
-  \item \label{ref:unimax} H. W. Chung et al., ``UniMax: Fairer and more Effective Language Sampling for Large-Scale Multilingual Pretraining'', Квітень 2023, arXiv:2304.09151. doi: 10.48550/arXiv.2304.09151.
-  \item \label{ref:fedchukVysotska} R. Fedchuk і V. Vysotska, ``Mathematical Model of a Decision Support System for Identification and Correction of Errors in Ukrainian Texts Based on Machine Learning'', \textit{CEUR Workshop Proceedings}, 2021.
-  \item \label{ref:haltiuk} M. Haltiuk, ``On the Path to Make Ukrainian a High-Resource Language'', \textit{Proceedings of the Second Ukrainian Natural Language Processing Workshop (UNLP)}, 2023.
-  \item \label{ref:kentSurzhyk} K. Kent, ``Language Contact: Morphosyntactic Analysis of Surzhyk Spoken in Central Ukraine'', \textit{Journal of Language Contact}, 2010.
-  \item \label{ref:kiulian2024} A. Kiulian et al., ``From Bytes to Borsch: Fine-Tuning Gemma and Mistral for the Ukrainian Language Representation'', Квітень 2024, arXiv:2404.09138. doi: 10.48550/arXiv.2404.09138.
-  \item \label{ref:omniGEC} R. Kovalchuk, M. Romanyshyn, і P. Ivaniuk, ``Introducing OmniGEC: A Silver Multilingual Dataset for Grammatical Error Correction'', \textit{Proceedings of the Second Ukrainian Natural Language Processing Workshop (UNLP)}, 2023.
-  \item \label{ref:vuykoMistral} R. Kyslyi, Y. Maksymiuk, і I. Pysmennyi, ``Vuyko Mistral: Adapting LLMs for Low-Resource Dialectal Translation'', Червень 2025, arXiv:2506.07617. doi: 10.48550/arXiv.2506.07617.
+  \item \label{ref:baniata2018} Baniata L. H., Park S., Park S.-B. A Neural Machine Translation Model for Arabic Dialects That Utilizes Multitask Learning (MTL) // \textit{Computational Intelligence and Neuroscience}. 2018. С.~1-10. doi: 10.1155/2018/7534712.
+  \item \label{ref:bondarenko4} Bondarenko M., Yushko A., Shportko A., Fedorych A. Comparative Study of Models Trained on Synthetic Data for Ukrainian Grammatical Error Correction // \textit{Proceedings of the Third Ukrainian Natural Language Processing Workshop (UNLP)}. 2024.
+  \item \label{ref:unimax} Chung H. W. et al. UniMax: Fairer and more Effective Language Sampling for Large-Scale Multilingual Pretraining. Квітень 2023. arXiv:2304.09151. doi: 10.48550/arXiv.2304.09151.
+  \item \label{ref:fedchukVysotska} Fedchuk R., Vysotska V. Mathematical Model of a Decision Support System for Identification and Correction of Errors in Ukrainian Texts Based on Machine Learning // \textit{CEUR Workshop Proceedings}. 2021.
+  \item \label{ref:haltiuk} Haltiuk M. On the Path to Make Ukrainian a High-Resource Language // \textit{Proceedings of the Second Ukrainian Natural Language Processing Workshop (UNLP)}. 2023.
+  \item \label{ref:kentSurzhyk} Kent K. Language Contact: Morphosyntactic Analysis of Surzhyk Spoken in Central Ukraine // \textit{Journal of Language Contact}. 2010.
+  \item \label{ref:kiulian2024} Kiulian A. et al. From Bytes to Borsch: Fine-Tuning Gemma and Mistral for the Ukrainian Language Representation. Квітень 2024. arXiv:2404.09138. doi: 10.48550/arXiv.2404.09138.
+  \item \label{ref:omniGEC} Kovalchuk R., Romanyshyn M., Ivaniuk P. Introducing OmniGEC: A Silver Multilingual Dataset for Grammatical Error Correction // \textit{Proceedings of the Second Ukrainian Natural Language Processing Workshop (UNLP)}. 2023.
+  \item \label{ref:vuykoMistral} Kyslyi R., Maksymiuk Y., Pysmennyi I. Vuyko Mistral: Adapting LLMs for Low-Resource Dialectal Translation. Червень 2025. arXiv:2506.07617. doi: 10.48550/arXiv.2506.07617.
   \item \label{ref:lapallm} Lapa LLM.\par Доступно у: \url{https://huggingface.co/lapa-llm}
   \item \label{ref:mamaylm} MamayLM.\par Доступно у: \url{https://huggingface.co/blog/INSAIT-Institute/mamaylm}
-  \item \label{ref:spivavtor} A. Saini, A. Chernodub, V. Raheja, і V. Kulkarni, ``Spivavtor: An Instruction Tuned Ukrainian Text Editing Model'', Квітень 2024, arXiv:2404.18880. doi: 10.48550/arXiv.2404.18880.
-  \item \label{ref:siraSurzhyk} N. Sira, G. M. Di Nunzio, і V. Nosilia, ``Towards an Automatic Recognition of Mixed Languages in R: The Case of Ukrainian-Russian Hybrid Language Surzhyk'', \textit{CLiC-it 2021}, 2021.
-  \item \label{ref:uaGEC} O. Syvokon, O. Nahorna, P. Kuchmiichuk, і N. Osidach, ``UA-GEC: Grammatical Error Correction and Fluency Corpus for the Ukrainian Language'', \textit{Proceedings of the Second Ukrainian Natural Language Processing Workshop (UNLP)}, 2023, с.~96-102. doi: 10.18653/v1/2023.unlp-1.12.
-  \item \label{ref:xue2022} L. Xue et al., ``ByT5: Towards a Token-Free Future with Pre-Trained Byte-to-Byte Models'', \textit{Transactions of the Association for Computational Linguistics}, 2022, arXiv:2105.13626. doi: 10.48550/arXiv.2105.13626.
-  \item \label{ref:zhao2024} H. Zhao et al., ``From Handcrafted Features to LLMs: A Brief Survey for Machine Translation Quality Estimation'', \textit{IJCNN 2024}, Чер 2024, с.~1-10. doi: 10.1109/IJCNN60899.2024.10650457.
+  \item \label{ref:spivavtor} Saini A., Chernodub A., Raheja V., Kulkarni V. Spivavtor: An Instruction Tuned Ukrainian Text Editing Model. Квітень 2024. arXiv:2404.18880. doi: 10.48550/arXiv.2404.18880.
+  \item \label{ref:siraSurzhyk} Sira N., Di Nunzio G. M., Nosilia V. Towards an Automatic Recognition of Mixed Languages in R: The Case of Ukrainian-Russian Hybrid Language Surzhyk // \textit{CLiC-it 2021}. 2021.
+  \item \label{ref:uaGEC} Syvokon O., Nahorna O., Kuchmiichuk P., Osidach N. UA-GEC: Grammatical Error Correction and Fluency Corpus for the Ukrainian Language // \textit{Proceedings of the Second Ukrainian Natural Language Processing Workshop (UNLP)}. 2023. С.~96-102. doi: 10.18653/v1/2023.unlp-1.12.
+  \item \label{ref:xue2022} Xue L. et al. ByT5: Towards a Token-Free Future with Pre-Trained Byte-to-Byte Models // \textit{Transactions of the Association for Computational Linguistics}. 2022. arXiv:2105.13626. doi: 10.48550/arXiv.2105.13626.
+  \item \label{ref:zhao2024} Zhao H. et al. From Handcrafted Features to LLMs: A Brief Survey for Machine Translation Quality Estimation // \textit{IJCNN 2024}. Чер 2024. С.~1-10. doi: 10.1109/IJCNN60899.2024.10650457.
 \end{reflist}
 
 \clearpage
@@ -1770,17 +1811,19 @@ MamayLM (до донавч.) & 65.58 & 16.73 & 58.73 & 27.90 \\
 \section*{Додаток А}
 \addcontentsline{toc}{section}{Додаток А}
 
+Повний вихідний код системи, включно з кодом навчання моделей, генерації корпусу та вебзастосунку «Лексикон», доступний у відкритому репозиторії на GitHub: \url{https://github.com/DenkoProg/surdo-perevodchik}.
+
 У додатку наведено системні промпти, які використовувалися для LLM-генерації суржикових та гуцульських діалектних пар через модель Mistral-Small-24B-Instruct-2501. Кожен промпт містить лінгвістичні правила, словник підстановок і приклади перекладів для відповідного різновиду мови.
 
 \subsection*{А.1 Системний промпт для генерації суржику}
 
-\VerbatimInput[fontsize=\footnotesize,breaklines=true,breakanywhere=true]{../prompts/surzhyk_rules_system.txt}
+\VerbatimInput[fontsize=\normalsize,breaklines=true,breakanywhere=true]{../prompts/surzhyk_rules_system.txt}
 
 \clearpage
 
 \subsection*{А.2 Системний промпт для генерації гуцульського діалекту}
 
-\VerbatimInput[fontsize=\footnotesize,breaklines=true,breakanywhere=true]{../prompts/hutsul_rules_system.txt}
+\VerbatimInput[fontsize=\normalsize,breaklines=true,breakanywhere=true]{../prompts/hutsul_rules_system.txt}
 
 \clearpage
 
@@ -1791,12 +1834,12 @@ MamayLM (до донавч.) & 65.58 & 16.73 & 58.73 & 27.90 \\
 
 \subsection*{Б.1 Системний промпт для генерації бойківського діалекту}
 
-\VerbatimInput[fontsize=\footnotesize,breaklines=true,breakanywhere=true]{../prompts/boiko_rules_system.txt}
+\VerbatimInput[fontsize=\normalsize,breaklines=true,breakanywhere=true]{../prompts/boiko_rules_system.txt}
 
 \clearpage
 
 \subsection*{Б.2 Системний промпт для генерації закарпатського діалекту}
 
-\VerbatimInput[fontsize=\footnotesize,breaklines=true,breakanywhere=true]{../prompts/transcarpathian_rules_system.txt}
+\VerbatimInput[fontsize=\normalsize,breaklines=true,breakanywhere=true]{../prompts/transcarpathian_rules_system.txt}
 
 \end{document}
