@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lexicon — Diploma Defense — Denys Koval</title>
+
+<!-- ===========================================
+     FONTS — Fraunces (display serif) + Work Sans (body)
+     =========================================== -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,400;1,9..144,600&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* ===========================================
+   THEME — "Lexicon Manuscript"
+   Warm cream + ink + amber, matching the
+   «Лексикон» application branding.
+   Change :root variables to retheme.
+   =========================================== */
+:root {
+    --cream: #f7f3ea;
+    --cream-deep: #efe8d8;
+    --ink: #1c1917;
+    --muted: #78716c;
+    --amber: #b45309;
+    --amber-bright: #d97706;
+    --amber-soft: rgba(180, 83, 9, 0.09);
+    --line: rgba(28, 25, 23, 0.14);
+    --good: #15803d;
+    --bad: #b91c1c;
+
+    --font-display: 'Fraunces', Georgia, serif;
+    --font-body: 'Work Sans', sans-serif;
+
+    /* Typography — all clamp() for viewport fitting */
+    --title-size: clamp(1.5rem, 5vw, 4.6rem);
+    --h2-size: clamp(1.25rem, 3.4vw, 3rem);
+    --h3-size: clamp(1rem, 2.5vw, 1.75rem);
+    --body-size: clamp(0.75rem, 1.6vw, 1.3rem);
+    --small-size: clamp(0.65rem, 1.1vw, 1rem);
+
+    /* Spacing */
+    --slide-padding: clamp(1.2rem, 4.5vw, 4.5rem);
+    --content-gap: clamp(0.5rem, 2.2vw, 2.6rem);
+    --element-gap: clamp(0.25rem, 1vw, 1rem);
+
+    /* Animation */
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --duration-normal: 0.7s;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: var(--font-body);
+    background: var(--cream);
+    color: var(--ink);
+    font-size: var(--body-size);
+}
+
+/* ===========================================
+   VIEWPORT FITTING: MANDATORY BASE STYLES
+   (full contents of viewport-base.css)
+   =========================================== */
+
+/* 1. Lock html/body to viewport */
+html, body { height: 100%; overflow-x: hidden; }
+html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+
+/* 2. Each slide = exact viewport height */
+.slide {
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh; /* Dynamic viewport height for mobile browsers */
+    overflow: hidden; /* CRITICAL: Prevent ANY overflow */
+    scroll-snap-align: start;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+/* 3. Content container with flex for centering */
+.slide-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-height: 100%;
+    overflow: hidden; /* Double-protection against overflow */
+    padding: var(--slide-padding);
+}
+
+/* 5. Cards/containers use viewport-relative max sizes */
+.card, .container, .content-box {
+    max-width: min(90vw, 1000px);
+    max-height: min(80vh, 700px);
+}
+
+/* 6. Lists auto-scale with viewport */
+.feature-list, .bullet-list { gap: clamp(0.4rem, 1vh, 1rem); }
+.feature-list li, .bullet-list li { font-size: var(--body-size); line-height: 1.4; }
+
+/* 7. Grids adapt to available space */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+    gap: clamp(0.5rem, 1.5vw, 1rem);
+}
+
+/* 8. Images constrained to viewport */
+img, .image-container {
+    max-width: 100%;
+    max-height: min(50vh, 400px);
+    object-fit: contain;
+}
+
+/* Short viewports (< 700px height) */
+@media (max-height: 700px) {
+    :root {
+        --slide-padding: clamp(0.75rem, 3vw, 2rem);
+        --content-gap: clamp(0.4rem, 1.5vw, 1rem);
+        --title-size: clamp(1.25rem, 4.5vw, 2.5rem);
+        --h2-size: clamp(1rem, 3vw, 1.75rem);
+    }
+}
+
+/* Very short viewports (< 600px height) */
+@media (max-height: 600px) {
+    :root {
+        --slide-padding: clamp(0.5rem, 2.5vw, 1.5rem);
+        --content-gap: clamp(0.3rem, 1vw, 0.75rem);
+        --title-size: clamp(1.1rem, 4vw, 2rem);
+        --body-size: clamp(0.7rem, 1.2vw, 0.95rem);
+    }
+    .nav-dots, .keyboard-hint, .decorative { display: none; }
+}
+
+/* Extremely short (landscape phones, < 500px height) */
+@media (max-height: 500px) {
+    :root {
+        --slide-padding: clamp(0.4rem, 2vw, 1rem);
+        --title-size: clamp(1rem, 3.5vw, 1.5rem);
+        --h2-size: clamp(0.9rem, 2.5vw, 1.25rem);
+        --body-size: clamp(0.65rem, 1vw, 0.85rem);
+    }
+}
+
+/* Narrow viewports (< 600px width) */
+@media (max-width: 600px) {
+    :root { --title-size: clamp(1.25rem, 7vw, 2.5rem); }
+    .grid { grid-template-columns: 1fr; }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.2s !important;
+    }
+    html { scroll-behavior: auto; }
+}
+
+/* ===========================================
+   REVEAL ANIMATIONS — staggered fade + rise,
+   triggered by .visible (IntersectionObserver)
+   =========================================== */
+.reveal {
+    opacity: 0;
+    transform: translateY(26px);
+    transition: opacity var(--duration-normal) var(--ease-out-expo),
+                transform var(--duration-normal) var(--ease-out-expo);
+}
+.slide.visible .reveal { opacity: 1; transform: translateY(0); }
+
+/* Stagger — applied via inline custom property --d (delay step) */
+.reveal { transition-delay: calc(var(--d, 0) * 0.12s); }
+
+/* ===========================================
+   CHROME — progress bar, nav dots, counter
+   =========================================== */
+.progress-bar {
+    position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+    background: var(--amber-bright); z-index: 1000;
+    transition: width 0.2s ease;
+}
+.nav-dots {
+    position: fixed; right: clamp(0.6rem, 1.5vw, 1.4rem); top: 50%;
+    transform: translateY(-50%);
+    display: flex; flex-direction: column; gap: 10px; z-index: 1000;
+}
+.nav-dots button {
+    width: 9px; height: 9px; border-radius: 50%;
+    border: 1px solid var(--amber); background: transparent;
+    cursor: pointer; padding: 0; transition: all 0.25s ease;
+}
+.nav-dots button.active { background: var(--amber); transform: scale(1.35); }
+.slide-counter {
+    position: fixed; bottom: clamp(0.7rem, 2vh, 1.4rem); right: clamp(1rem, 2.5vw, 2rem);
+    font-family: var(--font-display); font-style: italic;
+    font-size: var(--small-size); color: var(--muted); z-index: 1000;
+}
+
+/* ===========================================
+   SHARED SLIDE ELEMENTS
+   =========================================== */
+
+/* Top-left kicker label on each content slide */
+.kicker {
+    font-size: clamp(0.62rem, 1.4vw, 0.95rem);
+    letter-spacing: 0.24em; text-transform: uppercase;
+    color: var(--amber); font-weight: 600;
+    margin-bottom: clamp(0.5rem, 1.5vh, 1rem);
+}
+.kicker::before {
+    content: ''; display: inline-block; vertical-align: middle;
+    width: clamp(22px, 3vw, 40px); height: 2px; background: var(--amber);
+    margin-right: 0.7em;
+}
+
+h2 {
+    font-family: var(--font-display); font-weight: 700;
+    font-size: var(--h2-size); line-height: 1.12;
+    margin-bottom: var(--content-gap);
+}
+h2 em { font-style: italic; color: var(--amber); }
+
+/* «Lexicon» logo (book + tree + quill), title and conclusions slides */
+.emblem { position: absolute; pointer-events: none; height: auto; max-height: none; }
+
+/* Card panel */
+.panel {
+    background: #fffdf8;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: clamp(0.7rem, 2vw, 1.9rem);
+    box-shadow: 0 2px 14px rgba(28, 25, 23, 0.05);
+}
+.panel h3 {
+    font-family: var(--font-display); font-weight: 700;
+    font-size: clamp(0.9rem, 2vw, 1.5rem);
+    margin-bottom: clamp(0.3rem, 1vh, 0.6rem);
+}
+.panel h3 span.no { color: var(--amber); font-style: italic; margin-right: 0.4em; }
+.panel p, .panel li { color: #44403c; font-size: clamp(0.68rem, 1.45vw, 1.15rem); line-height: 1.45; }
+.panel ul { padding-left: 1.1em; display: flex; flex-direction: column; gap: clamp(0.2rem, 0.7vh, 0.45rem); }
+
+/* Big stat figure */
+.stat b {
+    display: block; font-family: var(--font-display); font-weight: 900;
+    font-size: clamp(1.3rem, 3.6vw, 3.3rem); color: var(--amber);
+    line-height: 1.05;
+}
+.stat span { font-size: clamp(0.62rem, 1.3vw, 1rem); color: var(--muted); }
+
+/* Tables */
+table {
+    width: 100%; border-collapse: collapse;
+    font-size: clamp(0.6rem, 1.5vw, 1.15rem);
+    background: #fffdf8; border: 1px solid var(--line);
+    border-radius: 10px; overflow: hidden;
+}
+th, td {
+    padding: clamp(0.3rem, 1.2vh, 0.9rem) clamp(0.4rem, 1.3vw, 1.2rem);
+    text-align: left; border-bottom: 1px solid var(--line);
+}
+thead th {
+    background: var(--ink); color: var(--cream);
+    font-weight: 600; font-size: clamp(0.55rem, 1.3vw, 1rem);
+    letter-spacing: 0.04em;
+}
+tbody tr:last-child td { border-bottom: none; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+tr.ours { background: var(--amber-soft); }
+tr.ours td:first-child { font-weight: 600; }
+td .best { color: var(--amber); font-weight: 700; }
+td .best.win { color: var(--good); }
+tr.total td { font-weight: 700; border-top: 2px solid var(--ink); }
+
+/* Check / partial / no marks for comparison table */
+.yes { color: var(--good); font-weight: 700; }
+.part { color: var(--amber-bright); font-weight: 600; }
+.no  { color: var(--bad); font-weight: 600; }
+
+/* Highlight banner (research question / key insight) */
+.banner {
+    border-left: 4px solid var(--amber);
+    background: var(--amber-soft);
+    border-radius: 0 10px 10px 0;
+    padding: clamp(0.6rem, 1.6vh, 1.1rem) clamp(0.8rem, 2vw, 1.4rem);
+    font-family: var(--font-display); font-style: italic;
+    font-size: clamp(0.8rem, 2vw, 1.5rem); line-height: 1.4;
+}
+
+/* ===========================================
+   SLIDE 1 — TITLE
+   =========================================== */
+.title-slide .slide-content { justify-content: center; }
+.title-slide .crest {
+    width: clamp(54px, 9vw, 130px); height: auto; max-height: none;
+    margin-bottom: clamp(0.8rem, 2.5vh, 1.6rem);
+}
+.title-slide .kicker::before { display: none; }
+.title-slide h1 {
+    font-family: var(--font-display); font-weight: 900;
+    font-size: var(--title-size); line-height: 1.1;
+    max-width: 19ch; margin-bottom: clamp(0.8rem, 2.5vh, 1.5rem);
+}
+.title-slide h1 em { font-style: italic; color: var(--amber); }
+.title-slide .subtitle {
+    color: var(--muted); max-width: 56ch;
+    font-size: clamp(0.82rem, 1.8vw, 1.35rem); line-height: 1.5;
+}
+.title-slide .meta {
+    margin-top: clamp(1.2rem, 4vh, 2.6rem);
+    display: flex; flex-wrap: wrap; gap: clamp(1.2rem, 4vw, 3rem);
+    font-size: clamp(0.72rem, 1.5vw, 1.1rem);
+}
+.title-slide .meta b { display: block; font-weight: 600; }
+.title-slide .meta span { color: var(--muted); font-size: 0.88em; }
+
+/* ===========================================
+   SLIDE LAYOUT HELPERS
+   =========================================== */
+.cols { display: flex; gap: var(--content-gap); align-items: stretch; min-height: 0; }
+.cols > * { min-width: 0; }
+.stack { display: flex; flex-direction: column; gap: var(--element-gap); min-height: 0; }
+
+/* Approach slide: 4-step flow */
+.flow { display: grid; grid-template-columns: repeat(4, 1fr); gap: clamp(0.5rem, 1.4vw, 1rem); }
+.flow .panel { position: relative; }
+.flow .panel::after {
+    content: '→'; position: absolute; right: -1em; top: 50%;
+    transform: translateY(-50%); color: var(--amber); font-weight: 700;
+    font-size: clamp(0.8rem, 1.6vw, 1.2rem);
+}
+.flow .panel:last-child::after { display: none; }
+.flow .step-label {
+    font-size: clamp(0.55rem, 1.2vw, 0.85rem); letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--amber); font-weight: 700;
+    margin-bottom: 0.4em;
+}
+@media (max-width: 700px) {
+    .flow { grid-template-columns: 1fr 1fr; }
+    .flow .panel::after { display: none; }
+}
+
+/* Hypotheses verdicts */
+.verdict {
+    display: inline-block; padding: 0.15em 0.7em; border-radius: 999px;
+    font-size: clamp(0.6rem, 1.3vw, 0.95rem); font-weight: 700;
+    letter-spacing: 0.06em; text-transform: uppercase;
+}
+.verdict.ok { background: rgba(21, 128, 61, 0.12); color: var(--good); }
+.verdict.fail { background: rgba(185, 28, 28, 0.1); color: var(--bad); }
+
+/* App slide: screenshot framing */
+.shot {
+    width: 100%; max-height: min(68vh, 640px); object-fit: contain;
+    border: 2px solid var(--line); border-radius: 12px;
+    box-shadow: 0 10px 36px rgba(28, 25, 23, 0.14);
+}
+
+/* Demo slide: video */
+.demo-slide .slide-content { align-items: center; text-align: center; }
+.demo-slide video {
+    width: min(94vw, 1640px);
+    max-height: min(88vh, 950px);
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    box-shadow: 0 14px 44px rgba(28, 25, 23, 0.2);
+    background: #000;
+    outline: none;
+}
+.demo-slide .hint { color: var(--muted); font-size: var(--small-size); margin-top: clamp(0.4rem, 1.2vh, 0.8rem); }
+
+/* Variety cards (problem slide) */
+.dialect-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: clamp(0.5rem, 1.5vw, 1.2rem);
+}
+.dialect-card { display: flex; flex-direction: column; align-items: center; text-align: center; }
+.dialect-card .emoji { font-size: clamp(1.6rem, 3.5vw, 3rem); line-height: 1.2; margin-bottom: clamp(0.3rem, 1vh, 0.7rem); }
+.dialect-card .name {
+    font-family: var(--font-display); font-weight: 700;
+    font-size: clamp(0.95rem, 2vw, 1.5rem); margin-bottom: clamp(0.25rem, 0.8vh, 0.5rem);
+}
+.dialect-card .desc { color: var(--muted); font-size: clamp(0.65rem, 1.3vw, 1rem); line-height: 1.4; }
+@media (max-width: 700px) { .dialect-grid { grid-template-columns: 1fr 1fr; } }
+
+/* Training plot (white chart on cream) */
+.plot {
+    width: auto; max-width: min(43vw, 830px); max-height: min(46vh, 500px);
+    object-fit: contain;
+    background: #fff; border: 1px solid var(--line); border-radius: 12px;
+    box-shadow: 0 8px 28px rgba(28, 25, 23, 0.1);
+    padding: clamp(0.3rem, 1vw, 0.8rem);
+}
+
+/* Conclusions slide */
+.conclusion-list { counter-reset: c; display: flex; flex-direction: column; gap: clamp(0.35rem, 1.1vh, 0.7rem); list-style: none; }
+.conclusion-list li {
+    counter-increment: c; position: relative;
+    padding-left: clamp(1.9rem, 4vw, 2.6rem);
+    font-size: clamp(0.7rem, 1.55vw, 1.2rem); line-height: 1.42; color: #3f3a36;
+}
+.conclusion-list li::before {
+    content: counter(c, decimal-leading-zero);
+    position: absolute; left: 0; top: 0.06em;
+    font-family: var(--font-display); font-style: italic; font-weight: 600;
+    color: var(--amber); font-size: 1.05em;
+}
+.final-stats {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: clamp(0.5rem, 1.5vw, 1.2rem);
+    margin-top: var(--content-gap);
+}
+@media (max-width: 700px) { .final-stats { grid-template-columns: 1fr 1fr; } }
+.closing-line {
+    margin-top: var(--content-gap);
+    font-family: var(--font-display); font-style: italic;
+    color: var(--muted); font-size: clamp(0.78rem, 1.7vw, 1.3rem);
+}
+
+/* Large viewports (presentation screens, >= 1600x900):
+   lift the rem caps so content fills the frame instead of
+   floating in empty cream space */
+@media (min-height: 900px) and (min-width: 1600px) {
+    :root {
+        --title-size: 5.2rem;
+        --h2-size: 3.6rem;
+        --body-size: 1.45rem;
+        --small-size: 1.1rem;
+        --content-gap: 3rem;
+    }
+    .kicker { font-size: 1.05rem; }
+    .panel h3 { font-size: 1.7rem; }
+    .panel p, .panel li { font-size: 1.35rem; }
+    .stat b { font-size: 3.9rem; }
+    .stat span { font-size: 1.15rem; }
+    table { font-size: 1.5rem; }
+    th, td { padding: 1.2rem 1.5rem; }
+    thead th { font-size: 1.25rem; }
+    .banner { font-size: 1.7rem; }
+    .flow .step-label { font-size: 0.95rem; }
+    .verdict { font-size: 1.05rem; }
+    .conclusion-list li { font-size: 1.35rem; }
+    .closing-line { font-size: 1.45rem; }
+    .title-slide .subtitle { font-size: 1.55rem; }
+    .title-slide .meta { font-size: 1.25rem; }
+    .title-slide .crest { width: 150px; }
+    .shot { max-height: min(70vh, 720px); }
+    .dialect-card .desc { font-size: 1.15rem; }
+    .dialect-card .name { font-size: 1.7rem; }
+    .dialect-card .emoji { font-size: 3.4rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- Fixed chrome -->
+<div class="progress-bar" id="progressBar"></div>
+<nav class="nav-dots" id="navDots" aria-label="Slide navigation"></nav>
+<div class="slide-counter" id="slideCounter">1 / 14</div>
+
+<!-- ===========================================
+     SLIDE 1 - TITLE
+     =========================================== -->
+<section class="slide title-slide">
+    <img class="emblem decorative" src="2026-06-11_diploma-defense-assets/lexicon_logo.png" alt="" style="top: 50%; right: 7%; transform: translateY(-50%); width: clamp(150px, 19vw, 340px);">
+    <div class="slide-content">
+        <img class="crest reveal" style="--d:0" src="2026-06-11_diploma-defense-assets/university_logo.png" alt="Lviv Polytechnic National University crest">
+        <div class="kicker reveal" style="--d:1">Bachelor's Thesis Defense · Lviv Polytechnic National University · 2026</div>
+        <h1 class="reveal" style="--d:2">A System for Automatic Normalization of <em>Surzhyk</em> and Dialectal Forms of the Ukrainian Language</h1>
+        <p class="subtitle reveal" style="--d:3">«Lexicon»: a system that translates four non-standard varieties of Ukrainian into the literary norm.</p>
+        <div class="meta reveal" style="--d:4">
+            <div><b>Denys Koval</b><span>Student, group ШІ-42</span></div>
+            <div><b>Oleksii Syvokon</b><span>Supervisor</span></div>
+            <div><b>Computer Science · 122</b><span>Dept. of Artificial Intelligence Systems</span></div>
+        </div>
+    </div>
+</section>
+
+<!-- ===========================================
+     SLIDE 2 - PROBLEM: FOUR VARIETIES
+     =========================================== -->
+<section class="slide">
+    <div class="slide-content">
+        <div class="kicker reveal" style="--d:0">Problem</div>
+        <h2 class="reveal" style="--d:1">Four non-standard varieties of Ukrainian</h2>
+        <div class="dialect-grid" style="margin-bottom: var(--content-gap);">
+            <div class="panel dialect-card reveal" style="--d:2">
+                <span class="emoji">🗣️</span>
+                <span class="name">Surzhyk</span>
+                <span class="desc">Ukrainian-Russian mixed speech, common across the country</span>
+            </div>
+            <div class="panel dialect-card reveal" style="--d:3">
+                <span class="emoji">🏔️</span>
+                <span class="name">Hutsul</span>
+                <span class="desc">Archaic Carpathian dialect with Polish and Romanian influences</span>
+            </div>
+            <div class="panel dialect-card reveal" style="--d:4">
+                <span class="emoji">⛰️</span>
+                <span class="name">Boiko</span>
+                <span class="desc">Mountain dialect with Polish and Old Slavic influences</span>
+            </div>
+            <div class="panel dialect-card reveal" style="--d:5">
+                <span class="emoji">🇭🇺</span>
+                <span class="name">Transcarpathian</span>
+                <span class="desc">Shaped by Hungarian, Slovak and Romanian</span>
+            </div>
+        </div>
+        <p class="reveal" style="--d:6; color:#44403c; max-width: 80ch; margin-bottom: var(--content-gap);">
+            Open data is scarce: one small parallel corpus exists for Hutsul, none for Boiko or Transcarpathian.
+            LanguageTool and similar tools treat these varieties as spelling errors; Vuyko Mistral covers Hutsul only.
+        </p>
+        <div class="banner reveal" style="--d:7">
+            Goal: translate all four into literary Ukrainian automatically, and check whether small fine-tuned models can compete with commercial LLMs here.
+        </div>
+    </div>
+</section>
+
+<!-- ===========================================
+     SLIDE 3 - GOAL · OBJECT · SUBJECT · NOVELTY · VALUE
+     =========================================== -->
+<section class="slide">
+    <div class="slide-content">
+        <div class="kicker reveal" style="--d:0">Research Framework</div>
+        <h2 class="reveal" style="--d:1">Goal and scope of the work</h2>
+        <div class="stack">
+            <div class="panel reveal" style="--d:2">
+                <h3>Goal</h3>
+                <p>Develop a system that automatically normalizes surzhyk and three regional dialects (Hutsul, Boiko, Transcarpathian) to the literary standard of modern Ukrainian, using neural models and low-resource data techniques.</p>
+            </div>
+            <div class="grid">
+                <div class="panel reveal" style="--d:3">
+                    <h3>Object</h3>
+                    <p>The process of automatic normalization of non-standard forms of modern Ukrainian - surzhyk and regional dialects.</p>
+                </div>
+                <div class="panel reveal" style="--d:4">
+                    <h3>Subject</h3>
+                    <p>Methods of building parallel datasets for low-resource language varieties, and methods of training translation models and LLMs for normalization.</p>
+                </div>
+            </div>
+            <div class="grid">
+                <div class="panel reveal" style="--d:5">
+                    <h3>Scientific novelty</h3>
+                    <p>First single system covering surzhyk + three dialects; first public synthetic parallel datasets for Boiko and Transcarpathian; comparative evaluation of a translation model vs. an LLM on multi-dialect normalization.</p>
+                </div>
+                <div class="panel reveal" style="--d:6">
+                    <h3>Practical value</h3>
+                    <p>The «Lexicon» web application: normalizes four varieties of Ukrainian to the literary standard and supports voice input.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===========================================
+     SLIDE 4 - COMPARISON OF ANALOGUES
+     =========================================== -->
+<section class="slide">
+    <div class="slide-content">
+        <div class="kicker reveal" style="--d:0">Related Work</div>
+        <h2 class="reveal" style="--d:1">Existing tools</h2>
+        <div class="reveal" style="--d:2">
+        <table>
+            <thead>
+                <tr>
+                    <th>Capability</th>
+                    <th>Vuyko Mistral</th>
+                    <th>Spivavtor / UA-GEC</th>
+                    <th>LanguageTool</th>
+                    <th>Commercial LLMs</th>
+                    <th>«Lexicon» (ours)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Surzhyk normalization</td>
+                    <td><span class="no">−</span></td>
+                    <td><span class="part">± as errors</span></td>
+                    <td><span class="part">± as errors</span></td>
+                    <td><span class="part">± weak zero-shot</span></td>
+                    <td class="ours-cell"><span class="yes">✓</span></td>
+                </tr>
+                <tr>
+                    <td>Regional dialects</td>
+                    <td><span class="part">± Hutsul only</span></td>
+                    <td><span class="no">−</span></td>
+                    <td><span class="no">−</span></td>
+                    <td><span class="part">± weak zero-shot</span></td>
+                    <td><span class="yes">✓ three dialects</span></td>
+                </tr>
+                <tr>
+                    <td>Open parallel dataset</td>
+                    <td><span class="yes">✓ Hutsul</span></td>
+                    <td><span class="part">± GEC edits</span></td>
+                    <td><span class="no">−</span></td>
+                    <td><span class="no">−</span></td>
+                    <td><span class="yes">✓ 125,615 pairs</span></td>
+                </tr>
+                <tr>
+                    <td>Single model, many varieties</td>
+                    <td><span class="no">−</span></td>
+                    <td><span class="no">−</span></td>
+                    <td><span class="no">−</span></td>
+                    <td><span class="part">± generalist</span></td>
+                    <td><span class="yes">✓</span></td>
+                </tr>
+                <tr>
+                    <td>Voice input</td>
+                    <td><span class="no">−</span></td>
+                    <td><span class="no">−</span></td>
+                    <td><span class="no">−</span></td>
+                    <td><span class="part">± poor on dialects</span></td>
+                    <td><span class="yes">✓ ASR module</span></td>
+                </tr>
+            </tbody>
+        </table>
+        </div>
+        <p class="reveal" style="--d:3; color: var(--muted); margin-top: var(--element-gap); font-size: var(--small-size);">
+            Closest related work: Vuyko Mistral (2025), LLM adaptation for Hutsul translation; Spivavtor (2024), instruction-tuned Ukrainian text editing.
+        </p>
+    </div>
+</section>
+
+<!-- ===========================================
+     SLIDE 5 - APPROACH OVERVIEW (GIVEN → FIND → SOLVE → RESULT)
+     =========================================== -->
+<section class="slide">
+    <div class="slide-content">
+        <div class="kicker reveal" style="--d:0">Approach</div>
+        <h2 class="reveal" style="--d:1">Approach</h2>
+        <div class="flow" style="margin-bottom: var(--content-gap);">
+            <div class="panel reveal" style="--d:2">
+                <div class="step-label">Given</div>
+                <p>9,853 manual Hutsul pairs · normative sentences from Spivavtor · scanned dialect &amp; surzhyk dictionaries (PDF)</p>
+            </div>
+            <div class="panel reveal" style="--d:3">
+                <div class="step-label">Find</div>
+                <p>A single system that normalizes text from any of the four varieties to the literary standard</p>
+            </div>
+            <div class="panel reveal" style="--d:4">
+                <div class="step-label">Methods</div>
+                <p>Synthetic data expansion (rules + LLM) · fine-tuning translation models · prompt engineering</p>
+            </div>
+            <div class="panel reveal" style="--d:5">
+                <div class="step-label">Result</div>
+                <p>«Lexicon» web app: pick a variety, type or speak, get normalized literary Ukrainian</p>
+            </div>
+        </div>
+        <div class="banner reveal" style="--d:6">
+            We generate pairs in the direction <strong>norm → non-standard</strong>: the literary side comes from a verified corpus, so it stays correct.
+        </div>
+    </div>
+</section>
+
+<!-- ===========================================
+     SLIDE 6 - DATASET CONSTRUCTION (TWO PIPELINES)
+     =========================================== -->
+<section class="slide">
+    <div class="slide-content">
+        <div class="kicker reveal" style="--d:0">Data</div>
+        <h2 class="reveal" style="--d:1">Corpus synthesis: two pipelines</h2>
+        <div class="cols" style="margin-bottom: var(--content-gap);">
+            <div class="panel reveal" style="--d:2; flex:1;">
+                <h3>Rule-based - surzhyk <span style="color:var(--amber); font-size:0.85em;">20,911 pairs</span></h3>
+                <ul>
+                    <li>Phase 1: phrase-level substitution via regular expressions</li>
+                    <li>Phase 2: word-level substitution with <strong>pymorphy2</strong> lemmatization, preserving case, gender and number agreement</li>
+                    <li>Deterministic and dictionary-driven; needs no manual annotation</li>
+                </ul>
+            </div>
+            <div class="panel reveal" style="--d:3; flex:1;">
+                <h3>LLM-generated - dialects <span style="color:var(--amber); font-size:0.85em;">108,812 pairs</span></h3>
+                <ul>
+                    <li>TF-IDF cosine similarity selects the 10 nearest dictionary entries per sentence</li>
+                    <li><strong>Mistral-Small-24B</strong> (4-bit, local inference), batches of 5 sentences, JSON output</li>
+                    <li>Quality control: double parsing, filtering of incomplete outputs, deduplication</li>
+                </ul>
+            </div>
+        </div>
+        <p class="reveal" style="--d:4; color:#44403c;">
+            Train/validation split 90/10. The <strong>test set is fully manual</strong>: 200 pairs, 50 per variety, with no overlap with training data.
+        </p>
+    </div>
+</section>
+
+<!-- ===========================================
+     SLIDE 7 - CORPUS STATISTICS
+     =========================================== -->
+<section class="slide">
+    <div class="slide-content">
+        <div class="kicker reveal" style="--d:0">Data</div>
+        <h2 class="reveal" style="--d:1">Corpus: <em>125,615</em> training pairs</h2>
+        <div class="reveal" style="--d:2">
+        <table>
+            <thead>
+                <tr>
+                    <th>Variety</th>
+                    <th class="num">Manual</th>
+                    <th class="num">LLM-generated</th>
+                    <th class="num">Rule-based</th>
+                    <th class="num">Train</th>
+                    <th class="num">Validation</th>
+                    <th class="num">Test (manual)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Hutsul</td>
+                    <td class="num">9,853</td><td class="num">19,841</td><td class="num">-</td>
+                    <td class="num">26,725</td><td class="num">2,969</td><td class="num">50</td>
+                </tr>
+                <tr>
+                    <td>Boiko</td>
+                    <td class="num">-</td><td class="num">29,754</td><td class="num">-</td>
+                    <td class="num">26,778</td><td class="num">2,976</td><td class="num">50</td>
+                </tr>
+                <tr>
+                    <td>Transcarpathian</td>
+                    <td class="num">-</td><td class="num">29,605</td><td class="num">-</td>
+                    <td class="num">26,644</td><td class="num">2,961</td><td class="num">50</td>
+                </tr>
+                <tr>
+                    <td>Surzhyk</td>
+                    <td class="num">-</td><td class="num">29,612</td><td class="num">20,911</td>
+                    <td class="num">45,471</td><td class="num">5,052</td><td class="num">50</td>
+                </tr>
+                <tr class="total">
+                    <td>Total</td>
+                    <td class="num">9,853</td><td class="num">108,812</td><td class="num">20,911</td>
+                    <td class="num">125,615</td><td class="num">13,756</td><td class="num">200</td>
+                </tr>
+            </tbody>
+        </table>
+        </div>
+        <p class="reveal" style="--d:3; color: var(--muted); margin-top: var(--element-gap); font-size: var(--small-size);">
+            Only Hutsul comes with manual training data.
+        </p>
+    </div>
+</section>
+
+<!-- ===========================================
+     SLIDE 8 - THE TWO MODELS
+     =========================================== -->
+<section class="slide">
+    <div class="slide-content">
+        <div class="kicker reveal" style="--d:0">Models</div>
+        <h2 class="reveal" style="--d:1">Two models</h2>
+        <div class="cols" style="margin-bottom: var(--content-gap);">
+            <div class="panel reveal" style="--d:2; flex:1;">
+                <h3>umt5-base <span style="color:var(--muted); font-weight:400; font-size:0.78em;">encoder-decoder · ≈300M params</span></h3>
+                <ul>
+                    <li><strong>Full fine-tuning</strong>, one model for all four varieties</li>
+                    <li>Variety prefix in the input: <em>"Translate from Hutsul: …"</em></li>
+                    <li>40 epochs · lr 5×10⁻⁵ · label smoothing 0.1 · early stopping (patience 5)</li>
+                    <li>Decoding: beam search</li>
+                </ul>
+            </div>
+            <div class="panel reveal" style="--d:3; flex:1;">
+                <h3>MamayLM <span style="color:var(--muted); font-weight:400; font-size:0.78em;">decoder-only · Gemma-3-4B · ≈4B params</span></h3>
+                <ul>
+                    <li><strong>QLoRA</strong>: base weights frozen in 4-bit, only low-rank adapters trained (r=16, α=32: ≈13M weights, 300× fewer)</li>
+                    <li>Variety marker in the system role of the chat template</li>
+                    <li>3 epochs · lr 2×10⁻⁴ · Unsloth acceleration</li>
+                    <li>Decoding: sampling, τ=0.1, top-k 25</li>
+                </ul>
+            </div>
+        </div>
+        <p class="reveal" style="--d:4; color: var(--muted); font-size: var(--small-size);">
+            We also tried mBART, ByT5 and Lapa LLM; umt5-base and MamayLM scored best in the initial Hutsul-only baseline runs.
+        </p>
+    </div>
+</section>
+
+<!-- ===========================================
+     SLIDE - UMT5 TRAINING
+     =========================================== -->
+<section class="slide">
+    <div class="slide-content">
+        <div class="kicker reveal" style="--d:0">Models</div>
+        <h2 class="reveal" style="--d:1">Training umt5-base</h2>
+        <div class="reveal" style="--d:2; display:flex; justify-content:center; gap: clamp(0.6rem, 1.5vw, 1.2rem); margin-bottom: var(--element-gap);">
+            <img class="plot" src="2026-06-11_diploma-defense-assets/umt5_training.png" alt="umt5-base multidialect training: loss and learning rate curves">
+            <img class="plot" src="2026-06-11_diploma-defense-assets/umt5_eval.png" alt="umt5-base validation: BLEU and loss curves">
+        </div>
+        <p class="reveal" style="--d:3; color:#44403c; max-width: 86ch; margin-bottom: var(--element-gap);">
+            314k steps over the multidialect corpus; training loss settles near 1.9, validation BLEU near 71.7.
+        </p>
+        <div class="banner reveal" style="--d:4">
+            We kept umt5-base as the main model: it is 13× smaller than MamayLM, scores higher on three of the four varieties, and responds faster. The web app runs on it.
+        </div>
+    </div>
+</section>
+
+<!-- ===========================================
+     SLIDE 9 - RESULTS TABLE
+     =========================================== -->
+<section class="slide">
+    <div class="slide-content">
+        <div class="kicker reveal" style="--d:0">Results</div>
+        <h2 class="reveal" style="--d:1">chrF++ on the manual test set</h2>
+        <div class="reveal" style="--d:2">
+        <table>
+            <thead>
+                <tr>
+                    <th>Model</th>
+                    <th class="num">Surzhyk</th>
+                    <th class="num">Hutsul</th>
+                    <th class="num">Boiko</th>
+                    <th class="num">Transcarpathian</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="ours">
+                    <td>umt5-base (ours)</td>
+                    <td class="num"><span class="best win">93.58</span></td>
+                    <td class="num"><span class="best win">86.90</span></td>
+                    <td class="num">54.78</td>
+                    <td class="num">27.45</td>
+                </tr>
+                <tr class="ours">
+                    <td>MamayLM (ours)</td>
+                    <td class="num">91.22</td>
+                    <td class="num">74.02</td>
+                    <td class="num">66.82</td>
+                    <td class="num">20.93</td>
+                </tr>
+                <tr>
+                    <td>GPT-4o (zero-shot)</td>
+                    <td class="num">88.97</td><td class="num">64.89</td><td class="num">-</td><td class="num">65.39</td>
+                </tr>
+                <tr>
+                    <td>Gemini 2.0 Flash (zero-shot)</td>
+                    <td class="num">86.67</td><td class="num">65.34</td>
+                    <td class="num"><span class="best">74.57</span></td>
+                    <td class="num"><span class="best">68.16</span></td>
+                </tr>
+                <tr>
+                    <td>Mistral Large (zero-shot)</td>
+                    <td class="num">85.79</td><td class="num">63.18</td><td class="num">70.91</td><td class="num">63.65</td>
+                </tr>
+                <tr>
+                    <td>MamayLM before fine-tuning</td>
+                    <td class="num">65.58</td><td class="num">16.73</td><td class="num">58.73</td><td class="num">27.90</td>
+                </tr>
+            </tbody>
+        </table>
+        </div>
+    </div>
+</section>
+
+<!-- ===========================================
+     SLIDE 10 - HYPOTHESES & OUTCOMES
+     =========================================== -->
+<section class="slide">
+    <div class="slide-content">
+        <div class="kicker reveal" style="--d:0">Results</div>
+        <h2 class="reveal" style="--d:1">Hypotheses and outcomes</h2>
+        <div class="stack" style="margin-bottom: var(--content-gap);">
+            <div class="panel reveal" style="--d:2">
+                <h3><span class="no">H1</span> Fine-tuned model reaches chrF++ ≥ 85 on surzhyk <span class="verdict ok" style="float:right;">Confirmed</span></h3>
+                <p>Both of our models passed the threshold: umt5-base - <strong>93.58</strong>, MamayLM - <strong>91.22</strong>.</p>
+            </div>
+            <div class="panel reveal" style="--d:3">
+                <h3><span class="no">H2</span> Fine-tuned models vs commercial LLMs <span class="verdict ok" style="float:right;">Confirmed*</span></h3>
+                <p>+6.91 chrF++ on surzhyk and +21.56 on Hutsul over the strongest zero-shot baseline. Fine-tuning lifted MamayLM itself by +25.64 (surzhyk) and +57.29 (Hutsul). *Holds for varieties with quality training data.</p>
+            </div>
+            <div class="panel reveal" style="--d:4">
+                <h3><span class="no">H3</span> Average chrF++ ≥ 75 across all four varieties <span class="verdict fail" style="float:right;">Not confirmed</span></h3>
+                <p>Average: 68.69. Boiko (66.82) and Transcarpathian (27.45) train on synthetic data only; the commercial models stay ahead there.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===========================================
+     SLIDE 11 - THE «LEXICON» WEB APP
+     =========================================== -->
+<section class="slide">
+    <div class="slide-content">
+        <div class="kicker reveal" style="--d:0">Application</div>
+        <h2 class="reveal" style="--d:1">The «Lexicon» web app</h2>
+        <div class="cols">
+            <div class="reveal" style="--d:2; flex: 1.35; display:flex; align-items:center;">
+                <img class="shot" src="2026-06-11_diploma-defense-assets/app_screenshot_tight.png" alt="Screenshot of the Lexicon web application">
+            </div>
+            <div class="stack reveal" style="--d:3; flex: 1; justify-content: center;">
+                <div class="panel">
+                    <h3>Stack</h3>
+                    <p>NiceGUI + FastAPI; the interface is ≈250 lines of Python.</p>
+                </div>
+                <div class="panel">
+                    <h3>Normalizer</h3>
+                    <p>Fine-tuned umt5-base, beam search with 5 beams, float16 on GPU.</p>
+                </div>
+                <div class="panel">
+                    <h3>Voice input</h3>
+                    <p>ASR module speechbrain/m-ctc-t-large; WebM, OGG and WAV are converted to 16 kHz mono.</p>
+                </div>
+                <div class="panel">
+                    <h3>UX</h3>
+                    <p>Four variety presets with descriptions and one example sentence per variety.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===========================================
+     SLIDE 12 - DEMO (RECORDED)
+     =========================================== -->
+<section class="slide demo-slide">
+    <div class="slide-content">
+        <!-- Recorded demo replaces the live demo; the .mov (H.264) sits next to this file -->
+        <video class="reveal" style="--d:0" controls preload="metadata">
+            <source src="lexicon-demo-cropped.mov" type="video/mp4">
+            Your browser cannot play this video; open lexicon-demo-cropped.mov directly.
+        </video>
+    </div>
+</section>
+
+<!-- ===========================================
+     SLIDE 13 - CONCLUSIONS (FINAL SLIDE)
+     =========================================== -->
+<section class="slide">
+    <img class="emblem decorative" src="2026-06-11_diploma-defense-assets/lexicon_logo.png" alt="" style="top: 7%; right: 6%; width: clamp(90px, 11vw, 180px);">
+    <div class="slide-content">
+        <div class="kicker reveal" style="--d:0">Conclusions</div>
+        <h2 class="reveal" style="--d:1">Conclusions</h2>
+        <ol class="conclusion-list">
+            <li class="reveal" style="--d:2">Assembled a parallel corpus for surzhyk and three dialects: <strong>125,615 / 13,756 / 200</strong> pairs from two synthesis pipelines (rules with pymorphy2; Mistral-Small-24B). For Boiko and Transcarpathian this appears to be the first public parallel data.</li>
+            <li class="reveal" style="--d:3">Fine-tuned two models of different architectures: umt5-base (full fine-tuning) and MamayLM / Gemma-3-4B (QLoRA, 300× fewer trainable weights).</li>
+            <li class="reveal" style="--d:4">On surzhyk and Hutsul the fine-tuned models scored above the zero-shot commercial LLMs: <strong>chrF++ 93.58 vs 86.67</strong> and <strong>86.90 vs 65.34</strong>.</li>
+            <li class="reveal" style="--d:5">Where training data was synthetic only (Boiko, Transcarpathian), the commercial LLMs stayed ahead; manual annotation quality definitely matters more than data volume.</li>
+            <li class="reveal" style="--d:6">Built the «Lexicon» web application: four varieties, normalization with umt5-base and voice input through an ASR module.</li>
+        </ol>
+        <div class="final-stats reveal" style="--d:7">
+            <div class="panel stat"><b>93.58</b><span>chrF++ on surzhyk (umt5-base)</span></div>
+            <div class="panel stat"><b>86.90</b><span>chrF++ on Hutsul (umt5-base)</span></div>
+            <div class="panel stat"><b>125,615</b><span>training pairs in the corpus</span></div>
+            <div class="panel stat"><b>4</b><span>varieties in one system</span></div>
+        </div>
+        <p class="closing-line reveal" style="--d:8">Thank you for your attention.</p>
+    </div>
+</section>
+
+<script>
+/* ===========================================
+   SLIDE PRESENTATION CONTROLLER
+   Keyboard, wheel, touch navigation + progress
+   bar, nav dots, counter and reveal animations.
+   =========================================== */
+class SlidePresentation {
+    constructor() {
+        this.slides = Array.from(document.querySelectorAll('.slide'));
+        this.current = 0;
+        this.setupIntersectionObserver();
+        this.setupKeyboardNav();
+        this.setupTouchNav();
+        this.setupNavDots();
+        this.updateChrome(0);
+    }
+
+    /* Reveal animations + track current slide while scrolling */
+    setupIntersectionObserver() {
+        const obs = new IntersectionObserver((entries) => {
+            entries.forEach(e => {
+                if (e.isIntersecting) {
+                    e.target.classList.add('visible');
+                    this.current = this.slides.indexOf(e.target);
+                    this.updateChrome(this.current);
+                }
+            });
+        }, { threshold: 0.55 });
+        this.slides.forEach(s => obs.observe(s));
+    }
+
+    goTo(i) {
+        const idx = Math.max(0, Math.min(this.slides.length - 1, i));
+        this.slides[idx].scrollIntoView({ behavior: 'smooth' });
+    }
+    next() { this.goTo(this.current + 1); }
+    prev() { this.goTo(this.current - 1); }
+
+    /* Arrows, Space, PageUp/Down, Home/End - but never steal keys from the video */
+    setupKeyboardNav() {
+        document.addEventListener('keydown', (e) => {
+            if (e.target.tagName === 'VIDEO') return;
+            switch (e.key) {
+                case 'ArrowDown': case 'ArrowRight': case ' ': case 'PageDown':
+                    e.preventDefault(); this.next(); break;
+                case 'ArrowUp': case 'ArrowLeft': case 'PageUp':
+                    e.preventDefault(); this.prev(); break;
+                case 'Home': e.preventDefault(); this.goTo(0); break;
+                case 'End': e.preventDefault(); this.goTo(this.slides.length - 1); break;
+            }
+        });
+    }
+
+    /* Swipe support for touch devices */
+    setupTouchNav() {
+        let startY = null;
+        document.addEventListener('touchstart', e => { startY = e.touches[0].clientY; }, { passive: true });
+        document.addEventListener('touchend', e => {
+            if (startY === null) return;
+            const dy = startY - e.changedTouches[0].clientY;
+            if (Math.abs(dy) > 60) (dy > 0 ? this.next() : this.prev());
+            startY = null;
+        }, { passive: true });
+    }
+
+    /* Right-edge dot navigation */
+    setupNavDots() {
+        const nav = document.getElementById('navDots');
+        this.dots = this.slides.map((_, i) => {
+            const b = document.createElement('button');
+            b.setAttribute('aria-label', 'Go to slide ' + (i + 1));
+            b.addEventListener('click', () => this.goTo(i));
+            nav.appendChild(b);
+            return b;
+        });
+    }
+
+    /* Progress bar + counter + active dot */
+    updateChrome(idx) {
+        const pct = ((idx + 1) / this.slides.length) * 100;
+        document.getElementById('progressBar').style.width = pct + '%';
+        document.getElementById('slideCounter').textContent = (idx + 1) + ' / ' + this.slides.length;
+        if (this.dots) this.dots.forEach((d, i) => d.classList.toggle('active', i === idx));
+        /* Pause the demo video when scrolling away from it */
+        document.querySelectorAll('video').forEach(v => {
+            if (!this.slides[idx].contains(v) && !v.paused) v.pause();
+        });
+    }
+}
+
+new SlidePresentation();
+</script>
+</body>
+</html>
